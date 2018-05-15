@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { configService } from '../services/configService'
+import { configService } from '../services/ConfigService'
 
 // action types
 export const USERS_EXIST_REQUEST = 'authentication/USERS_EXIST_REQUEST'

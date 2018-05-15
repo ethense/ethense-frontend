@@ -8,8 +8,10 @@ import {
   jssPreset,
   MuiThemeProvider,
 } from 'material-ui/styles'
+import { Provider } from 'react-redux'
 import App from './components/App/App'
 import muiTheme from './muiTheme'
+import { store } from './store'
 import registerServiceWorker from './registerServiceWorker'
 
 const styleNode = document.createComment('insertion-point-jss')
@@ -24,7 +26,9 @@ ReactDOM.render(
     <CssBaseline />
     <JssProvider jss={jss} generateClassName={generateClassName}>
       <MuiThemeProvider theme={muiTheme}>
-        <App />
+        <Provider store={store}>
+          <App />
+        </Provider>
       </MuiThemeProvider>
     </JssProvider>
   </React.Fragment>,
