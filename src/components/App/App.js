@@ -1,10 +1,18 @@
 import React from 'react'
-import LoginForm from '../LoginForm'
+import styled from 'styled-components'
+import LoginForm from '../LoginForm/LoginForm'
+
+const FullWindow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+`
 
 const App = () => (
-  <div>
+  <FullWindow>
     <LoginForm />
-  </div>
+  </FullWindow>
 )
 
 export default App
