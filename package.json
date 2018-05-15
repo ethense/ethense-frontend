@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "axios": "^0.18.0",
     "material-ui": "^1.0.0-beta.47",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-scripts": "1.1.4",
+    "redux": "^4.0.0",
+    "redux-thunk": "^2.2.0",
     "styled-components": "^3.2.6"
   },
   "scripts": {
@@ -20,8 +23,10 @@
     "enzyme-adapter-react-16": "^1.1.1",
     "husky": "^0.14.3",
     "lint-staged": "^7.1.0",
+    "moxios": "^0.4.0",
     "prettier": "^1.12.1",
-    "puppeteer": "^1.4.0"
+    "puppeteer": "^1.4.0",
+    "redux-mock-store": "^1.5.1"
   },
   "prettier": {
     "semi": false,
