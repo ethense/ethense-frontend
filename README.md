@@ -17,3 +17,7 @@ To deploy the application locally
 ```bash
 yarn start
 ```
+
+## Dev process
+- code is automatically formatted during a `git` pre-commit hook using `prettier`
+- `yarn test` is run during a pre-push hook to prevent failing builds from being checked in
