@@ -4,6 +4,7 @@ import { EmailLogin } from './EmailLogin'
 const defaultProps = {
   submitText: 'login',
   onSubmit: () => {},
+  handleSubmit: fn => fn(),
 }
 
 describe('EmailLogin', () => {

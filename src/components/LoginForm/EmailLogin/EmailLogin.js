@@ -14,10 +14,7 @@ export class EmailLogin extends Component {
   render() {
     return (
       <form
-        onSubmit={e => {
-          e && e.preventDefault()
-          this.props.onSubmit()
-        }}
+        onSubmit={this.props.handleSubmit(this.props.onSubmit)}
       >
         <Field
           data-test-id="emailInput"

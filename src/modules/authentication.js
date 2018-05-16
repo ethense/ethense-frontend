@@ -6,6 +6,10 @@ export const USERS_EXIST_REQUEST = 'authentication/USERS_EXIST_REQUEST'
 export const USERS_EXIST_SUCCESS = 'authentication/USERS_EXIST_SUCCESS'
 export const USERS_EXIST_FAILURE = 'authentication/USERS_EXIST_ERROR'
 
+export const CREATE_ADMIN_REQUEST = 'authentication/CREATE_ADMIN_REQUEST'
+export const CREATE_ADMIN_SUCCESS = 'authentication/CREATE_ADMIN_SUCCESS'
+export const CREATE_ADMIN_FAILURE = 'authentication/CREATE_ADMIN_ERROR'
+
 const usersExistRequest = () => ({ type: USERS_EXIST_REQUEST })
 const usersExistSuccess = response => ({
   type: USERS_EXIST_SUCCESS,
@@ -13,6 +17,16 @@ const usersExistSuccess = response => ({
 })
 const usersExistFailure = error => ({
   type: USERS_EXIST_FAILURE,
+  payload: error,
+})
+
+const createAdminRequest = () => ({ type: CREATE_ADMIN_REQUEST })
+const createAdminSuccess = response => ({
+  type: CREATE_ADMIN_SUCCESS,
+  payload: response,
+})
+const createAdminFailure = error => ({
+  type: CREATE_ADMIN_FAILURE,
   payload: error,
 })
 
@@ -44,6 +58,24 @@ export default (state = initialState, action = {}) => {
         reading: false,
         error: action.payload,
       }
+    case CREATE_ADMIN_REQUEST:
+      return {
+        ...state,
+        reading: true,
+        error: null,
+      }
+    case CREATE_ADMIN_SUCCESS:
+      return {
+        ...state,
+        // do something with response from create admin
+        reading: false,
+      }
+    case CREATE_ADMIN_FAILURE:
+      return {
+        ...state,
+        reading: false,
+        error: action.payload,
+      }
     default:
       return state
   }
@@ -67,8 +99,22 @@ export const getUsersExist = () => async dispatch => {
   }
 }
 
-export const createAdmin = () => async dispatch => {
-  console.log('create admin')
+export const createAdmin = values => async dispatch => {
+  dispatch(createAdminRequest())
+  try {
+    const response = await axios({
+      url: configService.getApiServer() + '/users',
+      method: 'post',
+      data: {
+        ...values
+      },
+    })
+    dispatch(createAdminSuccess(response.data))
+    return response
+  } catch (error) {
+    dispatch(createAdminFailure(error))
+    return error
+  }
 }
 
 export const login = () => async dispatch => {

@@ -102,8 +102,8 @@ export default connect(
     getUsersExist() {
       dispatch(getUsersExist())
     },
-    createAdmin() {
-      dispatch(createAdmin())
+    createAdmin(values) {
+      dispatch(createAdmin(values))
     },
     login() {
       dispatch(login())
