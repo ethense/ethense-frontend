@@ -8,7 +8,7 @@ import {
   StyledButton,
   FlexSpace,
 } from './elements'
-import { getUsersExist } from '../../modules/authentication'
+import { getUsersExist, createAdmin, login } from '../../modules/authentication'
 
 export const SUBMIT_LOGIN = 'login'
 export const SUBMIT_CREATE = 'create admin'
@@ -49,7 +49,9 @@ export class LoginForm extends Component {
   componentWillReceiveProps(nextProps) {
     // when usersExist updates from the store, update our texts
     if (nextProps.usersExist !== this.props.usersExist) {
-      this.setState(this.getElementTexts(nextProps.usersExist, nextProps.useUport))
+      this.setState(
+        this.getElementTexts(nextProps.usersExist, nextProps.useUport)
+      )
     }
   }
 
@@ -69,7 +71,16 @@ export class LoginForm extends Component {
           label="Password"
           endIcon="lock"
         />
-        <StyledButton data-test-id="submitLogin" fullWidth variant="raised">
+        <StyledButton
+          onClick={() => {
+            this.props.usersExist
+              ? this.props.login()
+              : this.props.createAdmin()
+          }}
+          data-test-id="submitLogin"
+          fullWidth
+          variant="raised"
+        >
           {this.state.submitText}
         </StyledButton>
         <FlexSpace />
@@ -84,6 +95,8 @@ export class LoginForm extends Component {
 LoginForm.propTypes = {
   usersExist: PropTypes.bool.isRequired,
   getUsersExist: PropTypes.func.isRequired,
+  createAdmin: PropTypes.func.isRequired,
+  login: PropTypes.func.isRequired,
 }
 
 export default connect(
@@ -93,6 +106,12 @@ export default connect(
   dispatch => ({
     getUsersExist() {
       dispatch(getUsersExist())
+    },
+    createAdmin() {
+      dispatch(createAdmin())
+    },
+    login() {
+      dispatch(login())
     },
   })
 )(LoginForm)

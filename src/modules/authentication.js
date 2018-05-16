@@ -66,3 +66,11 @@ export const getUsersExist = () => async dispatch => {
     return error
   }
 }
+
+export const createAdmin = () => async dispatch => {
+  console.log('create admin')
+}
+
+export const login = () => async dispatch => {
+  console.log('login')
+}
