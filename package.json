@@ -4,11 +4,14 @@
   "private": true,
   "dependencies": {
     "axios": "^0.18.0",
+    "isemail": "^3.1.2",
     "material-ui": "^1.0.0-beta.47",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
     "react-scripts": "1.1.4",
     "redux": "^4.0.0",
+    "redux-form": "^7.3.0",
+    "redux-form-material-ui": "^5.0.0-beta.2",
     "redux-thunk": "^2.2.0",
     "styled-components": "^3.2.6"
   },
