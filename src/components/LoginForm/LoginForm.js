@@ -8,11 +8,49 @@ import {
   StyledButton,
   FlexSpace,
 } from './elements'
-import {getUsersExist} from '../../modules/authentication'
+import { getUsersExist } from '../../modules/authentication'
+
+export const SUBMIT_LOGIN = 'login'
+export const SUBMIT_CREATE = 'create admin'
+export const TOGGLE_LOGIN_UPORT = 'login with uport'
+export const TOGGLE_LOGIN_EMAIL = 'login with email'
+export const TOGGLE_CREATE_UPORT = 'create with uport'
+export const TOGGLE_CREATE_EMAIL = 'create with email'
+export const SCAN_LOGIN = 'scan with uport to login'
+export const SCAN_CREATE = 'scan with uport to create admin'
 
 export class LoginForm extends Component {
+  constructor(props) {
+    super(props)
+    const useUport = false
+    this.state = {
+      useUport,
+      ...this.getElementTexts(props.usersExist, useUport),
+    }
+  }
+
+  getElementTexts = (usersExist, useUport) => ({
+    submitText: usersExist ? SUBMIT_LOGIN : SUBMIT_CREATE,
+    scanText: usersExist ? SCAN_LOGIN : SCAN_CREATE,
+    toggleText: usersExist
+      ? useUport
+        ? TOGGLE_LOGIN_EMAIL
+        : TOGGLE_LOGIN_UPORT
+      : useUport
+        ? TOGGLE_CREATE_EMAIL
+        : TOGGLE_CREATE_UPORT,
+  })
+
   componentWillMount() {
+    // query the server, if no users exist change to create admin form
     this.props.getUsersExist()
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // when usersExist updates from the store, update our texts
+    if (nextProps.usersExist !== this.props.usersExist) {
+      this.setState(this.getElementTexts(nextProps.usersExist, nextProps.useUport))
+    }
   }
 
   render() {
@@ -32,25 +70,29 @@ export class LoginForm extends Component {
           endIcon="lock"
         />
         <StyledButton data-test-id="submitLogin" fullWidth variant="raised">
-          Login
+          {this.state.submitText}
         </StyledButton>
         <FlexSpace />
         <Button data-test-id="toggleLoginMode" fullWidth variant="raised">
-          Login with uPort
+          {this.state.toggleText}
         </Button>
       </StyledPaper>
     )
   }
 }
 
-LoginForm.porpTypes = {
+LoginForm.propTypes = {
+  usersExist: PropTypes.bool.isRequired,
   getUsersExist: PropTypes.func.isRequired,
 }
 
 export default connect(
   state => ({
+    usersExist: state.authentication.usersExist,
   }),
   dispatch => ({
-    getUsersExist() { dispatch(getUsersExist())},
+    getUsersExist() {
+      dispatch(getUsersExist())
+    },
   })
 )(LoginForm)
