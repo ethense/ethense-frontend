@@ -1,5 +1,7 @@
 import { api, networkService } from '../services/NetworkService'
 import { storageService } from '../services/StorageService'
+import { displayNotification } from './notification'
+import { INVALID_LOGIN_CREDENTIALS } from '../constants/messages'
 
 // action types
 export const USERS_EXIST_REQUEST = 'authentication/USERS_EXIST_REQUEST'
@@ -182,6 +184,11 @@ export const login = values => async dispatch => {
     return response
   } catch (error) {
     dispatch(loginFailure(error))
+    const errorMessage =
+      error.response.status === 401
+        ? INVALID_LOGIN_CREDENTIALS
+        : error.toString()
+    dispatch(displayNotification(errorMessage))
     return error
   }
 }

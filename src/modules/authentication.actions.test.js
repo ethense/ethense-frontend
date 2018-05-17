@@ -2,8 +2,10 @@ import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
 import moxios from 'moxios'
 import expect from 'expect'
-import * as actions from './authentication'
+import * as authenticationActions from './authentication'
+import * as notificationActions from './notification'
 import { api } from '../services/NetworkService'
+import { INVALID_LOGIN_CREDENTIALS } from '../constants/messages'
 
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
@@ -33,13 +35,16 @@ describe('getUsersExist actions', () => {
     })
 
     const expectedActions = [
-      { type: actions.USERS_EXIST_REQUEST },
-      { type: actions.USERS_EXIST_SUCCESS, payload: { usersExist: false } },
+      { type: authenticationActions.USERS_EXIST_REQUEST },
+      {
+        type: authenticationActions.USERS_EXIST_SUCCESS,
+        payload: { usersExist: false },
+      },
     ]
 
     const store = mockStore()
 
-    await store.dispatch(actions.getUsersExist())
+    await store.dispatch(authenticationActions.getUsersExist())
     expect(store.getActions()).toEqual(expectedActions)
   })
 
@@ -53,16 +58,16 @@ describe('getUsersExist actions', () => {
     })
 
     const expectedActions = [
-      { type: actions.USERS_EXIST_REQUEST },
+      { type: authenticationActions.USERS_EXIST_REQUEST },
       {
-        type: actions.USERS_EXIST_FAILURE,
+        type: authenticationActions.USERS_EXIST_FAILURE,
         payload: new Error('Request failed with status code 500'),
       },
     ]
 
     const store = mockStore()
 
-    await store.dispatch(actions.getUsersExist())
+    await store.dispatch(authenticationActions.getUsersExist())
     expect(store.getActions()).toEqual(expectedActions)
   })
 })
@@ -81,15 +86,18 @@ describe('createAdmin actions', () => {
     })
 
     const expectedActions = [
-      { type: actions.CREATE_ADMIN_REQUEST },
-      { type: actions.CREATE_ADMIN_SUCCESS },
-      { type: actions.LOGIN_REQUEST },
+      { type: authenticationActions.CREATE_ADMIN_REQUEST },
+      { type: authenticationActions.CREATE_ADMIN_SUCCESS },
+      { type: authenticationActions.LOGIN_REQUEST },
     ]
 
     const store = mockStore()
 
     await store.dispatch(
-      actions.createAdmin({ email: VALID_EMAIL, password: VALID_PASSWORD })
+      authenticationActions.createAdmin({
+        email: VALID_EMAIL,
+        password: VALID_PASSWORD,
+      })
     )
     expect(store.getActions()).toEqual(expectedActions)
   })
@@ -104,9 +112,9 @@ describe('createAdmin actions', () => {
     })
 
     const expectedActions = [
-      { type: actions.CREATE_ADMIN_REQUEST },
+      { type: authenticationActions.CREATE_ADMIN_REQUEST },
       {
-        type: actions.CREATE_ADMIN_FAILURE,
+        type: authenticationActions.CREATE_ADMIN_FAILURE,
         payload: new Error('Request failed with status code 500'),
       },
     ]
@@ -114,7 +122,10 @@ describe('createAdmin actions', () => {
     const store = mockStore()
 
     await store.dispatch(
-      actions.createAdmin({ email: 'bad email', password: 'password' })
+      authenticationActions.createAdmin({
+        email: 'bad email',
+        password: 'password',
+      })
     )
     expect(store.getActions()).toEqual(expectedActions)
   })
@@ -136,9 +147,9 @@ describe('login actions', () => {
     })
 
     const expectedActions = [
-      { type: actions.LOGIN_REQUEST },
+      { type: authenticationActions.LOGIN_REQUEST },
       {
-        type: actions.LOGIN_SUCCESS,
+        type: authenticationActions.LOGIN_SUCCESS,
         payload: {
           id: ACCESS_TOKEN,
           ttl: 1209600,
@@ -150,7 +161,9 @@ describe('login actions', () => {
 
     const store = mockStore()
 
-    await store.dispatch(actions.login(VALID_EMAIL, VALID_PASSWORD))
+    await store.dispatch(
+      authenticationActions.login(VALID_EMAIL, VALID_PASSWORD)
+    )
     expect(store.getActions()).toEqual(expectedActions)
   })
 
@@ -158,22 +171,26 @@ describe('login actions', () => {
     moxios.wait(() => {
       const request = moxios.requests.mostRecent()
       request.respondWith({
-        status: 500,
+        status: 401,
         response: { error: 'server error' },
       })
     })
 
     const expectedActions = [
-      { type: actions.LOGIN_REQUEST },
+      { type: authenticationActions.LOGIN_REQUEST },
       {
-        type: actions.LOGIN_FAILURE,
-        payload: new Error('Request failed with status code 500'),
+        type: authenticationActions.LOGIN_FAILURE,
+        payload: new Error('Request failed with status code 401'),
+      },
+      {
+        type: notificationActions.SHOW_NOTIFICATION,
+        payload: INVALID_LOGIN_CREDENTIALS,
       },
     ]
 
     const store = mockStore()
 
-    await store.dispatch(actions.login('email', 'password'))
+    await store.dispatch(authenticationActions.login('email', 'password'))
     expect(store.getActions()).toEqual(expectedActions)
   })
 })
@@ -188,13 +205,13 @@ describe('logout actions', () => {
     })
 
     const expectedActions = [
-      { type: actions.LOGOUT_REQUEST },
-      { type: actions.LOGOUT_SUCCESS },
+      { type: authenticationActions.LOGOUT_REQUEST },
+      { type: authenticationActions.LOGOUT_SUCCESS },
     ]
 
     const store = mockStore()
 
-    await store.dispatch(actions.logout())
+    await store.dispatch(authenticationActions.logout())
     expect(store.getActions()).toEqual(expectedActions)
   })
 
@@ -208,16 +225,16 @@ describe('logout actions', () => {
     })
 
     const expectedActions = [
-      { type: actions.LOGOUT_REQUEST },
+      { type: authenticationActions.LOGOUT_REQUEST },
       {
-        type: actions.LOGOUT_FAILURE,
+        type: authenticationActions.LOGOUT_FAILURE,
         payload: new Error('Request failed with status code 500'),
       },
     ]
 
     const store = mockStore()
 
-    await store.dispatch(actions.logout())
+    await store.dispatch(authenticationActions.logout())
     expect(store.getActions()).toEqual(expectedActions)
   })
 })

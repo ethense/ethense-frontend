@@ -24,6 +24,10 @@ describe('App', () => {
           usersExist: true,
           loggedIn: false,
         },
+        notification: {
+          open: false,
+          message: null,
+        },
       })
       const component = mount(
         <Provider store={store}>
