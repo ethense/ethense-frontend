@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { storageService } from '../../services/StorageService'
-import { refreshLogin } from '../../modules/authentication'
+import { storageService } from '../services/StorageService'
+import { refreshLogin } from '../modules/authentication'
 
-export default function(ComposedComponent, redirectRoute, requiredRoles = []) {
-  class Authentication extends Component {
+export default function(ComposedComponent, redirectRoute) {
+  class NoAuthentication extends Component {
     constructor(props) {
       super(props)
       const authInfo = storageService.getAuthInfo()
@@ -17,7 +17,7 @@ export default function(ComposedComponent, redirectRoute, requiredRoles = []) {
 
     checkRedirect(props) {
       const authInfo = storageService.getAuthInfo()
-      if (!authInfo && !props.loggedIn) {
+      if (authInfo && props.loggedIn) {
         this.props.history.push(redirectRoute)
       }
     }
@@ -35,7 +35,7 @@ export default function(ComposedComponent, redirectRoute, requiredRoles = []) {
     }
   }
 
-  Authentication.propTypes = {
+  NoAuthentication.propTypes = {
     loggedIn: PropTypes.bool.isRequired,
     refreshLogin: PropTypes.func.isRequired,
     history: PropTypes.object.isRequired,
@@ -44,5 +44,5 @@ export default function(ComposedComponent, redirectRoute, requiredRoles = []) {
   return connect(
     state => ({ loggedIn: state.authentication.loggedIn }),
     dispatch => ({ refreshLogin: authInfo => dispatch(refreshLogin(authInfo)) })
-  )(withRouter(Authentication))
+  )(withRouter(NoAuthentication))
 }

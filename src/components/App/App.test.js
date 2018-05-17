@@ -22,6 +22,7 @@ describe('App', () => {
       const store = mockStore({
         authentication: {
           usersExist: true,
+          loggedIn: false,
         },
       })
       const component = mount(

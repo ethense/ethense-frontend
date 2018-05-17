@@ -13,6 +13,12 @@ export class IssueCert extends Component {
   }
 }
 
+IssueCert.propTypes = {
+  logout: PropTypes.func.isRequired,
+}
+
+IssueCert.route = '/issue'
+
 export default connect(
   state => ({}),
   dispatch => ({
