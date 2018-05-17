@@ -9,6 +9,7 @@ import {
   MuiThemeProvider,
 } from 'material-ui/styles'
 import { Provider } from 'react-redux'
+import { BrowserRouter as Router } from 'react-router-dom'
 import App from './components/App/App'
 import muiTheme from './muiTheme'
 import { store } from './store'
@@ -27,7 +28,9 @@ ReactDOM.render(
     <JssProvider jss={jss} generateClassName={generateClassName}>
       <MuiThemeProvider theme={muiTheme}>
         <Provider store={store}>
-          <App />
+          <Router>
+            <App />
+          </Router>
         </Provider>
       </MuiThemeProvider>
     </JssProvider>

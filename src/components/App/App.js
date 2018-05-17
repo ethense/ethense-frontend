@@ -1,18 +1,14 @@
 import React from 'react'
-import styled from 'styled-components'
-import LoginForm from '../LoginForm/LoginForm'
-
-const FullWindow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-`
+import LoginForm from '../LoginForm'
+import IssueCert from '../IssueCert'
+import { Route, Switch, Redirect } from 'react-router-dom'
 
 const App = () => (
-  <FullWindow>
-    <LoginForm />
-  </FullWindow>
+  <Switch>
+    <Route exact path="/" component={LoginForm} />
+    <Route exact path="/issue" component={IssueCert} />
+    <Redirect from="*" to="/" />
+  </Switch>
 )
 
 export default App
