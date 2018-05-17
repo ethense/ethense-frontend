@@ -1,23 +1,27 @@
 import React from 'react'
 import LoginForm from '../LoginForm'
 import IssueCert from '../IssueCert'
-import { Route, Switch, Redirect } from 'react-router-dom'
+import { Switch, Redirect } from 'react-router-dom'
 import RequireAuth from '../RequireAuth'
 import RequireNoAuth from '../RequireNoAuth'
 import Notification from '../Notification'
+import RouteWithLayout from '../RouteWithLayout'
+import { FullscreenLayout, SidebarLayout } from '../../layouts'
+
 
 const App = () => (
   <div>
     <Switch>
-      <Route
+      <RouteWithLayout
         exact
         path={LoginForm.route}
+        layout={FullscreenLayout}
         component={RequireNoAuth(LoginForm, IssueCert.route)}
       />
-      {/* // TODO: add required roles to RequireAuth */}
-      <Route
+      <RouteWithLayout
         exact
         path={IssueCert.route}
+        layout={SidebarLayout}
         component={RequireAuth(IssueCert, LoginForm.route)}
       />
       <Redirect to={LoginForm.route} />

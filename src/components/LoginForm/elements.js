@@ -24,10 +24,3 @@ export const FlexSpace = withTheme()(styled.div`
     width: 100%;
   }
 `)
-
-export const FullWindow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-`

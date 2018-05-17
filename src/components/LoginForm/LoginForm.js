@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import Button from 'material-ui/Button'
-import { StyledPaper, FlexSpace, FullWindow } from './elements'
+import { StyledPaper, FlexSpace } from './elements'
 import { getUsersExist, createAdmin, login } from '../../modules/authentication'
 import UportLogin from './UportLogin'
 import EmailLogin from './EmailLogin'
@@ -62,31 +62,27 @@ export class LoginForm extends Component {
 
   render() {
     return (
-      <FullWindow>
-        <StyledPaper data-test-id="loginForm" elevation={1}>
-          {this.state.useUport ? (
-            <UportLogin />
-          ) : (
-            <EmailLogin
-              onSubmit={
-                this.props.usersExist
-                  ? this.props.login
-                  : this.props.createAdmin
-              }
-              submitText={this.state.submitText}
-            />
-          )}
-          <FlexSpace />
-          <Button
-            data-test-id="toggleLoginMode"
-            fullWidth
-            variant="raised"
-            onClick={this.toggleUport}
-          >
-            {this.state.toggleText}
-          </Button>
-        </StyledPaper>
-      </FullWindow>
+      <StyledPaper data-test-id="loginForm" elevation={1}>
+        {this.state.useUport ? (
+          <UportLogin />
+        ) : (
+          <EmailLogin
+            onSubmit={
+              this.props.usersExist ? this.props.login : this.props.createAdmin
+            }
+            submitText={this.state.submitText}
+          />
+        )}
+        <FlexSpace />
+        <Button
+          data-test-id="toggleLoginMode"
+          fullWidth
+          variant="raised"
+          onClick={this.toggleUport}
+        >
+          {this.state.toggleText}
+        </Button>
+      </StyledPaper>
     )
   }
 }
