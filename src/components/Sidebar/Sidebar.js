@@ -1,7 +1,11 @@
 import React from 'react'
+import IssueCert from '../IssueCert'
+import { Link } from 'react-router-dom'
 
 const Sidebar = props => (
-  <div>sidebar</div>
+  <div>
+    <Link to={IssueCert.route}>Issue</Link>
+  </div>
 )
 
 export default Sidebar
