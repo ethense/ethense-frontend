@@ -12,24 +12,30 @@ const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 
 describe('App', () => {
-  it('Should render without crashing', () => {
+  it('should render without crashing', () => {
     const component = shallow(<App />)
     expect(component.exists()).toEqual(true)
   })
 
-  it('Should render a login form at the base route', () => {
-    const store = mockStore({
-      authentication: {
-        usersExist: true,
-      },
+  describe('base route', () => {
+    it('should render a login form at the base route', () => {
+      const store = mockStore({
+        authentication: {
+          usersExist: true,
+        },
+      })
+      const component = mount(
+        <Provider store={store}>
+          <MemoryRouter initialEntries={['/']} initialIndex={0}>
+            <App />
+          </MemoryRouter>
+        </Provider>
+      )
+      expect(component.find(LoginForm).length).toBe(1)
     })
-    const component = mount(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={['/']} initialIndex={0}>
-          <App />
-        </MemoryRouter>
-      </Provider>
-    )
-    expect(component.find(LoginForm).length).toBe(1)
+  })
+
+  describe('/issue', () => {
+    // it('should check for user authentication', () => {})
   })
 })

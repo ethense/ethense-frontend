@@ -7,6 +7,7 @@ describe('authentication reducer', () => {
       usersExist: true,
       reading: false,
       error: null,
+      loggedIn: false,
     })
   })
 
@@ -15,6 +16,7 @@ describe('authentication reducer', () => {
       usersExist: true,
       reading: true,
       error: null,
+      loggedIn: false,
     })
   })
 
@@ -28,6 +30,7 @@ describe('authentication reducer', () => {
       usersExist: false,
       reading: false,
       error: null,
+      loggedIn: false,
     })
   })
 
@@ -41,6 +44,7 @@ describe('authentication reducer', () => {
       usersExist: true,
       reading: false,
       error: new Error('server error'),
+      loggedIn: false,
     })
   })
 })

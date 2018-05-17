@@ -34,6 +34,7 @@ const initialState = {
   usersExist: true,
   reading: false,
   error: null,
+  loggedIn: false,
 }
 
 // reducer

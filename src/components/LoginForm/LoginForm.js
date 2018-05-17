@@ -98,6 +98,8 @@ LoginForm.propTypes = {
   login: PropTypes.func.isRequired,
 }
 
+LoginForm.route = '/'
+
 export default connect(
   state => ({
     usersExist: state.authentication.usersExist,
