@@ -47,4 +47,76 @@ describe('authentication reducer', () => {
       loggedIn: false,
     })
   })
+
+  it('should handle CREATE_ADMIN_REQUEST', () => {
+    expect(reducer(undefined, { type: actions.CREATE_ADMIN_REQUEST })).toEqual({
+      usersExist: true,
+      reading: true,
+      error: null,
+      loggedIn: false,
+    })
+  })
+
+  it('should handle CREATE_ADMIN_SUCCESS', () => {
+    expect(
+      reducer(undefined, {
+        type: actions.CREATE_ADMIN_SUCCESS,
+      })
+    ).toEqual({
+      usersExist: true,
+      reading: false,
+      error: null,
+      loggedIn: false,
+    })
+  })
+
+  it('should handle CREATE_ADMIN_ERROR', () => {
+    expect(
+      reducer(undefined, {
+        type: actions.CREATE_ADMIN_FAILURE,
+        payload: new Error('server error'),
+      })
+    ).toEqual({
+      usersExist: true,
+      reading: false,
+      error: new Error('server error'),
+      loggedIn: false,
+    })
+  })
+
+  it('should handle LOGIN_REQUEST', () => {
+    expect(reducer(undefined, { type: actions.LOGIN_REQUEST })).toEqual({
+      usersExist: true,
+      reading: true,
+      error: null,
+      loggedIn: false,
+    })
+  })
+
+  it('should handle LOGIN_SUCCESS', () => {
+    expect(
+      reducer(undefined, {
+        type: actions.LOGIN_SUCCESS,
+      })
+    ).toEqual({
+      usersExist: true,
+      reading: false,
+      error: null,
+      loggedIn: true,
+    })
+  })
+
+  it('should handle LOGIN_ERROR', () => {
+    expect(
+      reducer(undefined, {
+        type: actions.LOGIN_FAILURE,
+        payload: new Error('server error'),
+      })
+    ).toEqual({
+      usersExist: true,
+      reading: false,
+      error: new Error('server error'),
+      loggedIn: false,
+    })
+  })
 })

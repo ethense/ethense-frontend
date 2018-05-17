@@ -111,8 +111,8 @@ export default connect(
     createAdmin(values) {
       dispatch(createAdmin(values))
     },
-    login() {
-      dispatch(login())
+    login(values) {
+      dispatch(login(values))
     },
   })
 )(LoginForm)

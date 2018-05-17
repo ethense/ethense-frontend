@@ -1,4 +1,5 @@
-import { api } from '../services/NetworkService'
+import { api, networkService } from '../services/NetworkService'
+import { storageService } from '../services/StorageService'
 
 // action types
 export const USERS_EXIST_REQUEST = 'authentication/USERS_EXIST_REQUEST'
@@ -8,6 +9,10 @@ export const USERS_EXIST_FAILURE = 'authentication/USERS_EXIST_ERROR'
 export const CREATE_ADMIN_REQUEST = 'authentication/CREATE_ADMIN_REQUEST'
 export const CREATE_ADMIN_SUCCESS = 'authentication/CREATE_ADMIN_SUCCESS'
 export const CREATE_ADMIN_FAILURE = 'authentication/CREATE_ADMIN_ERROR'
+
+export const LOGIN_REQUEST = 'authentication/LOGIN_REQUEST'
+export const LOGIN_SUCCESS = 'authentication/LOGIN_SUCCESS'
+export const LOGIN_FAILURE = 'authentication/LOGIN_ERROR'
 
 const usersExistRequest = () => ({ type: USERS_EXIST_REQUEST })
 const usersExistSuccess = response => ({
@@ -20,12 +25,19 @@ const usersExistFailure = error => ({
 })
 
 const createAdminRequest = () => ({ type: CREATE_ADMIN_REQUEST })
-const createAdminSuccess = response => ({
-  type: CREATE_ADMIN_SUCCESS,
-  payload: response,
-})
+const createAdminSuccess = () => ({ type: CREATE_ADMIN_SUCCESS })
 const createAdminFailure = error => ({
   type: CREATE_ADMIN_FAILURE,
+  payload: error,
+})
+
+const loginRequest = () => ({ type: LOGIN_REQUEST })
+const loginSuccess = response => ({
+  type: LOGIN_SUCCESS,
+  payload: response,
+})
+const loginFailure = error => ({
+  type: LOGIN_FAILURE,
   payload: error,
 })
 
@@ -75,6 +87,24 @@ export default (state = initialState, action = {}) => {
         reading: false,
         error: action.payload,
       }
+    case LOGIN_REQUEST:
+      return {
+        ...state,
+        reading: true,
+        error: null,
+      }
+    case LOGIN_SUCCESS:
+      return {
+        ...state,
+        loggedIn: true,
+        reading: false,
+      }
+    case LOGIN_FAILURE:
+      return {
+        ...state,
+        reading: false,
+        error: action.payload,
+      }
     default:
       return state
   }
@@ -98,8 +128,8 @@ export const getUsersExist = () => async dispatch => {
 export const createAdmin = values => async dispatch => {
   dispatch(createAdminRequest())
   try {
-    const response = await api.post('/users/', values)
-    dispatch(createAdminSuccess({ accessToken: response.data.id }))
+    const response = await api.post('/users', values)
+    dispatch(createAdminSuccess())
     return response
   } catch (error) {
     dispatch(createAdminFailure(error))
@@ -107,6 +137,23 @@ export const createAdmin = values => async dispatch => {
   }
 }
 
-export const login = () => async dispatch => {
-  console.log('login')
+export const login = values => async dispatch => {
+  dispatch(loginRequest())
+  try {
+    const response = await api.post('/users/login', values)
+    const authInfo = response.data
+    dispatch(loginSuccess(authInfo))
+    networkService.cacheAccessToken(authInfo.id)
+    storageService.storeAuthInfo(authInfo)
+    return response
+  } catch (error) {
+    dispatch(loginFailure(error))
+    return error
+  }
+}
+
+export const refreshLogin = authInfo => dispatch => {
+  console.log('refreshLogin')
+  dispatch(loginSuccess(authInfo))
+  networkService.cacheAccessToken(authInfo.id)
 }

@@ -10,7 +10,7 @@ class StorageService {
   }
 
   getAuthInfo() {
-    var value = localStorage.getItem(btoa(configService.getAuthKey()))
+    var value = localStorage.getItem(configService.getAuthKey())
     return value ? JSON.parse(atob(value)) : null
   }
 
