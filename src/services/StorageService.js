@@ -15,7 +15,7 @@ class StorageService {
   }
 
   clearAuthInfo() {
-    localStorage.removeItem(btoa(configService.getAuthKey()))
+    localStorage.removeItem(configService.getAuthKey())
   }
 }
 

@@ -26,7 +26,7 @@ export default function(ComposedComponent, redirectRoute, requiredRoles = []) {
       this.checkRedirect(this.props)
     }
 
-    componentWillupdate(nextProps) {
+    componentWillUpdate(nextProps) {
       this.checkRedirect(nextProps)
     }
 

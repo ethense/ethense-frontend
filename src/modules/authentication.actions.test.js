@@ -177,3 +177,47 @@ describe('login actions', () => {
     expect(store.getActions()).toEqual(expectedActions)
   })
 })
+
+describe('logout actions', () => {
+  it('dispatches LOGOUT_SUCCESS on success', async () => {
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent()
+      request.respondWith({
+        status: 204,
+      })
+    })
+
+    const expectedActions = [
+      { type: actions.LOGOUT_REQUEST },
+      { type: actions.LOGOUT_SUCCESS },
+    ]
+
+    const store = mockStore()
+
+    await store.dispatch(actions.logout())
+    expect(store.getActions()).toEqual(expectedActions)
+  })
+
+  it('dispatches LOGOUT_FAILURE on failure', async () => {
+    moxios.wait(() => {
+      const request = moxios.requests.mostRecent()
+      request.respondWith({
+        status: 500,
+        response: { error: 'server error' },
+      })
+    })
+
+    const expectedActions = [
+      { type: actions.LOGOUT_REQUEST },
+      {
+        type: actions.LOGOUT_FAILURE,
+        payload: new Error('Request failed with status code 500'),
+      },
+    ]
+
+    const store = mockStore()
+
+    await store.dispatch(actions.logout())
+    expect(store.getActions()).toEqual(expectedActions)
+  })
+})

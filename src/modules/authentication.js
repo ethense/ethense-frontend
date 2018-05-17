@@ -14,6 +14,10 @@ export const LOGIN_REQUEST = 'authentication/LOGIN_REQUEST'
 export const LOGIN_SUCCESS = 'authentication/LOGIN_SUCCESS'
 export const LOGIN_FAILURE = 'authentication/LOGIN_ERROR'
 
+export const LOGOUT_REQUEST = 'authentication/LOGOUT_REQUEST'
+export const LOGOUT_SUCCESS = 'authentication/LOGOUT_SUCCESS'
+export const LOGOUT_FAILURE = 'authentication/LOGOUT_ERROR'
+
 const usersExistRequest = () => ({ type: USERS_EXIST_REQUEST })
 const usersExistSuccess = response => ({
   type: USERS_EXIST_SUCCESS,
@@ -38,6 +42,16 @@ const loginSuccess = response => ({
 })
 const loginFailure = error => ({
   type: LOGIN_FAILURE,
+  payload: error,
+})
+
+const logoutRequest = () => ({ type: LOGOUT_REQUEST })
+const logoutSuccess = response => ({
+  type: LOGOUT_SUCCESS,
+  payload: response,
+})
+const logoutFailure = error => ({
+  type: LOGOUT_FAILURE,
   payload: error,
 })
 
@@ -105,6 +119,25 @@ export default (state = initialState, action = {}) => {
         reading: false,
         error: action.payload,
       }
+    case LOGOUT_REQUEST:
+      return {
+        ...state,
+        reading: true,
+        error: null,
+      }
+    case LOGOUT_SUCCESS:
+      return {
+        ...state,
+        loggedIn: false,
+        reading: false,
+      }
+    case LOGOUT_FAILURE:
+      return {
+        ...state,
+        reading: false,
+        error: action.payload,
+        loggedIn: false,
+      }
     default:
       return state
   }
@@ -142,9 +175,9 @@ export const login = values => async dispatch => {
   try {
     const response = await api.post('/users/login', values)
     const authInfo = response.data
-    dispatch(loginSuccess(authInfo))
     networkService.cacheAccessToken(authInfo.id)
     storageService.storeAuthInfo(authInfo)
+    dispatch(loginSuccess(authInfo))
     return response
   } catch (error) {
     dispatch(loginFailure(error))
@@ -153,7 +186,22 @@ export const login = values => async dispatch => {
 }
 
 export const refreshLogin = authInfo => dispatch => {
-  console.log('refreshLogin')
   dispatch(loginSuccess(authInfo))
   networkService.cacheAccessToken(authInfo.id)
+}
+
+export const logout = () => async dispatch => {
+  dispatch(logoutRequest())
+  try {
+    const response = await api.post('/users/logout')
+    networkService.removeAccessToken()
+    storageService.clearAuthInfo()
+    dispatch(logoutSuccess())
+    return response
+  } catch (error) {
+    dispatch(logoutFailure(error))
+    networkService.removeAccessToken()
+    storageService.clearAuthInfo()
+    return error
+  }
 }

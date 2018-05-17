@@ -119,4 +119,40 @@ describe('authentication reducer', () => {
       loggedIn: false,
     })
   })
+
+  it('should handle LOGOUT_REQUEST', () => {
+    expect(reducer(undefined, { type: actions.LOGOUT_REQUEST })).toEqual({
+      usersExist: true,
+      reading: true,
+      error: null,
+      loggedIn: false,
+    })
+  })
+
+  it('should handle LOGOUT_SUCCESS', () => {
+    expect(
+      reducer(undefined, {
+        type: actions.LOGOUT_SUCCESS,
+      })
+    ).toEqual({
+      usersExist: true,
+      reading: false,
+      error: null,
+      loggedIn: false,
+    })
+  })
+
+  it('should handle LOGOUT_ERROR', () => {
+    expect(
+      reducer(undefined, {
+        type: actions.LOGOUT_FAILURE,
+        payload: new Error('server error'),
+      })
+    ).toEqual({
+      usersExist: true,
+      reading: false,
+      error: new Error('server error'),
+      loggedIn: false,
+    })
+  })
 })

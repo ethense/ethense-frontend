@@ -8,9 +8,11 @@ describe('Network Service', () => {
     expect(api.defaults.baseURL).toEqual(configService.getApiServer())
   })
 
-  it('should set the X-Access-Token header', () => {
+  it('should set and remove the X-Access-Token header', () => {
     expect(api.defaults.headers['X-Access-Token']).toEqual(undefined)
     networkService.cacheAccessToken(ACCESS_TOKEN)
     expect(api.defaults.headers['X-Access-Token']).toEqual(ACCESS_TOKEN)
+    networkService.removeAccessToken()
+    expect(api.defaults.headers['X-Access-Token']).toEqual(undefined)
   })
 })
