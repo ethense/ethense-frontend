@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { api } from '../services/NetworkService'
 import { configService } from '../services/ConfigService'
 
 // action types
@@ -87,10 +87,7 @@ export default (state = initialState, action = {}) => {
 export const getUsersExist = () => async dispatch => {
   dispatch(usersExistRequest())
   try {
-    const response = await axios({
-      url: configService.getApiServer() + '/users/exist',
-      method: 'get',
-    })
+    const response = await api.get('/users/exist')
     dispatch(usersExistSuccess(response.data))
     return response
   } catch (error) {
@@ -102,13 +99,7 @@ export const getUsersExist = () => async dispatch => {
 export const createAdmin = values => async dispatch => {
   dispatch(createAdminRequest())
   try {
-    const response = await axios({
-      url: configService.getApiServer() + '/users',
-      method: 'post',
-      data: {
-        ...values
-      },
-    })
+    const response = await api.post('/users/', values)
     dispatch(createAdminSuccess(response.data))
     return response
   } catch (error) {
