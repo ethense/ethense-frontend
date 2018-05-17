@@ -8,6 +8,10 @@ import { api } from '../services/NetworkService'
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 
+const VALID_EMAIL = 'user@example.com'
+const VALID_PASSWORD = 'KJ8WF5u2jf'
+const ACCESS_TOKEN = '5afb79b86da9626fa365da99'
+
 beforeEach(() => {
   moxios.install(api)
 })
@@ -68,7 +72,8 @@ describe('createAdmin actions', () => {
       request.respondWith({
         status: 200,
         response: {
-          /* ... */
+          email: VALID_EMAIL,
+          id: ACCESS_TOKEN
         },
       })
     })
@@ -78,14 +83,14 @@ describe('createAdmin actions', () => {
       {
         type: actions.CREATE_ADMIN_SUCCESS,
         payload: {
-          /* ... */
+          accessToken: ACCESS_TOKEN
         },
       },
     ]
 
     const store = mockStore()
 
-    await store.dispatch(actions.createAdmin('email@valid.com', 'password'))
+    await store.dispatch(actions.createAdmin(VALID_EMAIL, VALID_PASSWORD))
     expect(store.getActions()).toEqual(expectedActions)
   })
 

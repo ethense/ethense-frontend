@@ -1,5 +1,4 @@
 import { api } from '../services/NetworkService'
-import { configService } from '../services/ConfigService'
 
 // action types
 export const USERS_EXIST_REQUEST = 'authentication/USERS_EXIST_REQUEST'
@@ -67,7 +66,6 @@ export default (state = initialState, action = {}) => {
     case CREATE_ADMIN_SUCCESS:
       return {
         ...state,
-        // do something with response from create admin
         reading: false,
       }
     case CREATE_ADMIN_FAILURE:
@@ -100,7 +98,7 @@ export const createAdmin = values => async dispatch => {
   dispatch(createAdminRequest())
   try {
     const response = await api.post('/users/', values)
-    dispatch(createAdminSuccess(response.data))
+    dispatch(createAdminSuccess({ accessToken: response.data.id }))
     return response
   } catch (error) {
     dispatch(createAdminFailure(error))
