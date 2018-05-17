@@ -163,6 +163,7 @@ export const createAdmin = values => async dispatch => {
   try {
     const response = await api.post('/users', values)
     dispatch(createAdminSuccess())
+    dispatch(login(values))
     return response
   } catch (error) {
     dispatch(createAdminFailure(error))

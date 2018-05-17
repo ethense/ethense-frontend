@@ -11,7 +11,8 @@ const mockStore = configureMockStore(middlewares)
 const VALID_EMAIL = 'user@example.com'
 const VALID_PASSWORD = 'KJ8WF5u2jf'
 const USER_ID = '5afb79b86da9626fa365da99'
-const ACCESS_TOKEN = '12345'
+const ACCESS_TOKEN =
+  'Xi8ND0nYpsCC9Jr92gP7sJgq2zkBfBsC22zHdsuDhPgmtKjuvhZSpLTpzdNCNx2a'
 
 beforeEach(() => {
   moxios.install(api)
@@ -67,7 +68,7 @@ describe('getUsersExist actions', () => {
 })
 
 describe('createAdmin actions', () => {
-  it('dispatches CREATE_ADMIN_SUCCESS on success', async () => {
+  it('dispatches CREATE_ADMIN_SUCCESS LOGIN_REQUEST on success', async () => {
     moxios.wait(() => {
       const request = moxios.requests.mostRecent()
       request.respondWith({
@@ -82,6 +83,7 @@ describe('createAdmin actions', () => {
     const expectedActions = [
       { type: actions.CREATE_ADMIN_REQUEST },
       { type: actions.CREATE_ADMIN_SUCCESS },
+      { type: actions.LOGIN_REQUEST },
     ]
 
     const store = mockStore()
@@ -125,11 +127,10 @@ describe('login actions', () => {
       request.respondWith({
         status: 200,
         response: {
-          id:
-            'Xi8ND0nYpsCC9Jr92gP7sJgq2zkBfBsC22zHdsuDhPgmtKjuvhZSpLTpzdNCNx2a',
+          id: ACCESS_TOKEN,
           ttl: 1209600,
           created: '2018-05-17T06:42:14.812Z',
-          userId: '5afd23ef6da9626fa365da9d',
+          userId: USER_ID,
         },
       })
     })
@@ -139,11 +140,10 @@ describe('login actions', () => {
       {
         type: actions.LOGIN_SUCCESS,
         payload: {
-          id:
-            'Xi8ND0nYpsCC9Jr92gP7sJgq2zkBfBsC22zHdsuDhPgmtKjuvhZSpLTpzdNCNx2a',
+          id: ACCESS_TOKEN,
           ttl: 1209600,
           created: '2018-05-17T06:42:14.812Z',
-          userId: '5afd23ef6da9626fa365da9d',
+          userId: USER_ID,
         },
       },
     ]
