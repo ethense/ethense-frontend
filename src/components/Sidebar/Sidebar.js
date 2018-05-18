@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
 
 import IssueCert from '../IssueCert'
 import ManageAppIds from '../ManageAppIds'
 import ManageUsers from '../ManageUsers'
+import { logout } from '../../modules/authentication'
 
-class Sidebar extends Component {
+export class Sidebar extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -39,11 +42,22 @@ class Sidebar extends Component {
           onClose={this.handleClose}
         >
           <MenuItem onClick={this.handleClose}>Profile</MenuItem>
-          <MenuItem onClick={this.handleClose}>Logout</MenuItem>
+          <MenuItem data-test-id="logoutButton" onClick={this.props.logout}>Logout</MenuItem>
         </Menu>
       </div>
     )
   }
 }
 
-export default Sidebar
+Sidebar.propTypes = {
+  logout: PropTypes.func.isRequired,
+}
+
+export default connect(
+  state => ({}),
+  dispatch => ({
+    logout() {
+      dispatch(logout())
+    },
+  })
+)(Sidebar)

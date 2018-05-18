@@ -1,15 +1,16 @@
 import React from 'react'
-import Sidebar from './Sidebar'
+import { Sidebar } from './Sidebar'
 import IssueCert from '../IssueCert'
 import ManageAppIds from '../ManageAppIds'
 import ManageUsers from '../ManageUsers'
 import { Link } from 'react-router-dom'
 
 describe('Sidebar', () => {
+  const defaultProps = { logout: () => {} }
   let component
 
   beforeEach(() => {
-    component = shallow(<Sidebar />)
+    component = shallow(<Sidebar {...defaultProps} />)
   })
 
   it('should render', () => {
@@ -34,5 +35,15 @@ describe('Sidebar', () => {
   it('should have a user menu button', () => {
     expect(component.find('[data-test-id="userMenuBtn"]').exists()).toBe(true)
   })
+
   // TODO: test menu open after button click
+
+  it('should have a button that calls logout when clicked', () => {
+    const mockLogout = jest.fn()
+    component.setProps({ logout: mockLogout })
+    const logoutButton = component.find('[data-test-id="logoutButton"]')
+    expect(logoutButton.length).toBe(1)
+    logoutButton.simulate('click')
+    expect(mockLogout.mock.calls.length).toBe(1)
+  })
 })
