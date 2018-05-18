@@ -31,10 +31,8 @@ describe('Sidebar', () => {
     expect(usersLink.is(Link)).toBe(true)
   })
 
-  // describe('user menu button', () => {
-  //   it('should be rendered', () => {
-  //     const userButton = component.find(UserButton)
-  //     expect(userButton.exists()).toBe(true)
-  //   })
-  // })
+  it('should have a user menu button', () => {
+    expect(component.find('[data-test-id="userMenuBtn"]').exists()).toBe(true)
+  })
+  // TODO: test menu open after button click
 })

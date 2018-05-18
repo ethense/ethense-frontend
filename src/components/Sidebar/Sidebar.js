@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-// import Menu from 'material-ui/Menu'
-// import MenuItem from 'material-ui/MenuItem'
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
 
 import IssueCert from '../IssueCert'
@@ -30,15 +30,17 @@ class Sidebar extends Component {
         <Link to={IssueCert.route}>Issue Cert</Link>
         <Link to={ManageAppIds.route}>App Identities</Link>
         <Link to={ManageUsers.route}>Users</Link>
-        <Button onClick={this.handleClick}>user</Button>
-        {/* <Menu
-          anochorEl={this.state.anchorEl}
+        <Button data-test-id="userMenuBtn" onClick={this.handleClick}>
+          user
+        </Button>
+        <Menu
+          anchorEl={this.state.anchorEl}
           open={Boolean(this.state.anchorEl)}
           onClose={this.handleClose}
         >
           <MenuItem onClick={this.handleClose}>Profile</MenuItem>
           <MenuItem onClick={this.handleClose}>Logout</MenuItem>
-        </Menu> */}
+        </Menu>
       </div>
     )
   }
