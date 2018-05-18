@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router-dom'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
-import Button from '@material-ui/core/Button'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+import Icon from '@material-ui/core/Icon'
 
 import IssueCert from '../IssueCert'
 import ManageAppIds from '../ManageAppIds'
 import ManageUsers from '../ManageUsers'
 import { logout } from '../../modules/authentication'
+import { Container, FlexSpace, NavButton, UserButton } from './elements'
 
 export class Sidebar extends Component {
   constructor(props) {
@@ -27,24 +27,34 @@ export class Sidebar extends Component {
     this.setState({ anchorEl: null })
   }
 
+  // TODO: figure out how to get the route prop working when nested inside a LayoutRoute
   render() {
     return (
-      <div>
-        <Link to={IssueCert.route}>Issue Cert</Link>
-        <Link to={ManageAppIds.route}>App Identities</Link>
-        <Link to={ManageUsers.route}>Users</Link>
-        <Button data-test-id="userMenuBtn" onClick={this.handleClick}>
-          user
-        </Button>
+      <Container>
+        <NavButton data-test-id="issueNav" to={IssueCert.route}>
+          <Icon>school</Icon>Issue Cert
+        </NavButton>
+        <NavButton data-test-id="appIdsNav" to={ManageAppIds.route}>
+          <Icon>settings</Icon>App Identities
+        </NavButton>
+        <NavButton data-test-id="usersNav" to={ManageUsers.route}>
+          <Icon>supervisor_account</Icon>Users
+        </NavButton>
+        <FlexSpace />
+        <UserButton data-test-id="userMenuBtn" onClick={this.handleClick}>
+          <Icon>person</Icon>
+        </UserButton>
         <Menu
           anchorEl={this.state.anchorEl}
           open={Boolean(this.state.anchorEl)}
           onClose={this.handleClose}
         >
           <MenuItem onClick={this.handleClose}>Profile</MenuItem>
-          <MenuItem data-test-id="logoutButton" onClick={this.props.logout}>Logout</MenuItem>
+          <MenuItem data-test-id="logoutButton" onClick={this.props.logout}>
+            Logout
+          </MenuItem>
         </Menu>
-      </div>
+      </Container>
     )
   }
 }

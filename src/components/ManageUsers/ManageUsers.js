@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
+import { SidebarLayout } from '../../layouts'
 
 class ManageUsers extends Component {
   render() {
-    return <div> manage users </div>
+    return <SidebarLayout> manage users </SidebarLayout>
   }
 }
 

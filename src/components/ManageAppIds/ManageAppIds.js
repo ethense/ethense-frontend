@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
+import { SidebarLayout } from '../../layouts'
 
 class ManageAppIds extends Component {
   render() {
-    return <div>manage app ids</div>
+    return <SidebarLayout>manage app ids</SidebarLayout>
   }
 }
 

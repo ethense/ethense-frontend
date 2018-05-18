@@ -6,6 +6,7 @@ import { StyledPaper, FlexSpace } from './elements'
 import { getUsersExist, createAdmin, login } from '../../modules/authentication'
 import UportLogin from './UportLogin'
 import EmailLogin from './EmailLogin'
+import { FullscreenLayout } from '../../layouts'
 
 export const SUBMIT_LOGIN = 'login'
 export const SUBMIT_CREATE = 'create admin'
@@ -62,28 +63,32 @@ export class LoginForm extends Component {
 
   render() {
     return (
-      <StyledPaper data-test-id="loginForm" elevation={1}>
-        {this.state.useUport ? (
-          <UportLogin />
-        ) : (
-          <EmailLogin
-            onSubmit={
-              this.props.usersExist ? this.props.login : this.props.createAdmin
-            }
-            submitText={this.state.submitText}
-          />
-        )}
-        <FlexSpace />
-        <Button
-          disabled
-          data-test-id="toggleLoginMode"
-          fullWidth
-          variant="raised"
-          onClick={this.toggleUport}
-        >
-          {this.state.toggleText}
-        </Button>
-      </StyledPaper>
+      <FullscreenLayout>
+        <StyledPaper data-test-id="loginForm" elevation={1}>
+          {this.state.useUport ? (
+            <UportLogin />
+          ) : (
+            <EmailLogin
+              onSubmit={
+                this.props.usersExist
+                  ? this.props.login
+                  : this.props.createAdmin
+              }
+              submitText={this.state.submitText}
+            />
+          )}
+          <FlexSpace />
+          <Button
+            disabled
+            data-test-id="toggleLoginMode"
+            fullWidth
+            variant="raised"
+            onClick={this.toggleUport}
+          >
+            {this.state.toggleText}
+          </Button>
+        </StyledPaper>
+      </FullscreenLayout>
     )
   }
 }

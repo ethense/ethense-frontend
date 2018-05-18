@@ -2,28 +2,16 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { logout } from '../../modules/authentication'
+import { SidebarLayout } from '../../layouts'
 
 export class IssueCert extends Component {
   render() {
-    return (
-      <div>
-        <button onClick={this.props.logout}>logout</button>
-      </div>
-    )
+    return <SidebarLayout>issue cert</SidebarLayout>
   }
 }
 
-IssueCert.propTypes = {
-  logout: PropTypes.func.isRequired,
-}
+IssueCert.propTypes = {}
 
 IssueCert.route = '/issue'
 
-export default connect(
-  state => ({}),
-  dispatch => ({
-    logout() {
-      dispatch(logout())
-    },
-  })
-)(IssueCert)
+export default connect(state => ({}), dispatch => ({}))(IssueCert)

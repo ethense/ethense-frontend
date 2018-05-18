@@ -17,19 +17,22 @@ describe('Sidebar', () => {
     expect(component.exists()).toBe(true)
   })
 
-  it('should show a Link for the issue cert page', () => {
-    const issueLink = component.find({ to: IssueCert.route })
-    expect(issueLink.is(Link)).toBe(true)
+  it('should show a link for the issue cert page', () => {
+    const issueNav = component.find('[data-test-id="issueNav"]')
+    expect(issueNav.exists()).toBe(true)
+    expect(issueNav.props().to).toBe(IssueCert.route)
   })
 
-  it('should show a Link for the manage app identities page', () => {
-    const appIdsLink = component.find({ to: ManageAppIds.route })
-    expect(appIdsLink.is(Link)).toBe(true)
+  it('should show a ink for the manage app identities page', () => {
+    const appIdsNav = component.find('[data-test-id="appIdsNav"]')
+    expect(appIdsNav.exists()).toBe(true)
+    expect(appIdsNav.props().to).toBe(ManageAppIds.route)
   })
 
-  it('should show a Link for the manage users page', () => {
-    const usersLink = component.find({ to: ManageUsers.route })
-    expect(usersLink.is(Link)).toBe(true)
+  it('should show a link for the manage users page', () => {
+    const usersNav = component.find('[data-test-id="usersNav"]')
+    expect(usersNav.exists()).toBe(true)
+    expect(usersNav.props().to).toBe(ManageUsers.route)
   })
 
   it('should have a user menu button', () => {

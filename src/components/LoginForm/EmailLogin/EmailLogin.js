@@ -18,7 +18,7 @@ const renderTextField = ({
 }) => (
   <StyledTextField
     label={label}
-    helperText={touched ? error : ' '}
+    helperText={touched && !!error ? error : ' '}
     error={touched && !!error}
     {...input}
     {...custom}
