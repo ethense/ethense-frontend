@@ -36,6 +36,13 @@ export const NavButton = withTheme()(
           ? props.theme.palette.action.disabled
           : null};
 
+      &:hover {
+        background: ${props =>
+          props.history.location.pathname === props.to
+            ? props.theme.palette.action.disabled
+            : props.theme.palette.action.hover};
+      }
+
       & .label {
         justify-content: flex-start;
       }
