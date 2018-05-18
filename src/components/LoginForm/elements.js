@@ -1,5 +1,5 @@
-import { withTheme } from 'material-ui/styles'
-import Paper from 'material-ui/Paper'
+import { withTheme } from '@material-ui/core/styles'
+import Paper from '@material-ui/core/Paper'
 import styled from 'styled-components'
 
 export const StyledPaper = withTheme()(styled(Paper)`

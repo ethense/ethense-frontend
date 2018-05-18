@@ -2,12 +2,12 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { create } from 'jss'
 import JssProvider from 'react-jss/lib/JssProvider'
-import CssBaseline from 'material-ui/CssBaseline'
+import CssBaseline from '@material-ui/core/CssBaseline'
 import {
   createGenerateClassName,
   jssPreset,
   MuiThemeProvider,
-} from 'material-ui/styles'
+} from '@material-ui/core/styles'
 import { Provider } from 'react-redux'
 import { BrowserRouter as Router } from 'react-router-dom'
 import App from './components/App/App'

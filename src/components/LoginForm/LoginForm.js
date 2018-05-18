@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import Button from 'material-ui/Button'
+import Button from '@material-ui/core/Button'
 import { StyledPaper, FlexSpace } from './elements'
 import { getUsersExist, createAdmin, login } from '../../modules/authentication'
 import UportLogin from './UportLogin'
@@ -9,7 +9,7 @@ import EmailLogin from './EmailLogin'
 
 export const SUBMIT_LOGIN = 'login'
 export const SUBMIT_CREATE = 'create admin'
-export const TOGGLE_LOGIN_UPORT = 'login with uport'
+export const TOGGLE_LOGIN_UPORT = 'uport login coming soon'
 export const TOGGLE_LOGIN_EMAIL = 'login with email'
 export const TOGGLE_CREATE_UPORT = 'create with uport'
 export const TOGGLE_CREATE_EMAIL = 'create with email'
@@ -75,6 +75,7 @@ export class LoginForm extends Component {
         )}
         <FlexSpace />
         <Button
+          disabled
           data-test-id="toggleLoginMode"
           fullWidth
           variant="raised"

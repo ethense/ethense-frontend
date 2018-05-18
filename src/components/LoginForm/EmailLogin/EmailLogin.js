@@ -4,23 +4,36 @@ import * as Isemail from 'isemail'
 import { reduxForm, Field } from 'redux-form'
 import PropTypes from 'prop-types'
 
-const required = value => (value ? undefined : 'Required')
+const required = value => (!!value ? undefined : 'Required')
 const email = value =>
   Isemail.validate(value || '', { minDomainAtoms: 2 })
     ? undefined
     : 'Invalid Email'
 
+const renderTextField = ({
+  input,
+  label,
+  meta: { touched, error },
+  ...custom
+}) => (
+  <StyledTextField
+    label={label}
+    helperText={touched ? error : ' '}
+    error={touched && !!error}
+    {...input}
+    {...custom}
+  />
+)
+
 export class EmailLogin extends Component {
   render() {
     return (
-      <form
-        onSubmit={this.props.handleSubmit(this.props.onSubmit)}
-      >
+      <form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <Field
           data-test-id="emailInput"
           name="email"
           validate={[required, email]}
-          component={StyledTextField}
+          component={renderTextField}
           fullWidth
           label="Email"
           endIcon="email"
@@ -30,7 +43,7 @@ export class EmailLogin extends Component {
           name="password"
           type="password"
           validate={[required]}
-          component={StyledTextField}
+          component={renderTextField}
           fullWidth
           label="Password"
           endIcon="lock"
@@ -40,6 +53,7 @@ export class EmailLogin extends Component {
           data-test-id="submitLogin"
           fullWidth
           variant="raised"
+          disabled={this.props.invalid}
         >
           {this.props.submitText}
         </StyledButton>

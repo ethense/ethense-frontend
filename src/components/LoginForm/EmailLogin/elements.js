@@ -1,21 +1,15 @@
 import React from 'react'
-import { withTheme } from 'material-ui/styles'
-import { TextField } from 'redux-form-material-ui'
-import Button from 'material-ui/Button'
-import { InputAdornment } from 'material-ui/Input'
-import Icon from 'material-ui/Icon'
+import TextField from '@material-ui/core/TextField'
+import { withTheme } from '@material-ui/core/styles'
+import Button from '@material-ui/core/Button'
+import Icon from '@material-ui/core/Icon'
 import styled from 'styled-components'
 
 export const StyledTextField = withTheme()(styled(({ endIcon, ...other }) => (
   <TextField
     {...other}
-    helperText=" "
     InputProps={{
-      endAdornment: (
-        <InputAdornment position="end">
-          <Icon color="disabled">{endIcon}</Icon>
-        </InputAdornment>
-      ),
+      endAdornment: <Icon color="disabled">{endIcon}</Icon>,
     }}
   />
 ))`
@@ -29,9 +23,7 @@ export const StyledTextField = withTheme()(styled(({ endIcon, ...other }) => (
   }
 `)
 
-export const StyledButton = withTheme()(styled(props => (
-  <Button {...props} />
-))`
+export const StyledButton = withTheme()(styled(props => <Button {...props} />)`
   background-image: linear-gradient(
     45deg,
     ${props => !props.disabled && props.theme.palette.primary.main} 10%,
