@@ -1,18 +1,33 @@
 import React from 'react'
 import Sidebar from './Sidebar'
 import IssueCert from '../IssueCert'
+import ManageAppIds from '../ManageAppIds'
+import ManageUsers from '../ManageUsers'
 import { Link } from 'react-router-dom'
 
 describe('Sidebar', () => {
+  let component
+
+  beforeEach(() => {
+    component = shallow(<Sidebar />)
+  })
+
   it('should render', () => {
-    const component = shallow(<Sidebar />)
     expect(component.exists()).toBe(true)
   })
 
   it('should show a Link for the issue cert page', () => {
-    const component = shallow(<Sidebar />)
-    const issueLink = component.find(Link)
-    expect(issueLink.length).toBe(1)
-    expect(issueLink.props().to).toBe(IssueCert.route)
+    const issueLink = component.find({ to: IssueCert.route })
+    expect(issueLink.is(Link)).toBe(true)
+  })
+
+  it('should show a Link for the manage app identities page', () => {
+    const appIdsLink = component.find({ to: ManageAppIds.route })
+    expect(appIdsLink.is(Link)).toBe(true)
+  })
+
+  it('should show a Link for the manage users page', () => {
+    const usersLink = component.find({ to: ManageUsers.route })
+    expect(usersLink.is(Link)).toBe(true)
   })
 })
