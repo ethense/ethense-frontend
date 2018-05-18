@@ -12,14 +12,53 @@ const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 
 describe('App', () => {
+  let store
+
   it('should render without crashing', () => {
     const component = shallow(<App />)
     expect(component.exists()).toEqual(true)
   })
 
-  describe('base route', () => {
-    it('should render a login form at the base route', () => {
-      const store = mockStore({
+  describe('user logged in', () => {
+    beforeEach(() => {
+      store = mockStore({
+        authentication: {
+          usersExist: true,
+          loggedIn: true,
+        },
+        notification: {
+          open: false,
+          message: null,
+        },
+      })
+    })
+
+    it('should redirect login route to issue cert', () => {
+      const component = mount(
+        <Provider store={store}>
+          <MemoryRouter initialEntries={[LoginForm.route]} initialIndex={0}>
+            <App />
+          </MemoryRouter>
+        </Provider>
+      )
+      expect(component.find(IssueCert).length).toBe(1)
+    })
+
+    it('should render issue cert page at its route when logged in', () => {
+      const component = mount(
+        <Provider store={store}>
+          <MemoryRouter initialEntries={[IssueCert.route]} initialIndex={0}>
+            <App />
+          </MemoryRouter>
+        </Provider>
+      )
+      expect(component.find(IssueCert).length).toBe(1)
+    })
+  })
+
+  describe('user not logged in', () => {
+    beforeEach(() => {
+      store = mockStore({
         authentication: {
           usersExist: true,
           loggedIn: false,
@@ -29,18 +68,28 @@ describe('App', () => {
           message: null,
         },
       })
+    })
+
+    it('should render a login form at the login route', () => {
       const component = mount(
         <Provider store={store}>
-          <MemoryRouter initialEntries={['/']} initialIndex={0}>
+          <MemoryRouter initialEntries={[LoginForm.route]} initialIndex={0}>
             <App />
           </MemoryRouter>
         </Provider>
       )
       expect(component.find(LoginForm).length).toBe(1)
     })
-  })
 
-  describe('/issue', () => {
-    // it('should check for user authentication', () => {})
+    it('should redirect issue cert route to login', () => {
+      const component = mount(
+        <Provider store={store}>
+          <MemoryRouter initialEntries={[IssueCert.route]} initialIndex={0}>
+            <App />
+          </MemoryRouter>
+        </Provider>
+      )
+      expect(component.find(LoginForm).length).toBe(1)
+    })
   })
 })

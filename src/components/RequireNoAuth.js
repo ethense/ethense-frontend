@@ -17,7 +17,7 @@ export default function(ComposedComponent, redirectRoute) {
 
     checkRedirect(props) {
       const authInfo = storageService.getAuthInfo()
-      if (authInfo && props.loggedIn) {
+      if (authInfo || props.loggedIn) {
         this.props.history.push(redirectRoute)
       }
     }
