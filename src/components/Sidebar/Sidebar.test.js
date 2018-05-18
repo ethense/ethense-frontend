@@ -30,4 +30,11 @@ describe('Sidebar', () => {
     const usersLink = component.find({ to: ManageUsers.route })
     expect(usersLink.is(Link)).toBe(true)
   })
+
+  // describe('user menu button', () => {
+  //   it('should be rendered', () => {
+  //     const userButton = component.find(UserButton)
+  //     expect(userButton.exists()).toBe(true)
+  //   })
+  // })
 })
