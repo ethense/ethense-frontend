@@ -1,5 +1,11 @@
-import React from 'react'
+import React, { Component } from 'react'
 
-const ManageUsers = () => (<div/>)
+class ManageUsers extends Component {
+  render() {
+    return <div> manage users </div>
+  }
+}
+
+ManageUsers.route = '/users'
 
 export default ManageUsers

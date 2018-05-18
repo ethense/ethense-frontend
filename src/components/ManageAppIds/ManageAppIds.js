@@ -1,5 +1,11 @@
-import React from 'react'
+import React, { Component } from 'react'
 
-const ManageAppIds = () => (<div/>)
+class ManageAppIds extends Component {
+  render() {
+    return <div>manage app ids</div>
+  }
+}
+
+ManageAppIds.route = '/appIdentities'
 
 export default ManageAppIds
