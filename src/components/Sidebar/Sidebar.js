@@ -32,13 +32,13 @@ export class Sidebar extends Component {
     return (
       <Container>
         <NavButton data-test-id="issueNav" to={IssueCert.route}>
-          <Icon>school</Icon>Issue Cert
-        </NavButton>
-        <NavButton data-test-id="appIdsNav" to={ManageAppIds.route}>
-          <Icon>settings</Icon>App Identities
+          <Icon>school</Icon>Issue Certificate
         </NavButton>
         <NavButton data-test-id="usersNav" to={ManageUsers.route}>
-          <Icon>supervisor_account</Icon>Users
+          <Icon>supervisor_account</Icon>Manage Users
+        </NavButton>
+        <NavButton data-test-id="appIdsNav" to={ManageAppIds.route}>
+          <Icon>settings</Icon>Manage App Ids
         </NavButton>
         <FlexSpace />
         <UserButton data-test-id="userMenuBtn" onClick={this.handleClick}>

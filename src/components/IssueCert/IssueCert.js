@@ -3,10 +3,13 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { logout } from '../../modules/authentication'
 import { SidebarLayout } from '../../layouts'
+import GradientButton from '../GradientButton'
 
 export class IssueCert extends Component {
   render() {
-    return <SidebarLayout>issue cert</SidebarLayout>
+    return <SidebarLayout>
+      <GradientButton data-test-id="issueBtn" variant="raised">Issue</GradientButton>
+    </SidebarLayout>
   }
 }
 

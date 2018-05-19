@@ -8,9 +8,10 @@ import { withRouter } from 'react-router-dom'
 export const Container = withTheme()(styled.div`
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 240px;
   height: 100vh;
-  background: ${props => props.theme.palette.primary.main};
+  background: ${props => props.theme.palette.primary.dark};
+  /* background: white; */
   padding: ${props => props.theme.spacing.medium};
 `)
 
@@ -26,7 +27,7 @@ export const NavButton = withTheme()(
         {children}
       </Button>
     ))`
-      margin-bottom: ${props => props.theme.spacing.small};
+      margin-bottom: ${props => props.theme.spacing.tiny};
       color: ${props =>
         props.history.location.pathname === props.to
           ? props.theme.palette.grey['50']
@@ -45,6 +46,7 @@ export const NavButton = withTheme()(
 
       & .label {
         justify-content: flex-start;
+        text-transform: none;
       }
 
       & .label span {

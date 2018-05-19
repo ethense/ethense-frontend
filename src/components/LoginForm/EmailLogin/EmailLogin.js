@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { StyledTextField, StyledButton } from './elements'
+import { StyledTextField } from './elements'
+import GradientButton from '../../GradientButton'
 import * as Isemail from 'isemail'
 import { reduxForm, Field } from 'redux-form'
 import PropTypes from 'prop-types'
@@ -48,7 +49,7 @@ export class EmailLogin extends Component {
           label="Password"
           endIcon="lock"
         />
-        <StyledButton
+        <GradientButton
           type="submit"
           data-test-id="submitLogin"
           fullWidth
@@ -56,7 +57,7 @@ export class EmailLogin extends Component {
           disabled={this.props.invalid}
         >
           {this.props.submitText}
-        </StyledButton>
+        </GradientButton>
       </form>
     )
   }
