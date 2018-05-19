@@ -20,11 +20,18 @@ describe('Issue Certificate page', () => {
     expect(mockGetAppIds.mock.calls.length).toBe(1)
   })
 
-  it.only('should display a button to add app id if none exist', () => {
-    const component = shallow(
-      <IssueCert {...defaultProps} appIds={[]}  />
-    )
-    expect(component.instance().props.appIds).toEqual([])
-    expect(component.find('[data-test-id="addAppIdBtn"]').length).toBe(1)
+  describe('add app id button', () => {
+    it('should render if there are no app ids', () => {
+      const component = shallow(<IssueCert {...defaultProps} appIds={[]} />)
+      expect(component.instance().props.appIds).toEqual([])
+      expect(component.find('[data-test-id="addAppIdBtn"]').length).toBe(1)
+    })
+
+    it('should open the add app id form when clicked', () => {
+      const component = shallow(<IssueCert {...defaultProps} appIds={[]} />)
+      const addAppIdBtn = component.find('[data-test-id="addAppIdBtn"]')
+      addAppIdBtn.simulate('click')
+      expect(component.find('[data-test-id="addAppIdForm"]').length).toBe(1)
+    })
   })
 })

@@ -3,14 +3,32 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import TextField from '@material-ui/core/TextField'
+import DialogActions from '@material-ui/core/DialogActions'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader, SectionTitle, InputRow } from '../elements'
 import { getAppIds } from '../../modules/appIdentity'
 
 export class IssueCert extends Component {
+  state = {
+    addAppIdOpen: false,
+  }
+
   componentWillMount() {
     this.props.getAppIds()
+  }
+
+  handleClickOpen = () => {
+    this.setState({ addAppIdOpen: true })
+  }
+
+  handleClose = () => {
+    this.setState({ addAppIdOpen: false })
   }
 
   render() {
@@ -35,6 +53,7 @@ export class IssueCert extends Component {
                   No app identities found. Please add one to issue certificates.
                 </Typography>,
                 <Button
+                  onClick={this.handleClickOpen}
                   key={1}
                   data-test-id="addAppIdBtn"
                   variant="raised"
@@ -43,6 +62,23 @@ export class IssueCert extends Component {
                   Add App Identity
                 </Button>,
               ]}
+          <Dialog open={this.state.addAppIdOpen} onClose={this.handleClose}>
+            <DialogTitle data-test-id="addAppIdForm">
+              New App Identity
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Something about adding an app Identity
+              </DialogContentText>
+              <TextField id="appName" label="App Name" fullWidth />
+              <TextField id="mnid" label="MNID" fullWidth />
+              <TextField id="privateKey" label="Private Key" fullWidth />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={this.handleClose}>cancel</Button>
+              <GradientButton variant="raised">add</GradientButton>
+            </DialogActions>
+          </Dialog>
         </InputRow>
         <SectionTitle>Recipient Identity</SectionTitle>
         <InputRow>mnid</InputRow>
