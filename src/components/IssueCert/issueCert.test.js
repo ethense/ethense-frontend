@@ -5,6 +5,7 @@ const defaultProps = {
   getAppIds: () => {},
   appIds: [],
 }
+
 describe('Issue Certificate page', () => {
   it('should have a primary action button', () => {
     const component = shallow(<IssueCert {...defaultProps} />)
@@ -17,5 +18,13 @@ describe('Issue Certificate page', () => {
       <IssueCert {...defaultProps} getAppIds={mockGetAppIds} />
     )
     expect(mockGetAppIds.mock.calls.length).toBe(1)
+  })
+
+  it.only('should display a button to add app id if none exist', () => {
+    const component = shallow(
+      <IssueCert {...defaultProps} appIds={[]}  />
+    )
+    expect(component.instance().props.appIds).toEqual([])
+    expect(component.find('[data-test-id="addAppIdBtn"]').length).toBe(1)
   })
 })

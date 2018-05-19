@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader, SectionTitle, InputRow } from '../elements'
@@ -23,6 +24,25 @@ export class IssueCert extends Component {
         </PageHeader>
         <SectionTitle>Issuer App Identity</SectionTitle>
         <InputRow>
+          {this.props.appIds.length > 0
+            ? this.props.appIds.map(appId => (
+                <div>
+                  {appId.name}: {appId.mnid}
+                </div>
+              ))
+            : [
+                <Typography key={0} variant="caption" color="error">
+                  No app identities found. Please add one to issue certificates.
+                </Typography>,
+                <Button
+                  key={1}
+                  data-test-id="addAppIdBtn"
+                  variant="raised"
+                  color="secondary"
+                >
+                  Add App Identity
+                </Button>,
+              ]}
         </InputRow>
         <SectionTitle>Recipient Identity</SectionTitle>
         <InputRow>mnid</InputRow>

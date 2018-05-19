@@ -48,6 +48,10 @@ export const InputRow = withTheme()(styled(({ children, ...other }) => (
     {children}
   </Paper>
 ))`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   padding: ${props => props.theme.spacing.small};
   margin-top: ${props => props.theme.spacing.tiny};
   margin-bottom: ${props => props.theme.spacing.medium};
