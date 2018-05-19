@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { StyledTextField } from './elements'
-import GradientButton from '../../GradientButton'
+import { GradientButton } from '../../elements'
 import * as Isemail from 'isemail'
 import { reduxForm, Field } from 'redux-form'
 import PropTypes from 'prop-types'

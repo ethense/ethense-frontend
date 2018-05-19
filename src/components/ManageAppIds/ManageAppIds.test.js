@@ -1,9 +1,9 @@
 import React from 'react'
-import ManageAppIds from './ManageAppIds'
+import { ManageAppIds } from './ManageAppIds'
 
-describe('Manage App Ids', () => {
-  it('should render', () => {
-    const component = shallow(<ManageAppIds/>)
-    expect(component.exists()).toBe(true)
+describe('Manage App Ids page', () => {
+  it('should have a primary action button', () => {
+    const component = shallow(<ManageAppIds />)
+    expect(component.find('[data-test-id="addAppIdBtn"]').exists()).toBe(true)
   })
 })

@@ -1,9 +1,21 @@
 import React, { Component } from 'react'
-import { SidebarLayout } from '../../layouts'
+import { Typography } from '@material-ui/core'
 
-class ManageUsers extends Component {
+import { SidebarLayout } from '../../layouts'
+import { GradientButton, PageHeader } from '../elements'
+
+export class ManageUsers extends Component {
   render() {
-    return <SidebarLayout> manage users </SidebarLayout>
+    return (
+      <SidebarLayout>
+        <PageHeader>
+          <Typography variant="title">Users</Typography>
+          <GradientButton data-test-id="addUserBtn" variant="raised">
+            Add User
+          </GradientButton>
+        </PageHeader>
+      </SidebarLayout>
+    )
   }
 }
 

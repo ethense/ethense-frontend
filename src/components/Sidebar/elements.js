@@ -10,8 +10,10 @@ export const Container = withTheme()(styled.div`
   flex-direction: column;
   width: 240px;
   height: 100vh;
-  background: ${props => props.theme.palette.primary.dark};
-  padding: ${props => props.theme.spacing.medium};
+  background: ${props => props.theme.palette.primary.light};
+  border-right: 1px solid ${props => props.theme.palette.primary.main};
+  padding: ${props => props.theme.spacing.medium}
+    ${props => props.theme.spacing.small};
 `)
 
 export const NavButton = withTheme()(

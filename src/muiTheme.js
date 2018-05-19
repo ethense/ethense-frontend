@@ -9,18 +9,30 @@ const muiTheme = createMuiTheme({
     huge: '64px',
   },
   palette: {
+    // primary: {
+    //   light: '#768fff',
+    //   main: '#2962ff',
+    //   dark: '#0039cb',
+    //   contrastText: '#fff',
+    // },
+    // secondary: {
+    //   light: '#ff5bff',
+    //   main: '#d500f9',
+    //   dark: '#9e00c5',
+    //   contrastText: '#fff',
+    // },
     primary: {
-      light: '#768fff',
-      main: '#2962ff',
-      dark: '#0039cb',
+      light: '#5C6BC0',
+      main: '#3949AB',
+      dark: '#1A237E',
       contrastText: '#fff',
     },
     secondary: {
-      light: '#ff5bff',
-      main: '#d500f9',
-      dark: '#9e00c5',
+      light: '#F1BDFC',
+      main: '#DE56FB',
+      dark: '#8500EA',
       contrastText: '#fff',
-    },
+    }
   },
 })
 

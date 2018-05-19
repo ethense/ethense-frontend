@@ -1,9 +1,21 @@
 import React, { Component } from 'react'
-import { SidebarLayout } from '../../layouts'
+import { Typography } from '@material-ui/core'
 
-class ManageAppIds extends Component {
+import { SidebarLayout } from '../../layouts'
+import { GradientButton, PageHeader } from '../elements'
+
+export class ManageAppIds extends Component {
   render() {
-    return <SidebarLayout>manage app ids</SidebarLayout>
+    return (
+      <SidebarLayout>
+        <PageHeader>
+          <Typography variant="title">App Identities</Typography>
+          <GradientButton data-test-id="addAppIdBtn" variant="raised">
+            Add Identity
+          </GradientButton>
+        </PageHeader>
+      </SidebarLayout>
+    )
   }
 }
 
