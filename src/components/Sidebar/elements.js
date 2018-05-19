@@ -11,13 +11,13 @@ export const Container = withTheme()(styled.div`
   width: 240px;
   height: 100vh;
   background: ${props => props.theme.palette.primary.dark};
-  /* background: white; */
   padding: ${props => props.theme.spacing.medium};
 `)
 
 export const NavButton = withTheme()(
   withRouter(
-    styled(({ children, to, history, ...other }) => (
+    // destructure staticContext out so it doesn't get passed down to DOM elements
+    styled(({ staticContext, children, to, history, ...other }) => (
       <Button
         {...other}
         onClick={() => history.push(to)}
