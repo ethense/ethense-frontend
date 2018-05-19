@@ -3,16 +3,12 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import TextField from '@material-ui/core/TextField'
-import DialogActions from '@material-ui/core/DialogActions'
+// import TextField from '@material-ui/core/TextField'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader, SectionTitle, InputRow } from '../elements'
-import { getAppIds } from '../../modules/appIdentity'
+import { getAppIds, addAppId } from '../../modules/appIdentity'
+import AddAppIdDialog from '../AddAppIdDialog'
 
 export class IssueCert extends Component {
   state = {
@@ -28,6 +24,11 @@ export class IssueCert extends Component {
   }
 
   handleClose = () => {
+    this.setState({ addAppIdOpen: false })
+  }
+
+  handleSubmit = values => {
+    this.props.addAppId(values)
     this.setState({ addAppIdOpen: false })
   }
 
@@ -62,23 +63,11 @@ export class IssueCert extends Component {
                   Add App Identity
                 </Button>,
               ]}
-          <Dialog open={this.state.addAppIdOpen} onClose={this.handleClose}>
-            <DialogTitle data-test-id="addAppIdForm">
-              New App Identity
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                Something about adding an app Identity
-              </DialogContentText>
-              <TextField id="appName" label="App Name" fullWidth />
-              <TextField id="mnid" label="MNID" fullWidth />
-              <TextField id="privateKey" label="Private Key" fullWidth />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={this.handleClose}>cancel</Button>
-              <GradientButton variant="raised">add</GradientButton>
-            </DialogActions>
-          </Dialog>
+          <AddAppIdDialog
+            open={this.state.addAppIdOpen}
+            onClose={this.handleClose}
+            onSubmit={this.handleSubmit}
+          />
         </InputRow>
         <SectionTitle>Recipient Identity</SectionTitle>
         <InputRow>mnid</InputRow>
@@ -92,6 +81,7 @@ export class IssueCert extends Component {
 IssueCert.propTypes = {
   appIds: PropTypes.array,
   getAppIds: PropTypes.func.isRequired,
+  addAppId: PropTypes.func.isRequired,
 }
 
 IssueCert.route = '/issue'
@@ -101,6 +91,9 @@ export default connect(
   dispatch => ({
     getAppIds() {
       dispatch(getAppIds())
+    },
+    addAppId(values) {
+      dispatch(addAppId(values))
     },
   })
 )(IssueCert)

@@ -3,6 +3,7 @@ import { IssueCert } from './IssueCert'
 
 const defaultProps = {
   getAppIds: () => {},
+  addAppId: () => {},
   appIds: [],
 }
 
@@ -28,10 +29,13 @@ describe('Issue Certificate page', () => {
     })
 
     it('should open the add app id form when clicked', () => {
-      const component = shallow(<IssueCert {...defaultProps} appIds={[]} />)
+      const mockAddAppId = jest.fn()
+      const component = shallow(
+        <IssueCert {...defaultProps} appIds={[]} addAppId={mockAddAppId} />
+      )
       const addAppIdBtn = component.find('[data-test-id="addAppIdBtn"]')
       addAppIdBtn.simulate('click')
-      expect(component.find('[data-test-id="addAppIdForm"]').length).toBe(1)
+      expect(component.instance().state.addAppIdOpen).toBe(true)
     })
   })
 })
