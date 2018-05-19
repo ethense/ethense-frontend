@@ -32,6 +32,9 @@ describe('App', () => {
           open: false,
           message: null,
         },
+        appIdentity: {
+          identities: [],
+        }
       })
     })
 
@@ -91,6 +94,9 @@ describe('App', () => {
           open: false,
           message: null,
         },
+        appIdentity: {
+          identities: [],
+        }
       })
     })
 

@@ -5,8 +5,13 @@ import { Typography } from '@material-ui/core'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader, SectionTitle, InputRow } from '../elements'
+import { getAppIds } from '../../modules/appIdentity'
 
 export class IssueCert extends Component {
+  componentWillMount() {
+    this.props.getAppIds()
+  }
+
   render() {
     return (
       <SidebarLayout>
@@ -17,7 +22,8 @@ export class IssueCert extends Component {
           </GradientButton>
         </PageHeader>
         <SectionTitle>Issuer App Identity</SectionTitle>
-        <InputRow>app name</InputRow>
+        <InputRow>
+        </InputRow>
         <SectionTitle>Recipient Identity</SectionTitle>
         <InputRow>mnid</InputRow>
         <SectionTitle>Attestation Claim Data</SectionTitle>
@@ -27,8 +33,18 @@ export class IssueCert extends Component {
   }
 }
 
-IssueCert.propTypes = {}
+IssueCert.propTypes = {
+  appIds: PropTypes.array,
+  getAppIds: PropTypes.func.isRequired,
+}
 
 IssueCert.route = '/issue'
 
-export default connect(state => ({}), dispatch => ({}))(IssueCert)
+export default connect(
+  state => ({ appIds: state.appIdentity.identities }),
+  dispatch => ({
+    getAppIds() {
+      dispatch(getAppIds())
+    },
+  })
+)(IssueCert)
