@@ -6,6 +6,8 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
+import SortableTree from 'react-sortable-tree'
+import 'react-sortable-tree/style.css'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader, SectionTitle, InputRow } from '../elements'
@@ -15,7 +17,18 @@ import AddAppIdDialog from '../AddAppIdDialog'
 export class IssueCert extends Component {
   state = {
     addAppIdOpen: false,
-    issuerId: null,
+    issuerId: this.props.appIds.length > 0 ? this.props.appIds[0].id : null,
+    treeData: [
+      { name: 'email', type: 'string', value: 'mike@test.com' },
+      {
+        name: 'address',
+        type: 'object',
+        children: [
+          { name: 'street', type: 'string', value: '123 main st' },
+          { name: 'city', type: 'string', value: 'indy' },
+        ],
+      },
+    ],
   }
 
   componentWillMount() {
@@ -23,7 +36,7 @@ export class IssueCert extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.appIds.length !== nextProps.appIds.length) {
+    if (this.props.appIds.length === 0 && nextProps.appIds.length > 0) {
       this.setState({
         issuerId: nextProps.appIds[0].id,
       })
@@ -41,6 +54,87 @@ export class IssueCert extends Component {
   handleSubmit = values => {
     this.props.addAppId(values)
     this.setState({ addAppIdOpen: false })
+  }
+
+  handleTreeChange = treeData => {
+    this.setState({ treeData })
+  }
+
+  handleAddAttr = () => {
+    console.log('add attribute')
+  }
+
+  handleChangeNodeName = (node, path) => e => {
+    console.log('change node name', node, path, e)
+  }
+
+  handleChangeNodeType = (node, path) => e => {
+    console.log('change node type', node, path, e)
+  }
+
+  handleChangeNodeValue = (node, path) => e => {
+    console.log('change node value', node, path, e)
+  }
+
+  handleAddNodeChild = (node, path) => e => {
+    console.log('add child node', node, path, e)
+  }
+
+  handleRemoveNode = (node, path) => e => {
+    console.log('remove node', node, path, e)
+  }
+
+  getTreeNode = ({ node, path }) => {
+    const valueField =
+      node.type === 'object' ? (
+        <span key={2}>{node.children.length} values</span>
+      ) : (
+        <TextField
+          key={2}
+          value={node.value}
+          label="Value"
+          onChange={this.handleChangeNodeValue(node, path)}
+        />
+      )
+
+    const buttons = []
+    if (node.type === 'object') {
+      buttons.push(
+        <Button key={0} onClick={this.handleAddNodeChild(node, path)}>
+          add child
+        </Button>
+      )
+    }
+    buttons.push(
+      <Button key={1} onClick={this.handleRemoveNode(node, path)}>
+        remove
+      </Button>
+    )
+
+    return {
+      title: [
+        <TextField
+          key={0}
+          value={node.name}
+          label="Name"
+          onChange={this.handleChangeNodeName(node, path)}
+        />,
+        <Select
+          key={1}
+          value={node.type}
+          onChange={this.handleChangeNodeType(node, path)}
+        >
+          <MenuItem key={0} value={'string'}>
+            string
+          </MenuItem>
+          <MenuItem key={1} value={'object'}>
+            object
+          </MenuItem>
+        </Select>,
+        valueField,
+      ],
+      buttons,
+    }
   }
 
   render() {
@@ -94,7 +188,21 @@ export class IssueCert extends Component {
           <TextField data-test-id="recipientEmail" label="Email" />
         </InputRow>
         <SectionTitle>Attestation Claim Data</SectionTitle>
-        <InputRow>claim data</InputRow>
+        <SortableTree
+          treeData={this.state.treeData}
+          onChange={this.handleTreeChange}
+          generateNodeProps={this.getTreeNode}
+          canDrop={({ nextParent }) =>
+            nextParent === null || nextParent.type === 'object'
+          }
+        />
+        <Button
+          onClick={this.handleAddAttr}
+          variant="raised"
+          data-test-id="addAttrBtn"
+        >
+          + Attribute
+        </Button>
       </SidebarLayout>
     )
   }
