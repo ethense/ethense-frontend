@@ -64,4 +64,9 @@ describe('Issue Certificate page', () => {
       expect(component.find('[data-test-id="appIdSelect"]').length).toBe(0)
     })
   })
+
+  it('should render a recipient email input', () => {
+      const component = shallow(<IssueCert {...defaultProps} appIds={[]} />)
+      expect(component.find('[data-test-id="recipientEmail"]').length).toBe(1)
+  })
 })
