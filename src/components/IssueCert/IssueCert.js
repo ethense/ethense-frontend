@@ -4,6 +4,8 @@ import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
 // import TextField from '@material-ui/core/TextField'
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader, SectionTitle, InputRow } from '../elements'
@@ -13,10 +15,19 @@ import AddAppIdDialog from '../AddAppIdDialog'
 export class IssueCert extends Component {
   state = {
     addAppIdOpen: false,
+    issuerId: null,
   }
 
   componentWillMount() {
     this.props.getAppIds()
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.appIds.length !== nextProps.appIds.length) {
+      this.setState({
+        issuerId: nextProps.appIds[0].id,
+      })
+    }
   }
 
   handleClickOpen = () => {
@@ -43,26 +54,35 @@ export class IssueCert extends Component {
         </PageHeader>
         <SectionTitle>Issuer App Identity</SectionTitle>
         <InputRow>
-          {this.props.appIds.length > 0
-            ? this.props.appIds.map(appId => (
-                <div>
+          {this.props.appIds.length > 0 ? (
+            <Select
+              data-test-id="appIdSelect"
+              key={0}
+              value={this.state.issuerId}
+              onChange={this.handleChange}
+            >
+              {this.props.appIds.map(appId => (
+                <MenuItem key={appId.id} value={appId.id}>
                   {appId.name}: {appId.mnid}
-                </div>
-              ))
-            : [
-                <Typography key={0} variant="caption" color="error">
-                  No app identities found. Please add one to issue certificates.
-                </Typography>,
-                <Button
-                  onClick={this.handleClickOpen}
-                  key={1}
-                  data-test-id="addAppIdBtn"
-                  variant="raised"
-                  color="secondary"
-                >
-                  Add App Identity
-                </Button>,
-              ]}
+                </MenuItem>
+              ))}
+            </Select>
+          ) : (
+            [
+              <Typography key={0} variant="caption" color="error">
+                No app identities found. Please add one to issue certificates.
+              </Typography>,
+              <Button
+                onClick={this.handleClickOpen}
+                key={1}
+                data-test-id="addAppIdBtn"
+                variant="raised"
+                color="secondary"
+              >
+                Add App Identity
+              </Button>,
+            ]
+          )}
           <AddAppIdDialog
             open={this.state.addAppIdOpen}
             onClose={this.handleClose}
