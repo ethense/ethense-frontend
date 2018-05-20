@@ -6,13 +6,24 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
-import SortableTree from 'react-sortable-tree'
+import SortableTree, {
+  addNodeUnderParent,
+  removeNodeAtPath,
+  changeNodeAtPath,
+} from 'react-sortable-tree'
 import 'react-sortable-tree/style.css'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader, SectionTitle, InputRow } from '../elements'
 import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
+
+const getNodeKey = ({ treeIndex }) => treeIndex
+const getNewNode = () => ({
+  name: '',
+  type: 'string',
+  value: '',
+})
 
 export class IssueCert extends Component {
   state = {
@@ -61,27 +72,72 @@ export class IssueCert extends Component {
   }
 
   handleAddAttr = () => {
-    console.log('add attribute')
-  }
-
-  handleChangeNodeName = (node, path) => e => {
-    console.log('change node name', node, path, e)
+    this.setState({
+      treeData: this.state.treeData.concat(getNewNode()),
+    })
   }
 
   handleChangeNodeType = (node, path) => e => {
-    console.log('change node type', node, path, e)
+    const newValue = e.target.value
+    const newNode = {
+      name: node.name,
+      type: newValue,
+    }
+
+    switch (newValue) {
+      case 'string':
+        newNode.value = ''
+        break
+      case 'object':
+        newNode.children = []
+        break
+      default:
+        console.error('ERROR: invalid attribute type', newValue)
+    }
+
+    this.setState({
+      treeData: changeNodeAtPath({
+        treeData: this.state.treeData,
+        path,
+        getNodeKey,
+        newNode,
+      }),
+    })
   }
 
-  handleChangeNodeValue = (node, path) => e => {
-    console.log('change node value', node, path, e)
+  handleChangeNodeText = (attr, node, path) => e => {
+    const newValue = e.target.value
+
+    this.setState({
+      treeData: changeNodeAtPath({
+        treeData: this.state.treeData,
+        path,
+        getNodeKey,
+        newNode: { ...node, [attr]: newValue },
+      }),
+    })
   }
 
   handleAddNodeChild = (node, path) => e => {
-    console.log('add child node', node, path, e)
+    this.setState({
+      treeData: addNodeUnderParent({
+        treeData: this.state.treeData,
+        parentKey: path[path.length - 1],
+        expandParent: true,
+        getNodeKey,
+        newNode: getNewNode(),
+      }).treeData,
+    })
   }
 
   handleRemoveNode = (node, path) => e => {
-    console.log('remove node', node, path, e)
+    this.setState({
+      treeData: removeNodeAtPath({
+        treeData: this.state.treeData,
+        path,
+        getNodeKey,
+      }),
+    })
   }
 
   getTreeNode = ({ node, path }) => {
@@ -93,7 +149,7 @@ export class IssueCert extends Component {
           key={2}
           value={node.value}
           label="Value"
-          onChange={this.handleChangeNodeValue(node, path)}
+          onChange={this.handleChangeNodeText('value', node, path)}
         />
       )
 
@@ -117,7 +173,7 @@ export class IssueCert extends Component {
           key={0}
           value={node.name}
           label="Name"
-          onChange={this.handleChangeNodeName(node, path)}
+          onChange={this.handleChangeNodeText('name', node, path)}
         />,
         <Select
           key={1}
