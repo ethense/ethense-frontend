@@ -3,18 +3,31 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import Button from '@material-ui/core/Button'
+import IconButton from '@material-ui/core/IconButton'
+import Icon from '@material-ui/core/Icon'
 import TextField from '@material-ui/core/TextField'
 import Select from '@material-ui/core/Select'
 import MenuItem from '@material-ui/core/MenuItem'
+import Input from '@material-ui/core/Input'
 import SortableTree, {
   addNodeUnderParent,
   removeNodeAtPath,
   changeNodeAtPath,
 } from 'react-sortable-tree'
 import 'react-sortable-tree/style.css'
+import SortableTreeTheme from '../SortableTreeTheme'
 
 import { SidebarLayout } from '../../layouts'
-import { GradientButton, PageHeader, SectionTitle, InputRow } from '../elements'
+import {
+  GradientButton,
+  PageHeader,
+  SectionTitle,
+  InputRow,
+  FlexInput,
+  AddAttrButton,
+  HoverSelect,
+  HoverTextField,
+} from '../elements'
 import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
 
@@ -79,6 +92,7 @@ export class IssueCert extends Component {
 
   handleChangeNodeType = (node, path) => e => {
     const newValue = e.target.value
+    if (newValue === node.type) return
     const newNode = {
       name: node.name,
       type: newValue,
@@ -140,15 +154,24 @@ export class IssueCert extends Component {
     })
   }
 
-  getTreeNode = ({ node, path }) => {
+  getTreeNode = ({ node, path, ...other }) => {
     const valueField =
       node.type === 'object' ? (
-        <span key={2}>{node.children.length} values</span>
+        <Typography
+          // TODO: get rid of this style prop
+          style={{ flex: 1, color: '#aaa' }}
+          variant="subheading"
+          key={3}
+        >
+          {`{ ${node.children.length} attributes }`}
+        </Typography>
       ) : (
-        <TextField
-          key={2}
+        <HoverTextField
+          // TODO: get rid of this style prop
+          style={{ flex: 1 }}
+          key={3}
           value={node.value}
-          label="Value"
+          placeholder="Value"
           onChange={this.handleChangeNodeText('value', node, path)}
         />
       )
@@ -156,40 +179,57 @@ export class IssueCert extends Component {
     const buttons = []
     if (node.type === 'object') {
       buttons.push(
-        <Button key={0} onClick={this.handleAddNodeChild(node, path)}>
-          add child
-        </Button>
+        <IconButton
+          // TODO: get rid of style prop
+          style={{ marginRight: 0 }}
+          variant="outlined"
+          key={6}
+          onClick={this.handleAddNodeChild(node, path)}
+        >
+          <Icon>add</Icon>
+        </IconButton>
       )
     }
     buttons.push(
-      <Button key={1} onClick={this.handleRemoveNode(node, path)}>
-        remove
-      </Button>
+      <IconButton
+        variant="outlined"
+        key={5}
+        onClick={this.handleRemoveNode(node, path)}
+      >
+        <Icon>delete_outline</Icon>
+      </IconButton>
     )
 
     return {
       title: [
-        <TextField
-          key={0}
+        <HoverTextField
+          key={1}
           value={node.name}
-          label="Name"
+          placeholder="Name"
           onChange={this.handleChangeNodeText('name', node, path)}
         />,
-        <Select
-          key={1}
+        <Typography key={2} variant="title">
+          :
+        </Typography>,
+        valueField,
+        ...buttons,
+        <HoverSelect
+          key={0}
           value={node.type}
           onChange={this.handleChangeNodeType(node, path)}
+          input={<Input name="type" />}
         >
           <MenuItem key={0} value={'string'}>
-            string
+            Static
           </MenuItem>
           <MenuItem key={1} value={'object'}>
-            object
+            Group
           </MenuItem>
-        </Select>,
-        valueField,
+          <MenuItem key={2} value={'dynamic'}>
+            Dynamic
+          </MenuItem>
+        </HoverSelect>,
       ],
-      buttons,
     }
   }
 
@@ -206,6 +246,7 @@ export class IssueCert extends Component {
         <InputRow>
           {this.props.appIds.length > 0 ? (
             <Select
+              fullWidth
               data-test-id="appIdSelect"
               key={0}
               value={this.state.issuerId}
@@ -220,7 +261,11 @@ export class IssueCert extends Component {
           ) : (
             [
               <Typography key={0} variant="caption" color="error">
-                No app identities found. Please add one to issue certificates.
+                No app identities found. Please{' '}
+                <a target="_blank" href="https://appmanager.uport.me/">
+                  create
+                </a>{' '}
+                and add one to issue certificates.
               </Typography>,
               <Button
                 onClick={this.handleClickOpen}
@@ -241,24 +286,28 @@ export class IssueCert extends Component {
         </InputRow>
         <SectionTitle>Recipient Identity</SectionTitle>
         <InputRow>
-          <TextField data-test-id="recipientEmail" label="Email" />
+          <TextField fullWidth data-test-id="recipientEmail" label="Email" />
         </InputRow>
         <SectionTitle>Attestation Claim Data</SectionTitle>
-        <SortableTree
-          treeData={this.state.treeData}
-          onChange={this.handleTreeChange}
-          generateNodeProps={this.getTreeNode}
-          canDrop={({ nextParent }) =>
-            nextParent === null || nextParent.type === 'object'
-          }
-        />
-        <Button
-          onClick={this.handleAddAttr}
-          variant="raised"
-          data-test-id="addAttrBtn"
-        >
-          + Attribute
-        </Button>
+        <FlexInput>
+          <SortableTree
+            style={{ flex: 1 }}
+            treeData={this.state.treeData}
+            onChange={this.handleTreeChange}
+            generateNodeProps={this.getTreeNode}
+            canDrop={({ nextParent }) =>
+              nextParent === null || nextParent.type === 'object'
+            }
+            theme={SortableTreeTheme}
+          />
+          <AddAttrButton
+            onClick={this.handleAddAttr}
+            variant="outlined"
+            data-test-id="addAttrBtn"
+          >
+            + Attribute
+          </AddAttrButton>
+        </FlexInput>
       </SidebarLayout>
     )
   }

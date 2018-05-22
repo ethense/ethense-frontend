@@ -32,8 +32,9 @@ const muiTheme = createMuiTheme({
       main: '#DE56FB',
       dark: '#8500EA',
       contrastText: '#fff',
-    }
+    },
   },
+  // TODO: figure out why overrides.MuiInput.underline['&:before'].content doesn't work
 })
 
 export default muiTheme
