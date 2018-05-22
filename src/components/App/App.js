@@ -33,7 +33,7 @@ const App = () => (
       />
       <Redirect to={LoginForm.route} />
     </Switch>
-    <Notification />
+    <Notification anchorOrigin={{ vertical: 'top', horizontal: 'center' }} />
   </div>
 )
 

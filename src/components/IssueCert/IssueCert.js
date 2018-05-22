@@ -30,6 +30,7 @@ import {
 } from '../elements'
 import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
+import { issue } from '../../modules/issuance'
 
 const getNodeKey = ({ treeIndex }) => treeIndex
 const getNewNode = () => ({
@@ -42,6 +43,7 @@ export class IssueCert extends Component {
   state = {
     addAppIdOpen: false,
     issuerId: this.props.appIds.length > 0 ? this.props.appIds[0].id : null,
+    email: '',
     treeData: [
       { name: 'email', type: 'string', value: 'mike@test.com' },
       {
@@ -73,6 +75,14 @@ export class IssueCert extends Component {
 
   handleClose = () => {
     this.setState({ addAppIdOpen: false })
+  }
+
+  handleChangeApp = e => {
+    this.setState({ issuerId: e.target.value })
+  }
+
+  handleChangeEmail = e => {
+    this.setState({ email: e.target.value })
   }
 
   handleSubmit = values => {
@@ -233,12 +243,20 @@ export class IssueCert extends Component {
     }
   }
 
+  handleSubmit = () => {
+    this.props.issue(this.state.issuerId, this.state.email, this.state.treeData)
+  }
+
   render() {
     return (
       <SidebarLayout>
         <PageHeader>
           <Typography variant="title">Issue Certificate</Typography>
-          <GradientButton data-test-id="issueBtn" variant="raised">
+          <GradientButton
+            onClick={this.handleSubmit}
+            data-test-id="issueBtn"
+            variant="raised"
+          >
             Issue
           </GradientButton>
         </PageHeader>
@@ -250,7 +268,7 @@ export class IssueCert extends Component {
               data-test-id="appIdSelect"
               key={0}
               value={this.state.issuerId}
-              onChange={this.handleChange}
+              onChange={this.handleChangeApp}
             >
               {this.props.appIds.map(appId => (
                 <MenuItem key={appId.id} value={appId.id}>
@@ -262,7 +280,11 @@ export class IssueCert extends Component {
             [
               <Typography key={0} variant="caption" color="error">
                 No app identities found. Please{' '}
-                <a target="_blank" href="https://appmanager.uport.me/">
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://appmanager.uport.me/"
+                >
                   create
                 </a>{' '}
                 and add one to issue certificates.
@@ -286,7 +308,12 @@ export class IssueCert extends Component {
         </InputRow>
         <SectionTitle>Recipient Identity</SectionTitle>
         <InputRow>
-          <TextField fullWidth data-test-id="recipientEmail" label="Email" />
+          <TextField
+            fullWidth
+            onChange={this.handleChangeEmail}
+            data-test-id="recipientEmail"
+            label="Email"
+          />
         </InputRow>
         <SectionTitle>Attestation Claim Data</SectionTitle>
         <FlexInput>
@@ -329,6 +356,10 @@ export default connect(
     },
     addAppId(values) {
       dispatch(addAppId(values))
+    },
+    issue(appId, email, schema) {
+      console.log(appId, email, schema)
+      dispatch(issue(appId, email, schema))
     },
   })
 )(IssueCert)
