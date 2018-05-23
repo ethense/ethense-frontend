@@ -45,15 +45,7 @@ export class IssueCert extends Component {
     issuerId: this.props.appIds.length > 0 ? this.props.appIds[0].id : null,
     email: '',
     treeData: [
-      { name: 'email', type: 'string', value: 'mike@test.com' },
-      {
-        name: 'address',
-        type: 'object',
-        children: [
-          { name: 'street', type: 'string', value: '123 main st' },
-          { name: 'city', type: 'string', value: 'indy' },
-        ],
-      },
+      { name: '', type: 'string', value: '' },
     ],
   }
 
@@ -85,7 +77,7 @@ export class IssueCert extends Component {
     this.setState({ email: e.target.value })
   }
 
-  handleSubmit = values => {
+  handleAddAppId = values => {
     this.props.addAppId(values)
     this.setState({ addAppIdOpen: false })
   }
@@ -191,7 +183,7 @@ export class IssueCert extends Component {
       buttons.push(
         <IconButton
           // TODO: get rid of style prop
-          style={{ marginRight: 0 }}
+          style={{ marginRight: 0, height: 32, width: 32 }}
           variant="outlined"
           key={6}
           onClick={this.handleAddNodeChild(node, path)}
@@ -203,6 +195,8 @@ export class IssueCert extends Component {
     buttons.push(
       <IconButton
         variant="outlined"
+          // TODO: get rid of style prop
+        style={{ height: 32, width: 32 }}
         key={5}
         onClick={this.handleRemoveNode(node, path)}
       >
@@ -303,7 +297,7 @@ export class IssueCert extends Component {
           <AddAppIdDialog
             open={this.state.addAppIdOpen}
             onClose={this.handleClose}
-            onSubmit={this.handleSubmit}
+            onSubmit={this.handleAddAppId}
           />
         </InputRow>
         <SectionTitle>Recipient Identity</SectionTitle>
@@ -312,7 +306,7 @@ export class IssueCert extends Component {
             fullWidth
             onChange={this.handleChangeEmail}
             data-test-id="recipientEmail"
-            label="Email"
+            placeholder="Email"
           />
         </InputRow>
         <SectionTitle>Attestation Claim Data</SectionTitle>
