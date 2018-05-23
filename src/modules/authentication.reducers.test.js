@@ -1,6 +1,8 @@
 import reducer, * as actions from './authentication'
 import expect from 'expect'
 
+const USER_ID = '1'
+
 describe('authentication reducer', () => {
   it('should return the initial state', () => {
     expect(reducer(undefined, {})).toEqual({
@@ -8,6 +10,7 @@ describe('authentication reducer', () => {
       reading: false,
       error: null,
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -17,6 +20,7 @@ describe('authentication reducer', () => {
       reading: true,
       error: null,
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -31,6 +35,7 @@ describe('authentication reducer', () => {
       reading: false,
       error: null,
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -45,6 +50,7 @@ describe('authentication reducer', () => {
       reading: false,
       error: new Error('server error'),
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -54,6 +60,7 @@ describe('authentication reducer', () => {
       reading: true,
       error: null,
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -67,6 +74,7 @@ describe('authentication reducer', () => {
       reading: false,
       error: null,
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -81,6 +89,7 @@ describe('authentication reducer', () => {
       reading: false,
       error: new Error('server error'),
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -90,6 +99,7 @@ describe('authentication reducer', () => {
       reading: true,
       error: null,
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -97,12 +107,16 @@ describe('authentication reducer', () => {
     expect(
       reducer(undefined, {
         type: actions.LOGIN_SUCCESS,
+        payload: {
+          userId: USER_ID,
+        },
       })
     ).toEqual({
       usersExist: true,
       reading: false,
       error: null,
       loggedIn: true,
+      credentials: { id: USER_ID },
     })
   })
 
@@ -117,28 +131,32 @@ describe('authentication reducer', () => {
       reading: false,
       error: new Error('server error'),
       loggedIn: false,
+      credentials: null,
     })
   })
 
   it('should handle LOGOUT_REQUEST', () => {
-    expect(reducer(undefined, { type: actions.LOGOUT_REQUEST })).toEqual({
+    expect(
+      reducer(
+        { usersExist: true, loggedIn: true, credentials: { id: USER_ID } },
+        { type: actions.LOGOUT_REQUEST }
+      )
+    ).toEqual({
       usersExist: true,
       reading: true,
       error: null,
       loggedIn: false,
+      credentials: null,
     })
   })
 
   it('should handle LOGOUT_SUCCESS', () => {
-    expect(
-      reducer(undefined, {
-        type: actions.LOGOUT_SUCCESS,
-      })
-    ).toEqual({
+    expect(reducer(undefined, { type: actions.LOGOUT_SUCCESS })).toEqual({
       usersExist: true,
       reading: false,
       error: null,
       loggedIn: false,
+      credentials: null,
     })
   })
 
@@ -149,10 +167,12 @@ describe('authentication reducer', () => {
         payload: new Error('server error'),
       })
     ).toEqual({
+      credentials: null,
       usersExist: true,
       reading: false,
       error: new Error('server error'),
       loggedIn: false,
+      credentials: null,
     })
   })
 })

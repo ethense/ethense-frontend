@@ -63,6 +63,7 @@ const initialState = {
   reading: false,
   error: null,
   loggedIn: false,
+  credentials: null,
 }
 
 // reducer
@@ -108,12 +109,16 @@ export default (state = initialState, action = {}) => {
         ...state,
         reading: true,
         error: null,
+        credentials: null,
       }
     case LOGIN_SUCCESS:
       return {
         ...state,
         loggedIn: true,
         reading: false,
+        credentials: {
+          id: action.payload.userId,
+        }
       }
     case LOGIN_FAILURE:
       return {
@@ -126,11 +131,12 @@ export default (state = initialState, action = {}) => {
         ...state,
         reading: true,
         error: null,
+        loggedIn: false,
+        credentials: null,
       }
     case LOGOUT_SUCCESS:
       return {
         ...state,
-        loggedIn: false,
         reading: false,
       }
     case LOGOUT_FAILURE:
@@ -138,7 +144,6 @@ export default (state = initialState, action = {}) => {
         ...state,
         reading: false,
         error: action.payload,
-        loggedIn: false,
       }
     default:
       return state
