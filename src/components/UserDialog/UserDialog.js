@@ -11,6 +11,11 @@ import * as Isemail from 'isemail'
 
 import { GradientButton } from '../elements'
 
+const CREATE_USER_TITLE = 'Create User'
+const EDIT_USER_TITLE = 'Edit User'
+const CREATE_USER_SUBMIT = 'Create'
+const EDIT_USER_SUBMIT = 'Save'
+
 const required = value => (!!value ? undefined : 'Required')
 const email = value =>
   Isemail.validate(value || '', { minDomainAtoms: 2 })
@@ -33,6 +38,16 @@ const renderTextField = ({
 )
 
 export class UserDialog extends Component {
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.open && !this.props.open) {
+      const user = nextProps.selectedUser
+      this.props.initialize({
+        email: user ? user.email : '',
+        password: '',
+      })
+    }
+  }
+
   render() {
     return (
       <Dialog
@@ -40,7 +55,9 @@ export class UserDialog extends Component {
         onClose={this.props.handleClose}
         open={this.props.open}
       >
-        <DialogTitle>Create User</DialogTitle>
+        <DialogTitle>
+          {this.props.selectedUser ? EDIT_USER_TITLE : CREATE_USER_TITLE}
+        </DialogTitle>
         <DialogContent>
           <form>
             <Field
@@ -70,7 +87,7 @@ export class UserDialog extends Component {
             onClick={this.props.handleSubmit(this.props.onSubmit)}
             variant="raised"
           >
-            create
+            {this.props.selectedUser ? EDIT_USER_SUBMIT : CREATE_USER_SUBMIT}
           </GradientButton>
         </DialogActions>
       </Dialog>
@@ -80,6 +97,7 @@ export class UserDialog extends Component {
 
 UserDialog.propTypes = {
   onSubmit: PropTypes.func.isRequired,
+  selectedUser: PropTypes.object,
 }
 
 export default reduxForm({

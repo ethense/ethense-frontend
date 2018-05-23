@@ -40,11 +40,7 @@ describe('Issue Certificate page', () => {
     })
 
     it('should open the add app id form when clicked', () => {
-      const mockAddAppId = jest.fn()
-      const component = getShallowComponent({
-        appIds: [],
-        addAppId: mockAddAppId,
-      })
+      const component = getShallowComponent({ appIds: [] })
       const addAppIdBtn = component.find('[data-test-id="addAppIdBtn"]')
       addAppIdBtn.simulate('click')
       expect(component.instance().state.addAppIdOpen).toBe(true)

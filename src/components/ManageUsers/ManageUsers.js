@@ -14,20 +14,21 @@ import Icon from '@material-ui/core/Icon'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader } from '../elements'
-import { getUsers, createUser } from '../../modules/users'
+import { getUsers, createUser, editUser } from '../../modules/users'
 import UserDialog from '../UserDialog'
 
 export class ManageUsers extends Component {
   state = {
     userDialogOpen: false,
+    selectedUser: null,
   }
 
   componentWillMount() {
     this.props.getUsers()
   }
 
-  handleOpenUserDialog = () => {
-    this.setState({ userDialogOpen: true })
+  handleCreateUser = () => {
+    this.setState({ selectedUser: null, userDialogOpen: true })
   }
 
   handleCloseUserDialog = () => {
@@ -36,8 +37,19 @@ export class ManageUsers extends Component {
 
   handleSubmitUserDialog = values => {
     console.log('submit user dialog', values)
-    this.props.createUser(values)
+    if (this.state.selectedUser) {
+      this.props.editUser({
+        id: this.state.selectedUser.id,
+        ...values
+      })
+    } else {
+      this.props.createUser(values)
+    }
     this.handleCloseUserDialog()
+  }
+
+  handleEditUser = user => () => {
+    this.setState({ selectedUser: user, userDialogOpen: true })
   }
 
   render() {
@@ -46,7 +58,7 @@ export class ManageUsers extends Component {
         <PageHeader>
           <Typography variant="title">Users</Typography>
           <GradientButton
-            onClick={this.handleOpenUserDialog}
+            onClick={this.handleCreateUser}
             data-test-id="createUserBtn"
             variant="raised"
           >
@@ -72,10 +84,10 @@ export class ManageUsers extends Component {
                   <TableCell numeric>
                     {[
                       <IconButton key={0}>
-                        <Icon>edit</Icon>
+                        <Icon onClick={this.handleEditUser(user)}>edit</Icon>
                       </IconButton>,
                       <IconButton key={1}>
-                        <Icon>delete_outline</Icon>
+                        <Icon >delete_outline</Icon>
                       </IconButton>,
                     ]}
                   </TableCell>
@@ -88,6 +100,7 @@ export class ManageUsers extends Component {
           open={this.state.userDialogOpen}
           onClose={this.handleCloseUserDialog}
           onSubmit={this.handleSubmitUserDialog}
+          selectedUser={this.state.selectedUser}
         />
       </SidebarLayout>
     )
@@ -113,6 +126,9 @@ export default withRouter(
       },
       createUser(values) {
         dispatch(createUser(values))
+      },
+      editUser(values) {
+        dispatch(editUser(values))
       },
     })
   )(ManageUsers)
