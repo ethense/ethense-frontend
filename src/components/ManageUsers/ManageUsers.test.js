@@ -5,6 +5,7 @@ import { ManageUsers } from './ManageUsers'
 
 const defaultProps = {
   getUsers: () => {},
+  createUser: () => {},
   users: [],
 }
 
@@ -18,11 +19,6 @@ const getShallowComponent = props =>
   shallow(<ManageUsers {...defaultProps} {...props} />)
 
 describe('Manage Users page', () => {
-  it('should have a primary action button', () => {
-    const component = getShallowComponent()
-    expect(component.find('[data-test-id="addUserBtn"]').exists()).toBe(true)
-  })
-
   it('should request a list of users', () => {
     const mockGetUsers = jest.fn()
     const component = getShallowComponent({ getUsers: mockGetUsers })
@@ -34,5 +30,18 @@ describe('Manage Users page', () => {
     const usersTable = component.find('[data-test-id="usersTableBody"]')
     expect(usersTable.exists()).toBe(true)
     expect(usersTable.children().length).toBe(USERS.length)
+  })
+
+  describe('create user button', () => {
+    it('should render', () => {
+      expect(getShallowComponent().find('[data-test-id="createUserBtn"]').exists()).toBe(true)
+    })
+
+    it('should open the user form when clicked', () => {
+      const component = getShallowComponent()
+      const createUserBtn = component.find('[data-test-id="createUserBtn"]')
+      createUserBtn.simulate('click')
+      expect(component.instance().state.userDialogOpen).toBe(true)
+    })
   })
 })

@@ -7,10 +7,16 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
+import * as Isemail from 'isemail'
 
 import { GradientButton } from '../elements'
 
 const required = value => (!!value ? undefined : 'Required')
+const email = value =>
+  Isemail.validate(value || '', { minDomainAtoms: 2 })
+    ? undefined
+    : 'Invalid Email'
+
 const renderTextField = ({
   input,
   label,
@@ -18,48 +24,41 @@ const renderTextField = ({
   ...custom
 }) => (
   <TextField
-    label={label}
-    helperText={touched && !!error ? error : ' '}
     error={touched && !!error}
+    helperText={touched && !!error ? error : ' '}
+    label={label}
     {...input}
     {...custom}
   />
 )
 
-export class AddAppIdDialog extends Component {
+export class UserDialog extends Component {
   render() {
     return (
       <Dialog
-        data-test-id="addAppIdForm"
-        open={this.props.open}
+        data-test-id="userForm"
         onClose={this.props.handleClose}
+        open={this.props.open}
       >
-        <DialogTitle>New App Identity</DialogTitle>
+        <DialogTitle>Create User</DialogTitle>
         <DialogContent>
           <form>
             <Field
-              data-test-id="appNameInput"
-              name="name"
-              validate={[required]}
               component={renderTextField}
+              data-test-id="emailInput"
               fullWidth
-              label="App Name"
+              label="Email"
+              name="email"
+              validate={[required, email]}
             />
             <Field
-              data-test-id="mnidInput"
-              name="mnid"
-              validate={[required]}
               component={renderTextField}
+              data-test-id="passwordInput"
               fullWidth
-              label="MNID"
-            />
-            <Field
-              data-test-id="privateKeyInput"
-              name="privateKey"
+              label="Password"
+              name="password"
+              type="password"
               validate={[required]}
-              component={renderTextField}
-              fullWidth
-              label="Private Key"
             />
           </form>
         </DialogContent>
@@ -67,11 +66,11 @@ export class AddAppIdDialog extends Component {
           <Button onClick={this.props.onClose}>cancel</Button>
           <GradientButton
             data-test-id="submitAddAppId"
+            disabled={this.props.invalid}
             onClick={this.props.handleSubmit(this.props.onSubmit)}
             variant="raised"
-            disabled={this.props.invalid}
           >
-            add
+            create
           </GradientButton>
         </DialogActions>
       </Dialog>
@@ -79,10 +78,10 @@ export class AddAppIdDialog extends Component {
   }
 }
 
-AddAppIdDialog.propTypes = {
+UserDialog.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 }
 
 export default reduxForm({
-  form: 'AddAppId',
-})(AddAppIdDialog)
+  form: 'UserForm',
+})(UserDialog)

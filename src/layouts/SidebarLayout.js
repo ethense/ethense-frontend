@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import Sidebar from '../components/Sidebar'
+import Notification from '../components/Notification'
 import { withTheme } from '@material-ui/core/styles'
 
 const Container = styled.div`
@@ -21,6 +22,7 @@ const Content = withTheme()(styled.div`
 export const SidebarLayout = ({ children, ...rest }) => {
   return (
     <Container>
+      <Notification anchorOrigin={{ vertical: 'top', horizontal: 'center' }} />
       <Sidebar />
       <Content>{children}</Content>
     </Container>
