@@ -6,6 +6,8 @@ import { ManageUsers } from './ManageUsers'
 const defaultProps = {
   getUsers: () => {},
   createUser: () => {},
+  editUser: () => {},
+  deleteUser: () => {},
   users: [],
 }
 

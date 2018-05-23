@@ -15,6 +15,10 @@ export const EDIT_USER_REQUEST = 'authentication/EDIT_USER_REQUEST'
 export const EDIT_USER_SUCCESS = 'authentication/EDIT_USER_SUCCESS'
 export const EDIT_USER_FAILURE = 'authentication/EDIT_USER_FAILURE'
 
+export const DELETE_USER_REQUEST = 'authentication/DELETE_USER_REQUEST'
+export const DELETE_USER_SUCCESS = 'authentication/DELETE_USER_SUCCESS'
+export const DELETE_USER_FAILURE = 'authentication/DELETE_USER_FAILURE'
+
 const getUsersRequest = () => ({ type: GET_USERS_REQUEST })
 const getUsersSuccess = response => ({
   type: GET_USERS_SUCCESS,
@@ -38,6 +42,13 @@ const editUserSuccess = response => ({
   payload: response,
 })
 const editUserFailure = error => ({ type: EDIT_USER_FAILURE, payload: error })
+
+const deleteUserRequest = () => ({ type: DELETE_USER_REQUEST })
+const deleteUserSuccess = response => ({
+  type: DELETE_USER_SUCCESS,
+  payload: response,
+})
+const deleteUserFailure = error => ({ type: DELETE_USER_FAILURE, payload: error })
 
 // state
 const initialState = {
@@ -114,6 +125,25 @@ export default (state = initialState, action = {}) => {
         reading: false,
         error: action.payload,
       }
+    case DELETE_USER_REQUEST:
+      return {
+        ...state,
+        reading: true,
+        error: null,
+      }
+    case DELETE_USER_SUCCESS:
+      const deletedUserId = action.payload
+      return {
+        ...state,
+        reading: false,
+        users: state.users.filter(user => (user.id !== deletedUserId)),
+      }
+    case DELETE_USER_FAILURE:
+      return {
+        ...state,
+        reading: false,
+        error: action.payload,
+      }
     default:
       return state
   }
@@ -153,8 +183,6 @@ export const editUser = values => async dispatch => {
   const { id, ...other } = values
   dispatch(editUserRequest())
   try {
-    console.log(other)
-    console.log(values)
     const response = await api.patch(`/users/${id}`, other)
     dispatch(editUserSuccess(response.data))
     return response
@@ -163,6 +191,18 @@ export const editUser = values => async dispatch => {
     dispatch(
       displayNotification(EDIT_USER_ERROR(error.response.data.error.message))
     )
+    return error
+  }
+}
+
+export const deleteUser = id => async dispatch => {
+  dispatch(deleteUserRequest())
+  try {
+    const response = await api.delete(`users/${id}`)
+    dispatch(deleteUserSuccess(id))
+    return response
+  } catch (error) {
+    dispatch(deleteUserFailure(error))
     return error
   }
 }

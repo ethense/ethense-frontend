@@ -14,7 +14,7 @@ import Icon from '@material-ui/core/Icon'
 
 import { SidebarLayout } from '../../layouts'
 import { GradientButton, PageHeader } from '../elements'
-import { getUsers, createUser, editUser } from '../../modules/users'
+import { getUsers, createUser, editUser, deleteUser } from '../../modules/users'
 import UserDialog from '../UserDialog'
 
 export class ManageUsers extends Component {
@@ -40,7 +40,7 @@ export class ManageUsers extends Component {
     if (this.state.selectedUser) {
       this.props.editUser({
         id: this.state.selectedUser.id,
-        ...values
+        ...values,
       })
     } else {
       this.props.createUser(values)
@@ -50,6 +50,10 @@ export class ManageUsers extends Component {
 
   handleEditUser = user => () => {
     this.setState({ selectedUser: user, userDialogOpen: true })
+  }
+
+  handleDeleteUser = userId => () => {
+    this.props.deleteUser(userId)
   }
 
   render() {
@@ -87,7 +91,9 @@ export class ManageUsers extends Component {
                         <Icon onClick={this.handleEditUser(user)}>edit</Icon>
                       </IconButton>,
                       <IconButton key={1}>
-                        <Icon >delete_outline</Icon>
+                        <Icon onClick={this.handleDeleteUser(user.id)}>
+                          delete_outline
+                        </Icon>
                       </IconButton>,
                     ]}
                   </TableCell>
@@ -113,6 +119,8 @@ ManageUsers.propTypes = {
   users: PropTypes.array,
   getUsers: PropTypes.func.isRequired,
   createUser: PropTypes.func.isRequired,
+  editUser: PropTypes.func.isRequired,
+  deleteUser: PropTypes.func.isRequired,
 }
 
 export default withRouter(
@@ -129,6 +137,9 @@ export default withRouter(
       },
       editUser(values) {
         dispatch(editUser(values))
+      },
+      deleteUser(id) {
+        dispatch(deleteUser(id))
       },
     })
   )(ManageUsers)
