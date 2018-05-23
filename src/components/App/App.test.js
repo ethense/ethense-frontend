@@ -34,6 +34,9 @@ describe('App', () => {
         },
         appIdentity: {
           identities: [],
+        },
+        users: {
+          users: [],
         }
       })
     })
@@ -96,6 +99,9 @@ describe('App', () => {
         },
         appIdentity: {
           identities: [],
+        },
+        users: {
+          users: [],
         }
       })
     })

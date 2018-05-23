@@ -183,7 +183,7 @@ export class IssueCert extends Component {
       buttons.push(
         <IconButton
           // TODO: get rid of style prop
-          style={{ marginRight: 0, height: 32, width: 32 }}
+          style={{ marginRight: 0 }}
           variant="outlined"
           key={6}
           onClick={this.handleAddNodeChild(node, path)}
@@ -195,8 +195,6 @@ export class IssueCert extends Component {
     buttons.push(
       <IconButton
         variant="outlined"
-          // TODO: get rid of style prop
-        style={{ height: 32, width: 32 }}
         key={5}
         onClick={this.handleRemoveNode(node, path)}
       >
