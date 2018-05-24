@@ -49,7 +49,6 @@ export class Sidebar extends Component {
           open={Boolean(this.state.anchorEl)}
           onClose={this.handleClose}
         >
-          <MenuItem onClick={this.handleClose}>Profile</MenuItem>
           <MenuItem data-test-id="logoutButton" onClick={this.props.logout}>
             Logout
           </MenuItem>

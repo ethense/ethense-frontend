@@ -131,19 +131,21 @@ export default (state = initialState, action = {}) => {
         ...state,
         reading: true,
         error: null,
-        loggedIn: false,
-        credentials: null,
       }
     case LOGOUT_SUCCESS:
       return {
         ...state,
         reading: false,
+        credentials: null,
+        loggedIn: false,
       }
     case LOGOUT_FAILURE:
       return {
         ...state,
         reading: false,
         error: action.payload,
+        credentials: null,
+        loggedIn: false,
       }
     default:
       return state

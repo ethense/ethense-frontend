@@ -136,12 +136,7 @@ describe('authentication reducer', () => {
   })
 
   it('should handle LOGOUT_REQUEST', () => {
-    expect(
-      reducer(
-        { usersExist: true, loggedIn: true, credentials: { id: USER_ID } },
-        { type: actions.LOGOUT_REQUEST }
-      )
-    ).toEqual({
+    expect(reducer(undefined, { type: actions.LOGOUT_REQUEST })).toEqual({
       usersExist: true,
       reading: true,
       error: null,
@@ -151,7 +146,18 @@ describe('authentication reducer', () => {
   })
 
   it('should handle LOGOUT_SUCCESS', () => {
-    expect(reducer(undefined, { type: actions.LOGOUT_SUCCESS })).toEqual({
+    expect(
+      reducer(
+        {
+          usersExist: true,
+          reading: true,
+          error: null,
+          loggedIn: true,
+          credentials: { id: USER_ID },
+        },
+        { type: actions.LOGOUT_SUCCESS }
+      )
+    ).toEqual({
       usersExist: true,
       reading: false,
       error: null,
@@ -162,10 +168,19 @@ describe('authentication reducer', () => {
 
   it('should handle LOGOUT_ERROR', () => {
     expect(
-      reducer(undefined, {
-        type: actions.LOGOUT_FAILURE,
-        payload: new Error('server error'),
-      })
+      reducer(
+        {
+          usersExist: true,
+          reading: true,
+          error: null,
+          loggedIn: true,
+          credentials: { id: USER_ID },
+        },
+        {
+          type: actions.LOGOUT_FAILURE,
+          payload: new Error('server error'),
+        }
+      )
     ).toEqual({
       credentials: null,
       usersExist: true,

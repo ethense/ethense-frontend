@@ -87,13 +87,18 @@ export class ManageUsers extends Component {
                   <TableCell>Admin</TableCell>
                   <TableCell numeric>
                     {[
-                      <IconButton key={0}>
-                        <Icon onClick={this.handleEditUser(user)}>edit</Icon>
+                      <IconButton key={0} onClick={this.handleEditUser(user)}>
+                        <Icon>edit</Icon>
                       </IconButton>,
-                      <IconButton key={1}>
-                        <Icon onClick={this.handleDeleteUser(user.id)}>
-                          delete_outline
-                        </Icon>
+                      <IconButton
+                        key={1}
+                        disabled={
+                          !this.props.credentials ||
+                          user.id === this.props.credentials.id
+                        }
+                        onClick={this.handleDeleteUser(user.id)}
+                      >
+                        <Icon>delete_outline</Icon>
                       </IconButton>,
                     ]}
                   </TableCell>
@@ -117,6 +122,7 @@ ManageUsers.route = '/users'
 
 ManageUsers.propTypes = {
   users: PropTypes.array,
+  credentials: PropTypes.object,
   getUsers: PropTypes.func.isRequired,
   createUser: PropTypes.func.isRequired,
   editUser: PropTypes.func.isRequired,
@@ -127,6 +133,7 @@ export default withRouter(
   connect(
     state => ({
       users: state.users.users,
+      credentials: state.authentication.credentials,
     }),
     dispatch => ({
       getUsers() {

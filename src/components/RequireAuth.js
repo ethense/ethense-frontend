@@ -27,7 +27,7 @@ export default function(ComposedComponent, redirectRoute) {
       this.checkRedirect(this.props)
     }
 
-    componentWillUpdate(nextProps) {
+    componentWillReceiveProps(nextProps) {
       this.checkRedirect(nextProps)
     }
 

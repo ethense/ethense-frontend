@@ -9,6 +9,9 @@ const defaultProps = {
   editUser: () => {},
   deleteUser: () => {},
   users: [],
+  credentials: {
+    id: 1
+  }
 }
 
 const USERS = [
