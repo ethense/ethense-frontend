@@ -8,31 +8,29 @@ import RequireAuth from '../RequireAuth'
 import RequireNoAuth from '../RequireNoAuth'
 
 const App = () => (
-  <div>
-    <Switch>
-      <Route
-        exact
-        path={LoginForm.route}
-        component={RequireNoAuth(LoginForm, IssueCert.route)}
-      />
-      <Route
-        exact
-        path={IssueCert.route}
-        component={RequireAuth(IssueCert, LoginForm.route)}
-      />
-      <Route
-        exact
-        path={ManageAppIds.route}
-        component={RequireAuth(ManageAppIds, LoginForm.route)}
-      />
-      <Route
-        exact
-        path={ManageUsers.route}
-        component={RequireAuth(ManageUsers, LoginForm.route)}
-      />
-      <Redirect to={LoginForm.route} />
-    </Switch>
-  </div>
+  <Switch>
+    <Route
+      exact
+      path={LoginForm.route}
+      component={RequireNoAuth(LoginForm, IssueCert.route)}
+    />
+    <Route
+      exact
+      path={IssueCert.route}
+      component={RequireAuth(IssueCert, LoginForm.route)}
+    />
+    <Route
+      exact
+      path={ManageAppIds.route}
+      component={RequireAuth(ManageAppIds, LoginForm.route)}
+    />
+    <Route
+      exact
+      path={ManageUsers.route}
+      component={RequireAuth(ManageUsers, LoginForm.route)}
+    />
+    <Redirect to={LoginForm.route} />
+  </Switch>
 )
 
 export default App

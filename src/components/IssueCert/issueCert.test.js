@@ -4,7 +4,14 @@ import { IssueCert } from './IssueCert'
 const defaultProps = {
   getAppIds: () => {},
   addAppId: () => {},
+  getClaimTemplates: () => {},
   appIds: [],
+  claimTemplates: [],
+  issue: () => {},
+  createClaimTemplate: () => {},
+  editClaimTemplate: () => {},
+  deleteClaimTemplate: () => {},
+  clearNewTemplateId: () => {},
 }
 
 const APP_ID = {

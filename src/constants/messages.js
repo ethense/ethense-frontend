@@ -3,3 +3,5 @@ export const PICKUP_EMAIL_SENT = email => `Certificate pickup email successfully
 export const PICKUP_EMAIL_ERROR = 'Error sending certificate pickup email'
 export const CREATE_USER_ERROR = message => `Error creating user: ${message}`
 export const EDIT_USER_ERROR = message => `Error editing user: ${message}`
+export const CREATE_CLAIM_TEMPLATE_ERROR = message => `Error creating claim template: ${message}`
+export const EDIT_CLAIM_TEMPLATE_ERROR = message => `Error saving claim template: ${message}`

@@ -31,6 +31,14 @@ import {
 import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
 import { issue } from '../../modules/issuance'
+import {
+  getClaimTemplates,
+  createClaimTemplate,
+  editClaimTemplate,
+  deleteClaimTemplate,
+  clearNewTemplateId,
+} from '../../modules/claimTemplate'
+import ClaimTemplateDialog from '../ClaimTemplateDialog'
 
 const getNodeKey = ({ treeIndex }) => treeIndex
 const getNewNode = () => ({
@@ -44,13 +52,17 @@ export class IssueCert extends Component {
     addAppIdOpen: false,
     issuerId: this.props.appIds.length > 0 ? this.props.appIds[0].id : null,
     email: '',
-    treeData: [
-      { name: '', type: 'string', value: '' },
-    ],
+    claimTemplateDialogOpen: false,
+    claimTemplateId:
+      this.props.claimTemplates.length > 0
+        ? this.props.claimTemplates[0].id
+        : '',
+    treeData: [{ name: '', type: 'string', value: '' }],
   }
 
   componentWillMount() {
     this.props.getAppIds()
+    this.props.getClaimTemplates()
   }
 
   componentWillReceiveProps(nextProps) {
@@ -58,6 +70,13 @@ export class IssueCert extends Component {
       this.setState({
         issuerId: nextProps.appIds[0].id,
       })
+    }
+
+    if (!this.props.newTemplateId && !!nextProps.newTemplateId) {
+      this.setState({
+        claimTemplateId: nextProps.newTemplateId
+      })
+      this.props.clearNewTemplateId()
     }
   }
 
@@ -80,6 +99,20 @@ export class IssueCert extends Component {
   handleAddAppId = values => {
     this.props.addAppId(values)
     this.setState({ addAppIdOpen: false })
+  }
+
+  handleChangeClaim = e => {
+    const templateId = e.target.value
+    const newState = {
+      claimTemplateId: templateId,
+    }
+    const template = this.props.claimTemplates.find(
+      template => template.id === templateId
+    )
+    if (template) {
+      newState.treeData = template.schema
+    }
+    this.setState(newState)
   }
 
   handleTreeChange = treeData => {
@@ -153,6 +186,36 @@ export class IssueCert extends Component {
         path,
         getNodeKey,
       }),
+    })
+  }
+
+  handleOpenClaimTemplateDialog = () => {
+    this.setState({ claimTemplateDialogOpen: true })
+  }
+
+  handleCloseClaimTemplateDialog = () => {
+    this.setState({ claimTemplateDialogOpen: false })
+  }
+
+  handleAddClaimTemplate = values => {
+    this.props.createClaimTemplate({
+      name: values.name,
+      schema: this.state.treeData,
+    })
+    this.setState({ claimTemplateDialogOpen: false })
+  }
+
+  handleSaveClaimTemplate = () => {
+    this.props.editClaimTemplate({
+      id: this.state.claimTemplateId,
+      schema: this.state.treeData,
+    })
+  }
+
+  handleDeleteClaimTemplate = () => {
+    this.props.deleteClaimTemplate(this.state.claimTemplateId)
+    this.setState({
+      claimTemplateId: '',
     })
   }
 
@@ -308,6 +371,50 @@ export class IssueCert extends Component {
           />
         </InputRow>
         <SectionTitle>Attestation Claim Data</SectionTitle>
+        <InputRow>
+          <Select
+            style={{ flex: 1, marginRight: 24 }}
+            data-test-id="claimTemplateSelect"
+            value={this.state.claimTemplateId}
+            onChange={this.handleChangeClaim}
+            displayEmpty
+          >
+            <MenuItem value={''}>
+              <em>(No Template Selected)</em>
+            </MenuItem>
+            {this.props.claimTemplates &&
+              this.props.claimTemplates.map(template => (
+                <MenuItem key={template.id} value={template.id}>
+                  {template.name}
+                </MenuItem>
+              ))}
+          </Select>
+          <IconButton
+            disabled={!this.state.claimTemplateId}
+            onClick={this.handleDeleteClaimTemplate}
+            variant="outlined"
+          >
+            <Icon>delete_outline</Icon>
+          </IconButton>
+          <IconButton
+            disabled={!this.state.claimTemplateId}
+            onClick={this.handleSaveClaimTemplate}
+            variant="outlined"
+          >
+            <Icon>save</Icon>
+          </IconButton>
+          <IconButton
+            onClick={this.handleOpenClaimTemplateDialog}
+            variant="outlined"
+          >
+            <Icon>add</Icon>
+          </IconButton>
+          <ClaimTemplateDialog
+            open={this.state.claimTemplateDialogOpen}
+            onClose={this.handleCloseClaimTemplateDialog}
+            onSubmit={this.handleAddClaimTemplate}
+          />
+        </InputRow>
         <FlexInput>
           <SortableTree
             style={{ flex: 1 }}
@@ -334,14 +441,25 @@ export class IssueCert extends Component {
 
 IssueCert.propTypes = {
   appIds: PropTypes.array,
+  claimTemplates: PropTypes.array,
   getAppIds: PropTypes.func.isRequired,
   addAppId: PropTypes.func.isRequired,
+  issue: PropTypes.func.isRequired,
+  getClaimTemplates: PropTypes.func.isRequired,
+  createClaimTemplate: PropTypes.func.isRequired,
+  editClaimTemplate: PropTypes.func.isRequired,
+  deleteClaimTemplate: PropTypes.func.isRequired,
+  clearNewTemplateId: PropTypes.func.isRequired,
 }
 
 IssueCert.route = '/issue'
 
 export default connect(
-  state => ({ appIds: state.appIdentity.identities }),
+  state => ({
+    appIds: state.appIdentity.identities,
+    claimTemplates: state.claimTemplate.templates,
+    newTemplateId: state.claimTemplate.newTemplateId,
+  }),
   dispatch => ({
     getAppIds() {
       dispatch(getAppIds())
@@ -350,8 +468,22 @@ export default connect(
       dispatch(addAppId(values))
     },
     issue(appId, email, schema) {
-      console.log(appId, email, schema)
       dispatch(issue(appId, email, schema))
     },
+    getClaimTemplates() {
+      dispatch(getClaimTemplates())
+    },
+    createClaimTemplate(values) {
+      dispatch(createClaimTemplate(values))
+    },
+    editClaimTemplate(values) {
+      dispatch(editClaimTemplate(values))
+    },
+    deleteClaimTemplate(id) {
+      dispatch(deleteClaimTemplate(id))
+    },
+    clearNewTemplateId() {
+      dispatch(clearNewTemplateId())
+    }
   })
 )(IssueCert)

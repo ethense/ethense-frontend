@@ -37,7 +37,10 @@ describe('App', () => {
         },
         users: {
           users: [],
-        }
+        },
+        claimTemplate: {
+          templates: [],
+        },
       })
     })
 
@@ -102,7 +105,10 @@ describe('App', () => {
         },
         users: {
           users: [],
-        }
+        },
+        claimTemplate: {
+          templates: [],
+        },
       })
     })
 
