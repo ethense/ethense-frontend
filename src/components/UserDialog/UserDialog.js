@@ -7,7 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import DialogActions from '@material-ui/core/DialogActions'
 import TextField from '@material-ui/core/TextField'
-import * as Isemail from 'isemail'
+import * as Isemail from '../../lib/isemail'
 
 import { GradientButton } from '../elements'
 
