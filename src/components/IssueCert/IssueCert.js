@@ -53,10 +53,7 @@ export class IssueCert extends Component {
     issuerId: this.props.appIds.length > 0 ? this.props.appIds[0].id : null,
     email: '',
     claimTemplateDialogOpen: false,
-    claimTemplateId:
-      this.props.claimTemplates.length > 0
-        ? this.props.claimTemplates[0].id
-        : '',
+    claimTemplateId: '',
     treeData: [{ name: '', type: 'string', value: '' }],
   }
 
@@ -74,7 +71,7 @@ export class IssueCert extends Component {
 
     if (!this.props.newTemplateId && !!nextProps.newTemplateId) {
       this.setState({
-        claimTemplateId: nextProps.newTemplateId
+        claimTemplateId: nextProps.newTemplateId,
       })
       this.props.clearNewTemplateId()
     }
@@ -484,6 +481,6 @@ export default connect(
     },
     clearNewTemplateId() {
       dispatch(clearNewTemplateId())
-    }
+    },
   })
 )(IssueCert)
