@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import Icon from '@material-ui/core/Icon'
 
 import IssueCert from '../IssueCert'
+import ManageClaims from '../ManageClaims'
 import ManageAppIds from '../ManageAppIds'
 import ManageUsers from '../ManageUsers'
 import { logout } from '../../modules/authentication'
@@ -32,7 +33,10 @@ export class Sidebar extends Component {
     return (
       <Container>
         <NavButton data-test-id="issueNav" to={IssueCert.route}>
-          <Icon>school</Icon>Issue Certificate
+          <Icon>school</Icon>Issue Certificates
+        </NavButton>
+        <NavButton data-test-id="claimsNav" to={ManageClaims.route}>
+          <Icon>list</Icon>Manage Claims
         </NavButton>
         <NavButton data-test-id="usersNav" to={ManageUsers.route}>
           <Icon>supervisor_account</Icon>Manage Users

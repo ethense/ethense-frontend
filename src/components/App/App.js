@@ -2,6 +2,7 @@ import React from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import LoginForm from '../LoginForm'
 import IssueCert from '../IssueCert'
+import ManageClaims from '../ManageClaims'
 import ManageAppIds from '../ManageAppIds'
 import ManageUsers from '../ManageUsers'
 import RequireAuth from '../RequireAuth'
@@ -13,6 +14,11 @@ const App = () => (
       exact
       path={LoginForm.route}
       component={RequireNoAuth(LoginForm, IssueCert.route)}
+    />
+    <Route
+      exact
+      path={ManageClaims.route}
+      component={RequireAuth(ManageClaims, LoginForm.route)}
     />
     <Route
       exact
