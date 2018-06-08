@@ -287,7 +287,7 @@ export class ManageClaims extends Component {
           onSubmit={this.handleCreateClaim}
         />
         <SectionTitle>Attributes</SectionTitle>
-        <FlexInput>
+        <FlexInput numRows={this.state.selectedClaimSchema.length}>
           <SortableTree
             style={{ flex: 1 }}
             treeData={this.state.selectedClaimSchema}

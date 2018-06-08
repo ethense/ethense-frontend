@@ -15,8 +15,6 @@ const Content = withTheme()(styled.div`
   background: none;
   padding: ${props => props.theme.spacing.medium};
   overflow-y: scroll;
-  display: flex;
-  flex-direction: column;
 `)
 
 export const SidebarLayout = ({ children, ...rest }) => {

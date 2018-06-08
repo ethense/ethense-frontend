@@ -56,7 +56,9 @@ export const InputRow = withTheme()(styled(({ children, ...other }) => (
   justify-content: space-between;
   margin-bottom: ${props => props.theme.spacing.medium};
   margin-top: ${props => props.theme.spacing.tiny};
-  padding: ${props => props.theme.spacing.small};
+  padding-left: ${props => props.theme.spacing.small};
+  padding-right: ${props => props.theme.spacing.small};
+  height: ${props => props.theme.spacing.huge};
 `)
 
 export const FlexInput = withTheme()(styled(({ children, ...other }) => (
@@ -66,8 +68,8 @@ export const FlexInput = withTheme()(styled(({ children, ...other }) => (
 ))`
   display: flex;
   flex-direction: column;
-  flex: 1;
   margin-top: ${props => props.theme.spacing.tiny};
+  height: ${props => props.numRows * 56 + 72}px;
 `)
 
 export const AddAttrButton = withTheme()(styled(Button)`

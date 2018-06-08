@@ -50,7 +50,7 @@ describe('Issue Certificate page', () => {
       const component = getShallowComponent({ appIds: [] })
       const addAppIdBtn = component.find('[data-test-id="addAppIdBtn"]')
       addAppIdBtn.simulate('click')
-      expect(component.instance().state.addAppIdOpen).toBe(true)
+      expect(component.instance().state.appIdDialogOpen).toBe(true)
     })
   })
 
@@ -66,8 +66,8 @@ describe('Issue Certificate page', () => {
     })
   })
 
-  it('should render a recipient email input', () => {
-    const component = getShallowComponent({ appIds: [] })
-    expect(component.find('[data-test-id="recipientEmail"]').length).toBe(1)
-  })
+  // it('should render a recipient email input', () => {
+  //   const component = getShallowComponent({ appIds: [] })
+  //   expect(component.find('[data-test-id="recipientEmail"]').length).toBe(1)
+  // })
 })

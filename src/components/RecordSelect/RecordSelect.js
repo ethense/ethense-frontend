@@ -42,7 +42,7 @@ export class RecordSelect extends Component {
         >
           <Icon>save</Icon>
         </IconButton>
-        <IconButton onClick={this.props.onClickCreate} variant="outlined">
+        <IconButton color="secondary" onClick={this.props.onClickCreate}>
           <Icon>add</Icon>
         </IconButton>
       </InputRow>

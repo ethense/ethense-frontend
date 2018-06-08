@@ -1,60 +1,79 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
-import Button from '@material-ui/core/Button'
-import IconButton from '@material-ui/core/IconButton'
-import Icon from '@material-ui/core/Icon'
-import TextField from '@material-ui/core/TextField'
-import Select from '@material-ui/core/Select'
-import MenuItem from '@material-ui/core/MenuItem'
-import Input from '@material-ui/core/Input'
-import SortableTree, {
-  addNodeUnderParent,
-  removeNodeAtPath,
-  changeNodeAtPath,
-} from 'react-sortable-tree'
-import 'react-sortable-tree/style.css'
-import SortableTreeTheme from '../SortableTreeTheme'
+import {
+  Button,
+  Divider,
+  Icon,
+  IconButton,
+  Input,
+  InputAdornment,
+  MenuItem,
+  Paper,
+  Select,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Tabs,
+  TextField,
+  Typography,
+} from '@material-ui/core'
+import styled from 'styled-components'
 
 import { SidebarLayout } from '../../layouts'
 import {
-  GradientButton,
-  PageHeader,
-  SectionTitle,
-  InputRow,
-  FlexInput,
   AddAttrButton,
+  FlexInput,
+  GradientButton,
   HoverSelect,
   HoverTextField,
+  InputRow,
+  PageHeader,
+  SectionTitle,
 } from '../elements'
 import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
 import { issue } from '../../modules/issuance'
-import {
-  getClaimTemplates,
-  createClaimTemplate,
-  editClaimTemplate,
-  deleteClaimTemplate,
-  clearNewTemplateId,
-} from '../../modules/claimTemplate'
-import ClaimTemplateDialog from '../ClaimTemplateDialog'
+import { getClaimTemplates } from '../../modules/claimTemplate'
+import RecordSelect from '../RecordSelect'
+import { MULTIPLE_RECIPIENTS, SINGLE_RECIPIENT } from '../../constants/enums'
 
-const getNodeKey = ({ treeIndex }) => treeIndex
-const getNewNode = () => ({
-  name: '',
-  type: 'string',
-  value: '',
-})
+const RecipientsForm = styled(({ children, ...props }) => (
+  <Paper elevation={1} {...props}>
+    {children}
+  </Paper>
+))`
+  margin-top: 8px;
+`
+
+const RecipientsContent = styled.div`
+  padding: 16px;
+`
+
+const RecipientsToolbar = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  margin-top: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+`
 
 export class IssueCert extends Component {
   state = {
-    addAppIdOpen: false,
-    issuerId: this.props.appIds.length > 0 ? this.props.appIds[0].id : null,
+    appIdDialogOpen: false,
+    // selectedAppId: this.props.appIds.length > 0 ? this.props.appIds[0].id : null,
     email: '',
-    claimTemplateDialogOpen: false,
-    claimTemplateId: '',
-    treeData: [{ name: '', type: 'string', value: '' }],
+    selectedIssuanceId: '',
+    selectedAppId: '',
+    selectedClaimId: '',
+    selectedClaimDynamicFields: [],
+    recipientType: MULTIPLE_RECIPIENTS,
   }
 
   componentWillMount() {
@@ -65,253 +84,80 @@ export class IssueCert extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.appIds.length === 0 && nextProps.appIds.length > 0) {
       this.setState({
-        issuerId: nextProps.appIds[0].id,
+        selectedAppId: nextProps.appIds[0].id,
       })
     }
-
-    if (!this.props.newTemplateId && !!nextProps.newTemplateId) {
-      this.setState({
-        claimTemplateId: nextProps.newTemplateId,
-      })
-      this.props.clearNewTemplateId()
-    }
   }
 
-  handleClickOpen = () => {
-    this.setState({ addAppIdOpen: true })
+  // handlers to manage issuances
+  handleChangeIssuance = () => {}
+  handleDeleteIssuance = () => {}
+  handleSaveIssuance = () => {}
+  handleOpenIssuanceDialog = () => {}
+  handleSubmit = () => {
+    // this.props.issue(this.state.selectedAppId, this.state.email, this.state.treeData)
   }
 
-  handleClose = () => {
-    this.setState({ addAppIdOpen: false })
+  // handlers to manage app ids
+  handleOpenAppIdDialog = () => {
+    this.setState({ appIdDialogOpen: true })
   }
-
-  handleChangeApp = e => {
-    this.setState({ issuerId: e.target.value })
+  handleCloseAppIdDialog = () => {
+    this.setState({ appIdDialogOpen: false })
   }
-
-  handleChangeEmail = e => {
-    this.setState({ email: e.target.value })
-  }
-
   handleAddAppId = values => {
     this.props.addAppId(values)
-    this.setState({ addAppIdOpen: false })
+    this.setState({ appIdDialogOpen: false })
+  }
+  handleChangeAppId = e => {
+    this.setState({ selectedAppId: e.target.value })
   }
 
+  // handlers to manage claim templates
   handleChangeClaim = e => {
-    const templateId = e.target.value
-    const newState = {
-      claimTemplateId: templateId,
-    }
-    const template = this.props.claimTemplates.find(
-      template => template.id === templateId
-    )
-    if (template) {
-      newState.treeData = template.schema
-    }
-    this.setState(newState)
-  }
-
-  handleTreeChange = treeData => {
-    this.setState({ treeData })
-  }
-
-  handleAddAttr = () => {
+    const claimId = e.target.value
+    const claim = this.props.claimTemplates.find(c => c.id === claimId)
     this.setState({
-      treeData: this.state.treeData.concat(getNewNode()),
+      selectedClaimId: claimId,
+      selectedClaimDynamicFields: claim
+        ? claim.schema.filter(attr => attr.type === 'dynamic')
+        : [],
     })
   }
 
-  handleChangeNodeType = (node, path) => e => {
-    const newValue = e.target.value
-    if (newValue === node.type) return
-    const newNode = {
-      name: node.name,
-      type: newValue,
-    }
-
-    switch (newValue) {
-      case 'string':
-        newNode.value = ''
-        break
-      case 'object':
-        newNode.children = []
-        break
-      default:
-        console.error('ERROR: invalid attribute type', newValue)
-    }
-
-    this.setState({
-      treeData: changeNodeAtPath({
-        treeData: this.state.treeData,
-        path,
-        getNodeKey,
-        newNode,
-      }),
-    })
+  // handlers to manage recipients
+  handleChangeRecipientType = (e, value) => {
+    this.setState({ recipientType: value })
   }
-
-  handleChangeNodeText = (attr, node, path) => e => {
-    const newValue = e.target.value
-
-    this.setState({
-      treeData: changeNodeAtPath({
-        treeData: this.state.treeData,
-        path,
-        getNodeKey,
-        newNode: { ...node, [attr]: newValue },
-      }),
-    })
-  }
-
-  handleAddNodeChild = (node, path) => e => {
-    this.setState({
-      treeData: addNodeUnderParent({
-        treeData: this.state.treeData,
-        parentKey: path[path.length - 1],
-        expandParent: true,
-        getNodeKey,
-        newNode: getNewNode(),
-      }).treeData,
-    })
-  }
-
-  handleRemoveNode = (node, path) => e => {
-    this.setState({
-      treeData: removeNodeAtPath({
-        treeData: this.state.treeData,
-        path,
-        getNodeKey,
-      }),
-    })
-  }
-
-  handleOpenClaimTemplateDialog = () => {
-    this.setState({ claimTemplateDialogOpen: true })
-  }
-
-  handleCloseClaimTemplateDialog = () => {
-    this.setState({ claimTemplateDialogOpen: false })
-  }
-
-  handleAddClaimTemplate = values => {
-    this.props.createClaimTemplate({
-      name: values.name,
-      schema: this.state.treeData,
-    })
-    this.setState({ claimTemplateDialogOpen: false })
-  }
-
-  handleSaveClaimTemplate = () => {
-    this.props.editClaimTemplate({
-      id: this.state.claimTemplateId,
-      schema: this.state.treeData,
-    })
-  }
-
-  handleDeleteClaimTemplate = () => {
-    this.props.deleteClaimTemplate(this.state.claimTemplateId)
-    this.setState({
-      claimTemplateId: '',
-    })
-  }
-
-  getTreeNode = ({ node, path, ...other }) => {
-    const valueField =
-      node.type === 'object' ? (
-        <Typography
-          // TODO: get rid of this style prop
-          style={{ flex: 1, color: '#aaa' }}
-          variant="subheading"
-          key={3}
-        >
-          {`{ ${node.children.length} attributes }`}
-        </Typography>
-      ) : (
-        <HoverTextField
-          // TODO: get rid of this style prop
-          style={{ flex: 1 }}
-          key={3}
-          value={node.value}
-          placeholder="Value"
-          onChange={this.handleChangeNodeText('value', node, path)}
-        />
-      )
-
-    const buttons = []
-    if (node.type === 'object') {
-      buttons.push(
-        <IconButton
-          // TODO: get rid of style prop
-          style={{ marginRight: 0 }}
-          variant="outlined"
-          key={6}
-          onClick={this.handleAddNodeChild(node, path)}
-        >
-          <Icon>add</Icon>
-        </IconButton>
-      )
-    }
-    buttons.push(
-      <IconButton
-        variant="outlined"
-        key={5}
-        onClick={this.handleRemoveNode(node, path)}
-      >
-        <Icon>delete_outline</Icon>
-      </IconButton>
-    )
-
-    return {
-      title: [
-        <HoverTextField
-          key={1}
-          value={node.name}
-          placeholder="Name"
-          onChange={this.handleChangeNodeText('name', node, path)}
-        />,
-        <Typography key={2} variant="title">
-          :
-        </Typography>,
-        valueField,
-        ...buttons,
-        <HoverSelect
-          key={0}
-          value={node.type}
-          onChange={this.handleChangeNodeType(node, path)}
-          input={<Input name="type" />}
-        >
-          <MenuItem key={0} value={'string'}>
-            Static
-          </MenuItem>
-          <MenuItem key={1} value={'object'}>
-            Group
-          </MenuItem>
-          <MenuItem key={2} value={'dynamic'}>
-            Dynamic
-          </MenuItem>
-        </HoverSelect>,
-      ],
-    }
-  }
-
-  handleSubmit = () => {
-    this.props.issue(this.state.issuerId, this.state.email, this.state.treeData)
+  handleChangeEmail = e => {
+    this.setState({ email: e.target.value })
   }
 
   render() {
     return (
       <SidebarLayout>
         <PageHeader>
-          <Typography variant="title">Issue Certificate</Typography>
+          <Typography variant="title">Issue Certificates</Typography>
           <GradientButton
             onClick={this.handleSubmit}
             data-test-id="issueBtn"
             variant="raised"
+            disabled
           >
             Issue
           </GradientButton>
         </PageHeader>
+        <SectionTitle>Issuance</SectionTitle>
+        <RecordSelect
+          data-test-id="issuanceSelect"
+          emptyValue={'(No Issuance Selected)'}
+          selectItems={this.props.issuances}
+          selectValue={this.state.selectedIssuanceId}
+          onChangeValue={this.handleChangeIssuance}
+          onClickDelete={this.handleDeleteIssuance}
+          onClickSave={this.handleSaveIssuance}
+          onClickCreate={this.handleOpenIssuanceDialog}
+        />
         <SectionTitle>Issuer App Identity</SectionTitle>
         <InputRow>
           {this.props.appIds.length > 0 ? (
@@ -319,9 +165,13 @@ export class IssueCert extends Component {
               fullWidth
               data-test-id="appIdSelect"
               key={0}
-              value={this.state.issuerId}
-              onChange={this.handleChangeApp}
+              value={this.state.selectedAppId}
+              onChange={this.handleChangeAppId}
+              displayEmpty
             >
+              <MenuItem value={''}>
+                <em>(No App Identity Selected)</em>
+              </MenuItem>
               {this.props.appIds.map(appId => (
                 <MenuItem key={appId.id} value={appId.id}>
                   {appId.name}: {appId.mnid}
@@ -342,7 +192,7 @@ export class IssueCert extends Component {
                 and add one to issue certificates.
               </Typography>,
               <Button
-                onClick={this.handleClickOpen}
+                onClick={this.handleOpenAppIdDialog}
                 key={1}
                 data-test-id="addAppIdBtn"
                 variant="raised"
@@ -353,31 +203,22 @@ export class IssueCert extends Component {
             ]
           )}
           <AddAppIdDialog
-            open={this.state.addAppIdOpen}
-            onClose={this.handleClose}
+            open={this.state.appIdDialogOpen}
+            onClose={this.handleCloseAppIdDialog}
             onSubmit={this.handleAddAppId}
           />
         </InputRow>
-        <SectionTitle>Recipient Identity</SectionTitle>
-        <InputRow>
-          <TextField
-            fullWidth
-            onChange={this.handleChangeEmail}
-            data-test-id="recipientEmail"
-            placeholder="Email"
-          />
-        </InputRow>
-        <SectionTitle>Attestation Claim Data</SectionTitle>
+        <SectionTitle>Issued Claim Template</SectionTitle>
         <InputRow>
           <Select
-            style={{ flex: 1, marginRight: 24 }}
+            style={{ flex: 1 }}
             data-test-id="claimTemplateSelect"
-            value={this.state.claimTemplateId}
+            value={this.state.selectedClaimId}
             onChange={this.handleChangeClaim}
             displayEmpty
           >
             <MenuItem value={''}>
-              <em>(No Template Selected)</em>
+              <em>(No Claim Template Selected)</em>
             </MenuItem>
             {this.props.claimTemplates &&
               this.props.claimTemplates.map(template => (
@@ -386,51 +227,130 @@ export class IssueCert extends Component {
                 </MenuItem>
               ))}
           </Select>
-          <IconButton
-            disabled={!this.state.claimTemplateId}
-            onClick={this.handleDeleteClaimTemplate}
-            variant="outlined"
-          >
-            <Icon>delete_outline</Icon>
-          </IconButton>
-          <IconButton
-            disabled={!this.state.claimTemplateId}
-            onClick={this.handleSaveClaimTemplate}
-            variant="outlined"
-          >
-            <Icon>save</Icon>
-          </IconButton>
-          <IconButton
-            onClick={this.handleOpenClaimTemplateDialog}
-            variant="outlined"
-          >
-            <Icon>add</Icon>
-          </IconButton>
-          <ClaimTemplateDialog
-            open={this.state.claimTemplateDialogOpen}
-            onClose={this.handleCloseClaimTemplateDialog}
-            onSubmit={this.handleAddClaimTemplate}
-          />
         </InputRow>
-        <FlexInput>
-          <SortableTree
-            style={{ flex: 1 }}
-            treeData={this.state.treeData}
-            onChange={this.handleTreeChange}
-            generateNodeProps={this.getTreeNode}
-            canDrop={({ nextParent }) =>
-              nextParent === null || nextParent.type === 'object'
-            }
-            theme={SortableTreeTheme}
-          />
-          <AddAttrButton
-            onClick={this.handleAddAttr}
-            variant="outlined"
-            data-test-id="addAttrBtn"
+        <SectionTitle>Recipients</SectionTitle>
+        <RecipientsForm>
+          <Tabs
+            value={this.state.recipientType}
+            onChange={this.handleChangeRecipientType}
           >
-            + Attribute
-          </AddAttrButton>
-        </FlexInput>
+            <Tab label="Cohort" />
+            <Tab label="Test" />
+          </Tabs>
+          <Divider />
+          {this.state.recipientType === MULTIPLE_RECIPIENTS && (
+            <div>
+              <RecipientsToolbar>
+                <TextField
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Icon>search</Icon>
+                      </InputAdornment>
+                    ),
+                  }}
+                  placeholder="recipient email"
+                />
+                <Button color="secondary" variant="raised">Import CSV</Button>
+              </RecipientsToolbar>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>email</TableCell>
+                    <TableCell>mnid</TableCell>
+                    <TableCell>last updated</TableCell>
+                    <TableCell>status</TableCell>
+                    <TableCell />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      <IconButton style={{ width: 24, height: 24, marginRight: 8 }}>
+                        <Icon>arrow_drop_down</Icon>
+                      </IconButton>
+                      <span>user.one@consensys.net</span>
+                    </TableCell>
+                    <TableCell />
+                    <TableCell>31 days ago</TableCell>
+                    <TableCell>imported</TableCell>
+                    <TableCell numeric />
+                  </TableRow>
+                  <TableRow>
+                    <TableCell style={{ background: '#eee' }} colSpan={5}>
+                      {this.state.selectedClaimDynamicFields.map(
+                        (attribute, i) => (
+                          <div>
+                            <strong>{attribute.value}</strong>: blah
+                          </div>
+                        )
+                      )}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      <IconButton style={{ width: 24, height: 24, marginRight: 8 }}>
+                        <Icon>arrow_right</Icon>
+                      </IconButton>
+                      <span>user.two@consensys.net</span>
+                    </TableCell>
+                    <TableCell />
+                    <TableCell>22 days ago</TableCell>
+                    <TableCell>email sent</TableCell>
+                    <TableCell numeric>
+                      <Button size="small">resend</Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      <IconButton style={{ width: 24, height: 24, marginRight: 8 }}>
+                        <Icon>arrow_right</Icon>
+                      </IconButton>
+                      <span>user.three@consensys.net</span>
+                    </TableCell>
+                    <TableCell>2odoBdfhiVZkxQEN432MoT9MsCYRizopXJu</TableCell>
+                    <TableCell>8 days ago</TableCell>
+                    <TableCell>collected</TableCell>
+                    <TableCell numeric>
+                      <Button size="small">push</Button>
+                      <Button size="small">email</Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      <IconButton style={{ width: 24, height: 24, marginRight: 8 }}>
+                        <Icon>arrow_right</Icon>
+                      </IconButton>
+                      <span>user.four@consensys.net</span>
+                    </TableCell>
+                    <TableCell>2odoMoT9MspBdfhoZkxQEN432XJiVCYRizu</TableCell>
+                    <TableCell>17 days ago</TableCell>
+                    <TableCell>collected</TableCell>
+                    <TableCell numeric>
+                      <Button size="small" disabled>
+                        push
+                      </Button>
+                      <Button size="small">email</Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          )}
+          {this.state.recipientType === SINGLE_RECIPIENT && (
+            <RecipientsContent>
+              <TextField
+                fullWidth
+                onChange={this.handleChangeEmail}
+                data-test-id="recipientEmail"
+                placeholder="Email"
+              />
+              {this.state.selectedClaimDynamicFields.map((v, i) => (
+                <TextField key={i} fullWidth label={v.value} />
+              ))}
+            </RecipientsContent>
+          )}
+        </RecipientsForm>
       </SidebarLayout>
     )
   }
@@ -443,10 +363,6 @@ IssueCert.propTypes = {
   addAppId: PropTypes.func.isRequired,
   issue: PropTypes.func.isRequired,
   getClaimTemplates: PropTypes.func.isRequired,
-  createClaimTemplate: PropTypes.func.isRequired,
-  editClaimTemplate: PropTypes.func.isRequired,
-  deleteClaimTemplate: PropTypes.func.isRequired,
-  clearNewTemplateId: PropTypes.func.isRequired,
 }
 
 IssueCert.route = '/issue'
@@ -455,7 +371,6 @@ export default connect(
   state => ({
     appIds: state.appIdentity.identities,
     claimTemplates: state.claimTemplate.templates,
-    newTemplateId: state.claimTemplate.newTemplateId,
   }),
   dispatch => ({
     getAppIds() {
@@ -469,18 +384,6 @@ export default connect(
     },
     getClaimTemplates() {
       dispatch(getClaimTemplates())
-    },
-    createClaimTemplate(values) {
-      dispatch(createClaimTemplate(values))
-    },
-    editClaimTemplate(values) {
-      dispatch(editClaimTemplate(values))
-    },
-    deleteClaimTemplate(id) {
-      dispatch(deleteClaimTemplate(id))
-    },
-    clearNewTemplateId() {
-      dispatch(clearNewTemplateId())
     },
   })
 )(IssueCert)
