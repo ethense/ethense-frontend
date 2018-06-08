@@ -1,7 +1,13 @@
 import React from 'react'
-import { RecordSelect } from './RecordSelect'
+import RecordSelect from './RecordSelect'
 
-const defaultProps = {}
+const defaultProps = {
+  emptyValue: '',
+  onChangeValue: () => {},
+  onClickCreate: () => {},
+  onClickSave: () => {},
+  onClickDelete: () => {},
+}
 
 const getShallowComponent = props =>
   shallow(<RecordSelect {...defaultProps} {...props} />)

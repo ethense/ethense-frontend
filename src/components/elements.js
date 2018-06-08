@@ -27,10 +27,11 @@ export const GradientButton = withTheme()(styled(props => (
 `)
 
 export const PageHeader = withTheme()(styled.div`
+  align-items: center;
   display: flex;
   flex-direction: row;
+  height: 36px;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: ${props => props.theme.spacing.large};
   padding-left: ${props => props.theme.spacing.small};
   padding-right: ${props => props.theme.spacing.small};
@@ -49,13 +50,13 @@ export const InputRow = withTheme()(styled(({ children, ...other }) => (
     {children}
   </Paper>
 ))`
+  align-items: center;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
-  padding: ${props => props.theme.spacing.small};
-  margin-top: ${props => props.theme.spacing.tiny};
   margin-bottom: ${props => props.theme.spacing.medium};
+  margin-top: ${props => props.theme.spacing.tiny};
+  padding: ${props => props.theme.spacing.small};
 `)
 
 export const FlexInput = withTheme()(styled(({ children, ...other }) => (

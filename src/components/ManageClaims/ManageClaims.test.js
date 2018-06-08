@@ -1,7 +1,14 @@
 import React from 'react'
 import { ManageClaims } from './ManageClaims'
 
-const defaultProps = {}
+const defaultProps = {
+  claimTemplates: [],
+  getClaimTemplates: () => {},
+  createClaimTemplate: () => {},
+  editClaimTemplate: () => {},
+  deleteClaimTemplate: () => {},
+  clearNewClaimId: () => {},
+}
 
 const getShallowComponent = props =>
   shallow(<ManageClaims {...defaultProps} {...props} />)
@@ -29,6 +36,8 @@ describe('Manage Claims page', () => {
     // test that canDrop prop is set to isObjectType
   })
 
+  it('should call handleChangeClaimSchema when the SortableTree changes', () => {})
+
   describe('getAttributeNode', () => {
     it('should return an object with an array of component', () => {})
     describe('attribute name field', () => {
@@ -55,6 +64,11 @@ describe('Manage Claims page', () => {
       it('should have values for static, dynamic, and group', () => {})
       it('should call handleChangeAttributeType when the value is changed', () => {})
     })
+  })
+
+  describe('add attribute button', () => {
+    it('should render', () => {})
+    it('should call handleAddClaimAttribute', () => {})
   })
 
   describe('handleChangeAttributeName', () => {
@@ -85,19 +99,7 @@ describe('Manage Claims page', () => {
     it('should set selectedClaim.schema to the output of changeNodeAtPath', () => {})
   })
 
-  describe('isObjectType', () => {
-    it('should return true for a parent that is null', () => {})
-    it('should return true for a parent with type attribute equal to "object"', () => {})
-    it('should return false for a parent with type attribute not equal to "object"', () => {})
-    it('should return false for a parent without a type attribute', () => {})
-  })
-
-  describe('add attribute button', () => {
-    it('should render', () => {})
-    it('should call handleAddClaimAttribute', () => {})
-  })
-
-  describe('handleAddClaimAttribute', () => {
+  describe('handleAddAttribute', () => {
     it('should add a new attribute object to the end of the selectedClaim.schema', () => {})
   })
 
@@ -115,11 +117,18 @@ describe('Manage Claims page', () => {
   })
 
   describe('handleOpenClaimDialog', () => {
-    it('should open the claim name dialog', () => {})
+    it('should open the claim title dialog', () => {})
   })
 
   describe('handleCreateClaim', () => {
     it('should call createClaimTemplate', () => {})
-    it('should close the claim name dialog', () => {})
+    it('should close the claim title dialog', () => {})
+  })
+
+  describe('parentIsObject', () => {
+    it('should return true for a parent that is null', () => {})
+    it('should return true for a parent with type attribute equal to "object"', () => {})
+    it('should return false for a parent with type attribute not equal to "object"', () => {})
+    it('should return false for a parent without a type attribute', () => {})
   })
 })
