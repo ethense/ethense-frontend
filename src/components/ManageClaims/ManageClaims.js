@@ -182,7 +182,6 @@ export class ManageClaims extends Component {
 
   // function used by react-sortable-tree to generate the content of each node
   getAttributeNode = ({ node, path, ...args }) => {
-    console.log(node)
     const attributeName = (
       <HoverTextField
         key={0}
@@ -226,7 +225,7 @@ export class ManageClaims extends Component {
           style={{ marginRight: 0 }}
           variant="outlined"
         >
-          <Icon>add</Icon>
+          <Icon>add_circle</Icon>
         </IconButton>
       )
     }

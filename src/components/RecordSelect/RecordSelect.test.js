@@ -3,6 +3,7 @@ import RecordSelect from './RecordSelect'
 
 const defaultProps = {
   emptyValue: '',
+  selectValue: '',
   onChangeValue: () => {},
   onClickCreate: () => {},
   onClickSave: () => {},

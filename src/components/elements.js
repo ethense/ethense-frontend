@@ -61,7 +61,7 @@ export const InputRow = withTheme()(styled(({ children, ...other }) => (
   height: ${props => props.theme.spacing.huge};
 `)
 
-export const FlexInput = withTheme()(styled(({ children, ...other }) => (
+export const FlexInput = withTheme()(styled(({ children, numRows, ...other }) => (
   <Paper elevation={1} {...other}>
     {children}
   </Paper>

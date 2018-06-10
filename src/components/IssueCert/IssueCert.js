@@ -22,6 +22,7 @@ import {
   Typography,
 } from '@material-ui/core'
 import styled from 'styled-components'
+import { withRouter } from 'react-router-dom'
 
 import { SidebarLayout } from '../../layouts'
 import {
@@ -39,6 +40,8 @@ import AddAppIdDialog from '../AddAppIdDialog'
 import { issue } from '../../modules/issuance'
 import { getClaimTemplates } from '../../modules/claimTemplate'
 import RecordSelect from '../RecordSelect'
+import CreateOrSelect from '../CreateOrSelect'
+import ManageClaims from '../ManageClaims'
 import { MULTIPLE_RECIPIENTS, SINGLE_RECIPIENT } from '../../constants/enums'
 
 const RecipientsForm = styled(({ children, ...props }) => (
@@ -147,6 +150,7 @@ export class IssueCert extends Component {
             Issue
           </GradientButton>
         </PageHeader>
+
         <SectionTitle>Issuance</SectionTitle>
         <RecordSelect
           data-test-id="issuanceSelect"
@@ -158,76 +162,53 @@ export class IssueCert extends Component {
           onClickSave={this.handleSaveIssuance}
           onClickCreate={this.handleOpenIssuanceDialog}
         />
+
         <SectionTitle>Issuer App Identity</SectionTitle>
-        <InputRow>
-          {this.props.appIds.length > 0 ? (
-            <Select
-              fullWidth
-              data-test-id="appIdSelect"
-              key={0}
-              value={this.state.selectedAppId}
-              onChange={this.handleChangeAppId}
-              displayEmpty
-            >
-              <MenuItem value={''}>
-                <em>(No App Identity Selected)</em>
-              </MenuItem>
-              {this.props.appIds.map(appId => (
-                <MenuItem key={appId.id} value={appId.id}>
-                  {appId.name}: {appId.mnid}
-                </MenuItem>
-              ))}
-            </Select>
-          ) : (
-            [
-              <Typography key={0} variant="caption" color="error">
-                No app identities found. Please{' '}
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href="https://appmanager.uport.me/"
-                >
-                  create
-                </a>{' '}
-                and add one to issue certificates.
-              </Typography>,
-              <Button
-                onClick={this.handleOpenAppIdDialog}
-                key={1}
-                data-test-id="addAppIdBtn"
-                variant="raised"
-                color="secondary"
+        <CreateOrSelect
+          emptyNode={
+            <Typography key={0} variant="caption" color="error">
+              No app identities found. Please{' '}
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="https://appmanager.uport.me/"
               >
-                Add App Identity
-              </Button>,
-            ]
-          )}
-          <AddAppIdDialog
-            open={this.state.appIdDialogOpen}
-            onClose={this.handleCloseAppIdDialog}
-            onSubmit={this.handleAddAppId}
-          />
-        </InputRow>
+                create
+              </a>{' '}
+              and add one to issue certificates.
+            </Typography>
+          }
+          emptyValue="(No App Id Selected)"
+          selectItems={this.props.appIds}
+          selectValue={this.state.selectedAppId}
+          onCreateItem={this.handleOpenAppIdDialog}
+          onChangeItem={this.handleChangeAppId}
+          buttonText={'Add App Identity'}
+        />
+        <AddAppIdDialog
+          open={this.state.appIdDialogOpen}
+          onClose={this.handleCloseAppIdDialog}
+          onSubmit={this.handleAddAppId}
+        />
+
         <SectionTitle>Issued Claim Template</SectionTitle>
-        <InputRow>
-          <Select
-            style={{ flex: 1 }}
-            data-test-id="claimTemplateSelect"
-            value={this.state.selectedClaimId}
-            onChange={this.handleChangeClaim}
-            displayEmpty
-          >
-            <MenuItem value={''}>
-              <em>(No Claim Template Selected)</em>
-            </MenuItem>
-            {this.props.claimTemplates &&
-              this.props.claimTemplates.map(template => (
-                <MenuItem key={template.id} value={template.id}>
-                  {template.name}
-                </MenuItem>
-              ))}
-          </Select>
-        </InputRow>
+        <CreateOrSelect
+          emptyNode={
+            <Typography key={0} variant="caption" color="error">
+              No Claim Templates found. Please create one from the Manage Claims
+              page.
+            </Typography>
+          }
+          emptyValue="(No Claim Template Selected)"
+          selectItems={this.props.claimTemplates}
+          selectValue={this.state.selectedClaimId}
+          onCreateItem={() => {
+            this.props.history.push(ManageClaims.route)
+          }}
+          onChangeItem={this.handleChangeClaim}
+          buttonText={'Create claim'}
+        />
+
         <SectionTitle>Recipients</SectionTitle>
         <RecipientsForm>
           <Tabs
@@ -251,7 +232,9 @@ export class IssueCert extends Component {
                   }}
                   placeholder="recipient email"
                 />
-                <Button color="secondary" variant="raised">Import CSV</Button>
+                <Button color="secondary" variant="raised">
+                  Import CSV
+                </Button>
               </RecipientsToolbar>
               <Table>
                 <TableHead>
@@ -266,7 +249,9 @@ export class IssueCert extends Component {
                 <TableBody>
                   <TableRow>
                     <TableCell component="th" scope="row">
-                      <IconButton style={{ width: 24, height: 24, marginRight: 8 }}>
+                      <IconButton
+                        style={{ width: 24, height: 24, marginRight: 8 }}
+                      >
                         <Icon>arrow_drop_down</Icon>
                       </IconButton>
                       <span>user.one@consensys.net</span>
@@ -289,7 +274,9 @@ export class IssueCert extends Component {
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">
-                      <IconButton style={{ width: 24, height: 24, marginRight: 8 }}>
+                      <IconButton
+                        style={{ width: 24, height: 24, marginRight: 8 }}
+                      >
                         <Icon>arrow_right</Icon>
                       </IconButton>
                       <span>user.two@consensys.net</span>
@@ -303,7 +290,9 @@ export class IssueCert extends Component {
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">
-                      <IconButton style={{ width: 24, height: 24, marginRight: 8 }}>
+                      <IconButton
+                        style={{ width: 24, height: 24, marginRight: 8 }}
+                      >
                         <Icon>arrow_right</Icon>
                       </IconButton>
                       <span>user.three@consensys.net</span>
@@ -318,7 +307,9 @@ export class IssueCert extends Component {
                   </TableRow>
                   <TableRow>
                     <TableCell component="th" scope="row">
-                      <IconButton style={{ width: 24, height: 24, marginRight: 8 }}>
+                      <IconButton
+                        style={{ width: 24, height: 24, marginRight: 8 }}
+                      >
                         <Icon>arrow_right</Icon>
                       </IconButton>
                       <span>user.four@consensys.net</span>
@@ -386,4 +377,4 @@ export default connect(
       dispatch(getClaimTemplates())
     },
   })
-)(IssueCert)
+)(withRouter(IssueCert))

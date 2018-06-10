@@ -36,7 +36,6 @@ export class ManageUsers extends Component {
   }
 
   handleSubmitUserDialog = values => {
-    console.log('submit user dialog', values)
     if (this.state.selectedUser) {
       this.props.editUser({
         id: this.state.selectedUser.id,

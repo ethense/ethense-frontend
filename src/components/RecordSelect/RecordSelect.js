@@ -43,7 +43,7 @@ export class RecordSelect extends Component {
           <Icon>save</Icon>
         </IconButton>
         <IconButton color="secondary" onClick={this.props.onClickCreate}>
-          <Icon>add</Icon>
+          <Icon>add_circle</Icon>
         </IconButton>
       </InputRow>
     )
@@ -54,7 +54,7 @@ RecordSelect.propTypes = {
   emptyValue: PropTypes.string.isRequired,
   selectItems: PropTypes.array,
   // selectItems expects an array of items with id an
-  selectValue: PropTypes.string,
+  selectValue: PropTypes.string.isRequired,
   onChangeValue: PropTypes.func.isRequired,
   onClickCreate: PropTypes.func.isRequired,
   onClickSave: PropTypes.func.isRequired,
