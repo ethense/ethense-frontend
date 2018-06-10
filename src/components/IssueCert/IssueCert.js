@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import {
   Button,
+  Chip,
   Divider,
   Icon,
   IconButton,
@@ -39,6 +40,13 @@ import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
 import { issue } from '../../modules/issuance'
 import { getClaimTemplates } from '../../modules/claimTemplate'
+// import {
+//   clearNewIssuanceId,
+//   createIssuance,
+//   deleteIssuance,
+//   editIssuance,
+//   getIssuances,
+// } from '../../modules/issuance'
 import RecordSelect from '../RecordSelect'
 import CreateOrSelect from '../CreateOrSelect'
 import ManageClaims from '../ManageClaims'
@@ -70,13 +78,61 @@ const RecipientsToolbar = styled.div`
 export class IssueCert extends Component {
   state = {
     appIdDialogOpen: false,
-    // selectedAppId: this.props.appIds.length > 0 ? this.props.appIds[0].id : null,
     email: '',
     selectedIssuanceId: '',
     selectedAppId: '',
     selectedClaimId: '',
     selectedClaimDynamicFields: [],
     recipientType: MULTIPLE_RECIPIENTS,
+    selectedIssuanceDone: false,
+    recipientDataFields: ['first', 'last'],
+    recipients: [
+      {
+        email: 'user.one@consensys.net',
+        mnid: null,
+        lastUpdated: 1524268800,
+        status: 'imported',
+        data: {
+          first: 'charlie',
+          last: 'kelly',
+        },
+        expanded: true,
+      },
+      {
+        email: 'user.two@consensys.net',
+        mnid: null,
+        lastUpdated: 1526169600,
+        status: 'email sent',
+        data: {
+          first: 'dee',
+          last: 'reynolds',
+        },
+        expanded: false,
+      },
+      {
+        email: 'user.three@consensys.net',
+        mnid: '2odoMoT9MspBdfhoZkxQEN432XJiVCYRizu',
+        lastUpdated: 1526860800,
+        status: 'collected',
+        data: {
+          first: 'ronald',
+          last: 'macdonald',
+        },
+        expanded: false,
+      },
+      {
+        email: 'user.four@consensys.net',
+        mnid: '2odoBdfhiVZkxQEN432MoT9MsCYRizopXJu',
+        lastUpdated: 1528329600,
+        status: 'collected',
+        data: {
+          first: 'dennis',
+          last: 'reynolds',
+        },
+        expanded: false,
+      },
+    ],
+    // recipients: [],
   }
 
   componentWillMount() {
@@ -134,6 +190,19 @@ export class IssueCert extends Component {
   }
   handleChangeEmail = e => {
     this.setState({ email: e.target.value })
+  }
+  handleRecipientToggle = i => e => {
+    const recipient = this.state.recipients[i]
+    this.setState({
+      recipients: [
+        ...this.state.recipients.slice(0, i),
+        {
+          ...recipient,
+          expanded: !recipient.expanded,
+        },
+        ...this.state.recipients.slice(i + 1),
+      ],
+    })
   }
 
   render() {
@@ -223,6 +292,7 @@ export class IssueCert extends Component {
             <div>
               <RecipientsToolbar>
                 <TextField
+                  disabled={this.state.recipients.length === 0}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -236,6 +306,14 @@ export class IssueCert extends Component {
                   Import CSV
                 </Button>
               </RecipientsToolbar>
+              <div style={{ paddingLeft: 16 }}>
+                {this.state.selectedClaimDynamicFields
+                  .filter(
+                    field =>
+                      !this.state.recipientDataFields.includes(field.value)
+                  )
+                  .map((field, i) => <Chip color="error" key={i} label={field.value} />)}
+              </div>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -247,83 +325,51 @@ export class IssueCert extends Component {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  <TableRow>
-                    <TableCell component="th" scope="row">
-                      <IconButton
-                        style={{ width: 24, height: 24, marginRight: 8 }}
-                      >
-                        <Icon>arrow_drop_down</Icon>
-                      </IconButton>
-                      <span>user.one@consensys.net</span>
-                    </TableCell>
-                    <TableCell />
-                    <TableCell>31 days ago</TableCell>
-                    <TableCell>imported</TableCell>
-                    <TableCell numeric />
-                  </TableRow>
-                  <TableRow>
-                    <TableCell style={{ background: '#eee' }} colSpan={5}>
-                      {this.state.selectedClaimDynamicFields.map(
-                        (attribute, i) => (
-                          <div>
-                            <strong>{attribute.value}</strong>: blah
-                          </div>
-                        )
-                      )}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">
-                      <IconButton
-                        style={{ width: 24, height: 24, marginRight: 8 }}
-                      >
-                        <Icon>arrow_right</Icon>
-                      </IconButton>
-                      <span>user.two@consensys.net</span>
-                    </TableCell>
-                    <TableCell />
-                    <TableCell>22 days ago</TableCell>
-                    <TableCell>email sent</TableCell>
-                    <TableCell numeric>
-                      <Button size="small">resend</Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">
-                      <IconButton
-                        style={{ width: 24, height: 24, marginRight: 8 }}
-                      >
-                        <Icon>arrow_right</Icon>
-                      </IconButton>
-                      <span>user.three@consensys.net</span>
-                    </TableCell>
-                    <TableCell>2odoBdfhiVZkxQEN432MoT9MsCYRizopXJu</TableCell>
-                    <TableCell>8 days ago</TableCell>
-                    <TableCell>collected</TableCell>
-                    <TableCell numeric>
-                      <Button size="small">push</Button>
-                      <Button size="small">email</Button>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell component="th" scope="row">
-                      <IconButton
-                        style={{ width: 24, height: 24, marginRight: 8 }}
-                      >
-                        <Icon>arrow_right</Icon>
-                      </IconButton>
-                      <span>user.four@consensys.net</span>
-                    </TableCell>
-                    <TableCell>2odoMoT9MspBdfhoZkxQEN432XJiVCYRizu</TableCell>
-                    <TableCell>17 days ago</TableCell>
-                    <TableCell>collected</TableCell>
-                    <TableCell numeric>
-                      <Button size="small" disabled>
-                        push
-                      </Button>
-                      <Button size="small">email</Button>
-                    </TableCell>
-                  </TableRow>
+                  {this.state.recipients.length > 0 &&
+                    this.state.recipients.map((recipient, i) => [
+                      <TableRow key={i * 2}>
+                        <TableCell component="th" scope="row">
+                          <IconButton
+                            style={{ width: 24, height: 24, marginRight: 8 }}
+                            onClick={this.handleRecipientToggle(i)}
+                          >
+                            <Icon>
+                              {recipient.expanded
+                                ? 'arrow_drop_down'
+                                : 'arrow_right'}
+                            </Icon>
+                          </IconButton>
+                          <span>{recipient.email}</span>
+                        </TableCell>
+                        <TableCell>{recipient.mnid}</TableCell>
+                        <TableCell>{recipient.lastUpdated}</TableCell>
+                        <TableCell>{recipient.status}</TableCell>
+                        <TableCell numeric>
+                          {recipient.status === 'email sent' && (
+                            <Button>resend</Button>
+                          )}
+                          {recipient.status === 'collected' && (
+                            <Button>push</Button>
+                          )}
+                          {recipient.status === 'collected' && (
+                            <Button>email</Button>
+                          )}
+                        </TableCell>
+                      </TableRow>,
+                      recipient.expanded ? (
+                        <TableRow key={i * 2 + 1}>
+                          <TableCell style={{ background: '#eee' }} colSpan={5}>
+                            {Object.keys(recipient.data).map((key, j) => {
+                              return (
+                                <div key={j}>
+                                  <strong>{key}</strong>: {recipient.data[key]}
+                                </div>
+                              )
+                            })}
+                          </TableCell>
+                        </TableRow>
+                      ) : null,
+                    ])}
                 </TableBody>
               </Table>
             </div>
@@ -360,10 +406,26 @@ IssueCert.route = '/issue'
 
 export default connect(
   state => ({
+    // issuances: state.issuance.issuances,
     appIds: state.appIdentity.identities,
     claimTemplates: state.claimTemplate.templates,
   }),
   dispatch => ({
+    // getIssuances() {
+    //   dispatch(getIssuances())
+    // },
+    // createIssuance(values) {
+    //   dispatch(createIssuance(values))
+    // },
+    // editIssuance(values) {
+    //   dispatch(editIssuance(values))
+    // },
+    // deleteIssuance(id) {
+    //   dispatch(deleteIssuance(id))
+    // },
+    // clearNewIssuanceId() {
+    //   dispatch(clearNewIssuanceId())
+    // },
     getAppIds() {
       dispatch(getAppIds())
     },
