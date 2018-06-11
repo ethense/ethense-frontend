@@ -14,6 +14,7 @@ class CreateOrSelect extends Component {
             value={this.props.selectValue}
             onChange={this.props.onChangeItem}
             displayEmpty
+            disabled={this.props.disabled}
           >
             <MenuItem value="">
               <em>{this.props.emptyValue}</em>

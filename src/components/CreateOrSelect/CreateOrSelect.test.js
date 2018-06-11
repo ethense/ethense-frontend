@@ -21,11 +21,13 @@ describe('Record selection component', () => {
 
   describe('when selectItems is empty', () => {
     it('should display a button to create a new model', () => {})
+    it('should call onCreateItem when the button is clicked', () => {})
     it('should render the contents of emptyNode', () => {})
   })
 
   describe('when selectItems is not empty', () => {
     it('should display a select menu', () => {})
+    it('should call onChangeItem when the select is changed', () => {})
   })
 
 })

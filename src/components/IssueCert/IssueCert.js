@@ -24,6 +24,7 @@ import {
 } from '@material-ui/core'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
+import Moment from 'react-moment'
 
 import { SidebarLayout } from '../../layouts'
 import {
@@ -85,6 +86,7 @@ export class IssueCert extends Component {
     selectedClaimDynamicFields: [],
     recipientType: MULTIPLE_RECIPIENTS,
     selectedIssuanceDone: false,
+    recipientFilter: '',
     recipientDataFields: ['first', 'last'],
     recipients: [
       {
@@ -102,7 +104,7 @@ export class IssueCert extends Component {
         email: 'user.two@consensys.net',
         mnid: null,
         lastUpdated: 1526169600,
-        status: 'email sent',
+        status: 'requested',
         data: {
           first: 'dee',
           last: 'reynolds',
@@ -204,8 +206,15 @@ export class IssueCert extends Component {
       ],
     })
   }
+  handleChangeRecipientFilter = e => {
+    this.setState({ recipientFilter: e.target.value })
+  }
 
   render() {
+    const missingFields = this.state.selectedClaimDynamicFields.filter(
+      field => !this.state.recipientDataFields.includes(field.value)
+    )
+
     return (
       <SidebarLayout>
         <PageHeader>
@@ -214,9 +223,9 @@ export class IssueCert extends Component {
             onClick={this.handleSubmit}
             data-test-id="issueBtn"
             variant="raised"
-            disabled
+            disabled={this.state.selectedIssuanceDone}
           >
-            Issue
+            {this.state.selectedIssuanceDone ? 'Issued' : 'Issue'}
           </GradientButton>
         </PageHeader>
 
@@ -253,6 +262,7 @@ export class IssueCert extends Component {
           onCreateItem={this.handleOpenAppIdDialog}
           onChangeItem={this.handleChangeAppId}
           buttonText={'Add App Identity'}
+          disabled={this.state.selectedIssuanceDone}
         />
         <AddAppIdDialog
           open={this.state.appIdDialogOpen}
@@ -276,6 +286,7 @@ export class IssueCert extends Component {
           }}
           onChangeItem={this.handleChangeClaim}
           buttonText={'Create claim'}
+          disabled={this.state.selectedIssuanceDone}
         />
 
         <SectionTitle>Recipients</SectionTitle>
@@ -292,6 +303,7 @@ export class IssueCert extends Component {
             <div>
               <RecipientsToolbar>
                 <TextField
+                  style={{ flex: 1, marginRight: 36 }}
                   disabled={this.state.recipients.length === 0}
                   InputProps={{
                     startAdornment: (
@@ -300,20 +312,31 @@ export class IssueCert extends Component {
                       </InputAdornment>
                     ),
                   }}
-                  placeholder="recipient email"
+                  placeholder="Filter by Recipient Email"
+                  onChange={this.handleChangeRecipientFilter}
                 />
-                <Button color="secondary" variant="raised">
+                <Button
+                  color="secondary"
+                  variant="raised"
+                  disabled={this.state.selectedIssuanceDone}
+                >
                   Import CSV
                 </Button>
               </RecipientsToolbar>
-              <div style={{ paddingLeft: 16 }}>
-                {this.state.selectedClaimDynamicFields
-                  .filter(
-                    field =>
-                      !this.state.recipientDataFields.includes(field.value)
-                  )
-                  .map((field, i) => <Chip color="error" key={i} label={field.value} />)}
-              </div>
+              {missingFields.length > 0 && (
+                <div style={{ padding: 16 }}>
+                  <Typography
+                    variant="caption"
+                    color="error"
+                    style={{ marginRight: 8, display: 'inline-block' }}
+                  >
+                    Imported data is missing the following columns:
+                  </Typography>
+                  {missingFields.map((field, i) => (
+                    <Chip color="error" key={i} label={field.value} />
+                  ))}
+                </div>
+              )}
               <Table>
                 <TableHead>
                   <TableRow>
@@ -326,50 +349,66 @@ export class IssueCert extends Component {
                 </TableHead>
                 <TableBody>
                   {this.state.recipients.length > 0 &&
-                    this.state.recipients.map((recipient, i) => [
-                      <TableRow key={i * 2}>
-                        <TableCell component="th" scope="row">
-                          <IconButton
-                            style={{ width: 24, height: 24, marginRight: 8 }}
-                            onClick={this.handleRecipientToggle(i)}
-                          >
-                            <Icon>
-                              {recipient.expanded
-                                ? 'arrow_drop_down'
-                                : 'arrow_right'}
-                            </Icon>
-                          </IconButton>
-                          <span>{recipient.email}</span>
-                        </TableCell>
-                        <TableCell>{recipient.mnid}</TableCell>
-                        <TableCell>{recipient.lastUpdated}</TableCell>
-                        <TableCell>{recipient.status}</TableCell>
-                        <TableCell numeric>
-                          {recipient.status === 'email sent' && (
-                            <Button>resend</Button>
-                          )}
-                          {recipient.status === 'collected' && (
-                            <Button>push</Button>
-                          )}
-                          {recipient.status === 'collected' && (
-                            <Button>email</Button>
-                          )}
-                        </TableCell>
-                      </TableRow>,
-                      recipient.expanded ? (
-                        <TableRow key={i * 2 + 1}>
-                          <TableCell style={{ background: '#eee' }} colSpan={5}>
-                            {Object.keys(recipient.data).map((key, j) => {
-                              return (
-                                <div key={j}>
-                                  <strong>{key}</strong>: {recipient.data[key]}
-                                </div>
-                              )
-                            })}
+                    this.state.recipients
+                      .filter(
+                        recipient =>
+                          this.state.recipientFilter === '' ||
+                          recipient.email.includes(this.state.recipientFilter)
+                      )
+                      .map((recipient, i) => [
+                        <TableRow key={i * 2}>
+                          <TableCell component="th" scope="row">
+                            <IconButton
+                              style={{ width: 24, height: 24, marginRight: 8 }}
+                              onClick={this.handleRecipientToggle(i)}
+                            >
+                              <Icon>
+                                {recipient.expanded
+                                  ? 'arrow_drop_down'
+                                  : 'arrow_right'}
+                              </Icon>
+                            </IconButton>
+                            <span>{recipient.email}</span>
                           </TableCell>
-                        </TableRow>
-                      ) : null,
-                    ])}
+                          <TableCell>{recipient.mnid}</TableCell>
+                          <TableCell>
+                            <Moment fromNow unix>
+                              {recipient.lastUpdated}
+                            </Moment>
+                          </TableCell>
+                          <TableCell>{recipient.status}</TableCell>
+                          <TableCell numeric>
+                            {recipient.status === 'requested' && (
+                              <Button>resend</Button>
+                            )}
+                            {recipient.status === 'collected' && (
+                              <Button>push</Button>
+                            )}
+                            {recipient.status === 'collected' && (
+                              <Button>email</Button>
+                            )}
+                          </TableCell>
+                        </TableRow>,
+                        recipient.expanded ? (
+                          <TableRow key={i * 2 + 1}>
+                            <TableCell
+                              style={{ background: '#eee', paddingTop: 8 }}
+                              colSpan={5}
+                            >
+                              {Object.keys(recipient.data).map((key, j) => {
+                                return (
+                                  <div
+                                    key={j}
+                                    style={{ paddingLeft: 32, marginBottom: 8 }}
+                                  >
+                                    {key}: {recipient.data[key]}
+                                  </div>
+                                )
+                              })}
+                            </TableCell>
+                          </TableRow>
+                        ) : null,
+                      ])}
                 </TableBody>
               </Table>
             </div>

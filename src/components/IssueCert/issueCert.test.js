@@ -35,6 +35,19 @@ describe('Issue Certificate page', () => {
     expect(mockGetAppIds.mock.calls.length).toBe(1)
   })
 
+  describe('when an issuance is selected', () => {
+    describe('when the selected issuance is not done', () => {
+      it('should enable the app identity selector', () => {})
+      it('should enable the claim template selector', () => {})
+      it('should disable the csv import butotn', () => {})
+    })
+    describe('when the selected issuance is done', () => {
+      it('should disable the app identity selector', () => {})
+      it('should disable the claim template selector', () => {})
+      it('should disable the csv import button', () => {})
+    })
+  })
+
   // describe('add app id button', () => {
     // it('should render if there are no app ids', () => {
     //   const component = getShallowComponent({ appIds: [] })
