@@ -25,6 +25,7 @@ import {
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import Moment from 'react-moment'
+import Papa from 'papaparse'
 
 import { SidebarLayout } from '../../layouts'
 import {
@@ -75,6 +76,34 @@ const RecipientsToolbar = styled.div`
   padding-left: 16px;
   padding-right: 16px;
 `
+
+const parseRecipientData = results => {
+  if(!results) return []
+  const categories = results.data[0]
+  const emailIndex = categories.map(c => c.toLowerCase()).indexOf('email')
+  if(emailIndex < 0) {
+    console.error('no column named \'email\'')
+    return []
+  }
+  return results.data.slice(1).map(recipient => {
+    const data = {}
+    for(var i = 0; i < categories.length; i++) {
+      if(i !== emailIndex) {
+        const category = categories[i]
+        data[category] = recipient[i]
+      }
+    }
+    const r = {
+      email: recipient[emailIndex],
+      mnid: null,
+      lastUpdated: Math.floor(Date.now() / 1000),
+      status: 'imported',
+      expanded: false,
+      data
+    }
+    return r
+  })
+}
 
 export class IssueCert extends Component {
   state = {
@@ -209,6 +238,20 @@ export class IssueCert extends Component {
   handleChangeRecipientFilter = e => {
     this.setState({ recipientFilter: e.target.value })
   }
+  handleRecipientImport = e => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0]
+      Papa.parse(file, {
+        complete: (results, file) => {
+          console.log('parsed csv:', results, file)
+          this.setState({
+            recipientDataFields: [...results.data[0]],
+            recipients: parseRecipientData(results)
+          })
+        },
+      })
+    }
+  }
 
   render() {
     const missingFields = this.state.selectedClaimDynamicFields.filter(
@@ -319,9 +362,17 @@ export class IssueCert extends Component {
                   color="secondary"
                   variant="raised"
                   disabled={this.state.selectedIssuanceDone}
+                  onClick={e => this.uploadCsv.click()}
                 >
                   Import CSV
                 </Button>
+                <input
+                  type="file"
+                  ref={ref => (this.uploadCsv = ref)}
+                  style={{ display: 'none' }}
+                  onChange={this.handleRecipientImport}
+                  accept=".csv"
+                />
               </RecipientsToolbar>
               {missingFields.length > 0 && (
                 <div style={{ padding: 16 }}>
@@ -340,7 +391,7 @@ export class IssueCert extends Component {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>email</TableCell>
+                    <TableCell style={{ paddingLeft: 56 }}>email</TableCell>
                     <TableCell>mnid</TableCell>
                     <TableCell>last updated</TableCell>
                     <TableCell>status</TableCell>
