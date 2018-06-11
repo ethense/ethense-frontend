@@ -78,17 +78,17 @@ const RecipientsToolbar = styled.div`
 `
 
 const parseRecipientData = results => {
-  if(!results) return []
+  if (!results) return []
   const categories = results.data[0]
   const emailIndex = categories.map(c => c.toLowerCase()).indexOf('email')
-  if(emailIndex < 0) {
-    console.error('no column named \'email\'')
+  if (emailIndex < 0) {
+    console.error("no column named 'email'")
     return []
   }
   return results.data.slice(1).map(recipient => {
     const data = {}
-    for(var i = 0; i < categories.length; i++) {
-      if(i !== emailIndex) {
+    for (var i = 0; i < categories.length; i++) {
+      if (i !== emailIndex) {
         const category = categories[i]
         data[category] = recipient[i]
       }
@@ -99,7 +99,7 @@ const parseRecipientData = results => {
       lastUpdated: Math.floor(Date.now() / 1000),
       status: 'imported',
       expanded: false,
-      data
+      data,
     }
     return r
   })
@@ -116,7 +116,7 @@ export class IssueCert extends Component {
     recipientType: MULTIPLE_RECIPIENTS,
     selectedIssuanceDone: false,
     recipientFilter: '',
-    recipientDataFields: ['first', 'last'],
+    recipientDataFields: ['first', 'last', 'email'],
     recipients: [
       {
         email: 'user.one@consensys.net',
@@ -222,17 +222,11 @@ export class IssueCert extends Component {
   handleChangeEmail = e => {
     this.setState({ email: e.target.value })
   }
-  handleRecipientToggle = i => e => {
-    const recipient = this.state.recipients[i]
+  handleRecipientToggle = email => e => {
     this.setState({
-      recipients: [
-        ...this.state.recipients.slice(0, i),
-        {
-          ...recipient,
-          expanded: !recipient.expanded,
-        },
-        ...this.state.recipients.slice(i + 1),
-      ],
+      recipients: this.state.recipients.map(r => {
+        return r.email === email ? { ...r, expanded: !r.expanded } : r
+      }),
     })
   }
   handleChangeRecipientFilter = e => {
@@ -246,7 +240,7 @@ export class IssueCert extends Component {
           console.log('parsed csv:', results, file)
           this.setState({
             recipientDataFields: [...results.data[0]],
-            recipients: parseRecipientData(results)
+            recipients: parseRecipientData(results),
           })
         },
       })
@@ -344,6 +338,30 @@ export class IssueCert extends Component {
           <Divider />
           {this.state.recipientType === MULTIPLE_RECIPIENTS && (
             <div>
+              {this.state.selectedClaimDynamicFields.length > 0 && (
+                <div style={{ paddingLeft: 16, marginTop: 16, marginBottom: 16 }}>
+                  <Typography
+                    variant="caption"
+                    style={{ display: 'inline-block' }}
+                  >
+                    Dynamic Fields:
+                  </Typography>
+                  {this.state.selectedClaimDynamicFields.map((field, i) => {
+                    const imported = this.state.recipientDataFields
+                      .includes(field.value.toLowerCase())
+                    return (
+                      <Chip
+                        key={i}
+                        label={field.value}
+                        style={{
+                          marginLeft: 8,
+                          background: imported ? '#9dff9d' : '#ff9a9a',
+                        }}
+                      />
+                    )
+                  })}
+                </div>
+              )}
               <RecipientsToolbar>
                 <TextField
                   style={{ flex: 1, marginRight: 36 }}
@@ -374,20 +392,6 @@ export class IssueCert extends Component {
                   accept=".csv"
                 />
               </RecipientsToolbar>
-              {missingFields.length > 0 && (
-                <div style={{ padding: 16 }}>
-                  <Typography
-                    variant="caption"
-                    color="error"
-                    style={{ marginRight: 8, display: 'inline-block' }}
-                  >
-                    Imported data is missing the following columns:
-                  </Typography>
-                  {missingFields.map((field, i) => (
-                    <Chip color="error" key={i} label={field.value} />
-                  ))}
-                </div>
-              )}
               <Table>
                 <TableHead>
                   <TableRow>
@@ -411,7 +415,9 @@ export class IssueCert extends Component {
                           <TableCell component="th" scope="row">
                             <IconButton
                               style={{ width: 24, height: 24, marginRight: 8 }}
-                              onClick={this.handleRecipientToggle(i)}
+                              onClick={this.handleRecipientToggle(
+                                recipient.email
+                              )}
                             >
                               <Icon>
                                 {recipient.expanded
