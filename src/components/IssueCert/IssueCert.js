@@ -42,17 +42,18 @@ import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
 import { issue } from '../../modules/issuance'
 import { getClaimTemplates } from '../../modules/claimTemplate'
-// import {
-//   clearNewIssuanceId,
-//   createIssuance,
-//   deleteIssuance,
-//   editIssuance,
-//   getIssuances,
-// } from '../../modules/issuance'
+import {
+  clearNewIssuanceId,
+  createIssuance,
+  deleteIssuance,
+  editIssuance,
+  getIssuances,
+} from '../../modules/issuance'
 import RecordSelect from '../RecordSelect'
 import CreateOrSelect from '../CreateOrSelect'
 import ManageClaims from '../ManageClaims'
 import { MULTIPLE_RECIPIENTS, SINGLE_RECIPIENT } from '../../constants/enums'
+import ClaimTemplateDialog from '../ClaimTemplateDialog'
 
 const RecipientsForm = styled(({ children, ...props }) => (
   <Paper elevation={1} {...props}>
@@ -108,6 +109,7 @@ const parseRecipientData = results => {
 export class IssueCert extends Component {
   state = {
     appIdDialogOpen: false,
+    issuanceDialogOpen: false,
     email: '',
     selectedIssuanceId: '',
     selectedAppId: '',
@@ -163,15 +165,21 @@ export class IssueCert extends Component {
         expanded: false,
       },
     ],
-    // recipients: [],
+    recipients: [],
   }
 
   componentWillMount() {
+    this.props.getIssuances()
     this.props.getAppIds()
     this.props.getClaimTemplates()
   }
 
   componentWillReceiveProps(nextProps) {
+    if (!this.props.newIssuanceId && !!nextProps.newIssuanceId) {
+      this.setState({ selectedIssuanceId: nextProps.newIssuanceId })
+      this.props.clearNewIssuanceId()
+    }
+
     if (this.props.appIds.length === 0 && nextProps.appIds.length > 0) {
       this.setState({
         selectedAppId: nextProps.appIds[0].id,
@@ -180,10 +188,63 @@ export class IssueCert extends Component {
   }
 
   // handlers to manage issuances
-  handleChangeIssuance = () => {}
-  handleDeleteIssuance = () => {}
-  handleSaveIssuance = () => {}
-  handleOpenIssuanceDialog = () => {}
+  handleChangeIssuance = e => {
+    const issuanceId = e.target.value
+    const newState = {
+      selectedIssuanceId: issuanceId,
+    }
+    const issuance = this.props.issuances.find(i => i.id === issuanceId)
+    if (issuance) {
+      newState.selectedAppId = issuance.appId
+      newState.selectedClaimId = issuance.claimId
+      newState.selectedIssuanceDone = issuance.done
+      newState.recipients = issuance.recipients
+      newState.recipientDataFields = Object.keys(
+        issuance.recipients.reduce((prev, val) => {
+          if (val.data) {
+            for (const k in val.data) {
+              prev[k] = true
+            }
+          }
+          return prev
+        })
+      )
+      const claim = this.props.claimTemplates.find(
+        c => c.id === issuance.claimId
+      )
+      newState.selectedClaimDynamicFields = claim
+        ? claim.schema.filter(attr => attr.type === 'dynamic')
+        : []
+    }
+    this.setState(newState)
+  }
+  handleDeleteIssuance = () => {
+    this.props.deleteIssuance(this.state.selectedIssuanceId)
+    this.setState({ selectedIssuanceId: '' })
+  }
+  handleSaveIssuance = () => {
+    this.props.editIssuance({
+      id: this.state.selectedIssuanceId,
+      appId: this.state.selectedAppId,
+      claimId: this.state.selectedClaimId,
+      recipients: this.state.recipients.map(({ expanded, ...r }) => (r)),
+    })
+  }
+  handleOpenIssuanceDialog = () => {
+    this.setState({ issuanceDialogOpen: true })
+  }
+  handleCloseIssuanceDialog = () => {
+    this.setState({ issuanceDialogOpen: false })
+  }
+  handleCreateIssuance = values => {
+    this.props.createIssuance({
+      name: values.name,
+      appId: this.state.selectedAppId,
+      claimId: this.state.selectedClaimId,
+      recipients: this.state.recipients.map(({ expanded, ...r }) => (r)),
+    })
+    this.setState({ issuanceDialogOpen: false })
+  }
   handleSubmit = () => {
     // this.props.issue(this.state.selectedAppId, this.state.email, this.state.treeData)
   }
@@ -277,6 +338,11 @@ export class IssueCert extends Component {
           onClickSave={this.handleSaveIssuance}
           onClickCreate={this.handleOpenIssuanceDialog}
         />
+        <ClaimTemplateDialog
+          open={this.state.issuanceDialogOpen}
+          onClose={this.handleCloseIssuanceDialog}
+          onSubmit={this.handleCreateIssuance}
+        />
 
         <SectionTitle>Issuer App Identity</SectionTitle>
         <CreateOrSelect
@@ -339,7 +405,9 @@ export class IssueCert extends Component {
           {this.state.recipientType === MULTIPLE_RECIPIENTS && (
             <div>
               {this.state.selectedClaimDynamicFields.length > 0 && (
-                <div style={{ paddingLeft: 16, marginTop: 16, marginBottom: 16 }}>
+                <div
+                  style={{ paddingLeft: 16, marginTop: 16, marginBottom: 16 }}
+                >
                   <Typography
                     variant="caption"
                     style={{ display: 'inline-block' }}
@@ -347,15 +415,14 @@ export class IssueCert extends Component {
                     Dynamic Fields:
                   </Typography>
                   {this.state.selectedClaimDynamicFields.map((field, i) => {
-                    const imported = this.state.recipientDataFields
-                      .includes(field.value.toLowerCase())
+                    const imported = this.state.recipientDataFields.includes(field.value)
                     return (
                       <Chip
                         key={i}
                         label={field.value}
                         style={{
                           marginLeft: 8,
-                          background: imported ? '#9dff9d' : '#ff9a9a',
+                          background: imported ? '#eaeaea' : '#ffc8c8',
                         }}
                       />
                     )
@@ -496,32 +563,35 @@ IssueCert.propTypes = {
   addAppId: PropTypes.func.isRequired,
   issue: PropTypes.func.isRequired,
   getClaimTemplates: PropTypes.func.isRequired,
+  issuances: PropTypes.array,
+  newIssuanceId: PropTypes.string,
 }
 
 IssueCert.route = '/issue'
 
 export default connect(
   state => ({
-    // issuances: state.issuance.issuances,
+    issuances: state.issuance.issuances,
+    newIssuanceId: state.issuance.newIssuanceId,
     appIds: state.appIdentity.identities,
     claimTemplates: state.claimTemplate.templates,
   }),
   dispatch => ({
-    // getIssuances() {
-    //   dispatch(getIssuances())
-    // },
-    // createIssuance(values) {
-    //   dispatch(createIssuance(values))
-    // },
-    // editIssuance(values) {
-    //   dispatch(editIssuance(values))
-    // },
-    // deleteIssuance(id) {
-    //   dispatch(deleteIssuance(id))
-    // },
-    // clearNewIssuanceId() {
-    //   dispatch(clearNewIssuanceId())
-    // },
+    getIssuances() {
+      dispatch(getIssuances())
+    },
+    createIssuance(values) {
+      dispatch(createIssuance(values))
+    },
+    editIssuance(values) {
+      dispatch(editIssuance(values))
+    },
+    deleteIssuance(id) {
+      dispatch(deleteIssuance(id))
+    },
+    clearNewIssuanceId() {
+      dispatch(clearNewIssuanceId())
+    },
     getAppIds() {
       dispatch(getAppIds())
     },

@@ -5,3 +5,5 @@ export const CREATE_USER_ERROR = message => `Error creating user: ${message}`
 export const EDIT_USER_ERROR = message => `Error editing user: ${message}`
 export const CREATE_CLAIM_TEMPLATE_ERROR = message => `Error creating claim template: ${message}`
 export const EDIT_CLAIM_TEMPLATE_ERROR = message => `Error saving claim template: ${message}`
+export const CREATE_ISSUANCE_ERROR = message => `Error creating issuance: ${message}`
+export const EDIT_ISSUANCE_ERROR = message => `Error saving issuance: ${message}`

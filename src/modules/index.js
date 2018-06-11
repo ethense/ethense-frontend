@@ -6,6 +6,7 @@ import notification from './notification'
 import appIdentity from './appIdentity'
 import users from './users'
 import claimTemplate from './claimTemplate'
+import issuance from './issuance'
 
 export default combineReducers({
   authentication,
@@ -13,5 +14,6 @@ export default combineReducers({
   appIdentity,
   users,
   claimTemplate,
+  issuance,
   form: formReducer,
 })

@@ -136,6 +136,7 @@ export default (state = initialState, action = {}) => {
         error: null,
       }
     case EDIT_CLAIM_TEMPLATE_SUCCESS:
+      // TODO: refactor to implementation from issuance.js
       const modifiedTemplate = action.payload
       let oldIndex = -1
       const templates = state.templates.filter((template, index) => {

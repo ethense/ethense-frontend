@@ -29,11 +29,12 @@ describe('Issue Certificate page', () => {
     expect(component.find('[data-test-id="issueBtn"]').exists()).toBe(true)
   })
 
-  it('should call a function to get app iddentities', () => {
+  it('should call a function to get app iddentities when mounting', () => {
     const mockGetAppIds = jest.fn()
     const component = getShallowComponent({ getAppIds: mockGetAppIds })
     expect(mockGetAppIds.mock.calls.length).toBe(1)
   })
+  it('should have a RecordSelect component that manages claim templates', () => {})
 
   describe('when an issuance is selected', () => {
     describe('when the selected issuance is not done', () => {
