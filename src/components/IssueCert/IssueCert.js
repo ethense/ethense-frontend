@@ -21,6 +21,7 @@ import {
   Tabs,
   TextField,
   Typography,
+  CircularProgress,
 } from '@material-ui/core'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
@@ -40,7 +41,6 @@ import {
 } from '../elements'
 import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
-import { issue } from '../../modules/issuance'
 import { getClaimTemplates } from '../../modules/claimTemplate'
 import {
   clearNewIssuanceId,
@@ -48,6 +48,8 @@ import {
   deleteIssuance,
   editIssuance,
   getIssuances,
+  issue,
+  batchIssue,
 } from '../../modules/issuance'
 import RecordSelect from '../RecordSelect'
 import CreateOrSelect from '../CreateOrSelect'
@@ -106,67 +108,24 @@ const parseRecipientData = results => {
   })
 }
 
+const defaultState = {
+  appIdDialogOpen: false,
+  issuanceDialogOpen: false,
+  selectedIssuanceId: '',
+  selectedIssuanceDone: false,
+  selectedIssuanceIssuing: false,
+  selectedAppId: '',
+  selectedClaimId: '',
+  selectedClaimDynamicFields: [],
+  recipientType: MULTIPLE_RECIPIENTS,
+  recipientFilter: '',
+  recipientDataFields: [],
+  recipients: [],
+  email: '',
+}
+
 export class IssueCert extends Component {
-  state = {
-    appIdDialogOpen: false,
-    issuanceDialogOpen: false,
-    email: '',
-    selectedIssuanceId: '',
-    selectedAppId: '',
-    selectedClaimId: '',
-    selectedClaimDynamicFields: [],
-    recipientType: MULTIPLE_RECIPIENTS,
-    selectedIssuanceDone: false,
-    recipientFilter: '',
-    recipientDataFields: ['first', 'last', 'email'],
-    recipients: [
-      {
-        email: 'user.one@consensys.net',
-        mnid: null,
-        lastUpdated: 1524268800,
-        status: 'imported',
-        data: {
-          first: 'charlie',
-          last: 'kelly',
-        },
-        expanded: true,
-      },
-      {
-        email: 'user.two@consensys.net',
-        mnid: null,
-        lastUpdated: 1526169600,
-        status: 'requested',
-        data: {
-          first: 'dee',
-          last: 'reynolds',
-        },
-        expanded: false,
-      },
-      {
-        email: 'user.three@consensys.net',
-        mnid: '2odoMoT9MspBdfhoZkxQEN432XJiVCYRizu',
-        lastUpdated: 1526860800,
-        status: 'collected',
-        data: {
-          first: 'ronald',
-          last: 'macdonald',
-        },
-        expanded: false,
-      },
-      {
-        email: 'user.four@consensys.net',
-        mnid: '2odoBdfhiVZkxQEN432MoT9MsCYRizopXJu',
-        lastUpdated: 1528329600,
-        status: 'collected',
-        data: {
-          first: 'dennis',
-          last: 'reynolds',
-        },
-        expanded: false,
-      },
-    ],
-    recipients: [],
-  }
+  state = { ...defaultState }
 
   componentWillMount() {
     this.props.getIssuances()
@@ -176,7 +135,8 @@ export class IssueCert extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.newIssuanceId && !!nextProps.newIssuanceId) {
-      this.setState({ selectedIssuanceId: nextProps.newIssuanceId })
+      console.log('new issuance id', nextProps.newIssuanceId)
+      this.selectIssuance(nextProps.newIssuanceId, nextProps.issuances)
       this.props.clearNewIssuanceId()
     }
 
@@ -188,16 +148,24 @@ export class IssueCert extends Component {
   }
 
   // handlers to manage issuances
-  handleChangeIssuance = e => {
-    const issuanceId = e.target.value
+  selectIssuance = (id, issuances) => {
     const newState = {
-      selectedIssuanceId: issuanceId,
+      selectedIssuanceId: id,
+      selectedAppId: defaultState.selectedAppId,
+      selectedClaimId: defaultState.selectedClaimId,
+      selectedIssuanceDone: defaultState.selectedIssuanceDone,
+      selectedIssuanceIssuing: defaultState.selectedIssuanceIssuing,
+      recipients: defaultState.recipients,
+      recipientDataFields: defaultState.recipientDataFields,
+      selectedClaimDynamicFields: defaultState.selectedClaimDynamicFields,
     }
-    const issuance = this.props.issuances.find(i => i.id === issuanceId)
+    const issuance = issuances.find(i => i.id === id)
     if (issuance) {
+      console.log(issuance)
       newState.selectedAppId = issuance.appId
       newState.selectedClaimId = issuance.claimId
       newState.selectedIssuanceDone = issuance.done
+      newState.selectedIssuanceIssuing = issuance.batchIssuing
       newState.recipients = issuance.recipients
       newState.recipientDataFields = Object.keys(
         issuance.recipients.reduce((prev, val) => {
@@ -218,6 +186,9 @@ export class IssueCert extends Component {
     }
     this.setState(newState)
   }
+  handleChangeIssuance = e => {
+    this.selectIssuance(e.target.value, this.props.issuances)
+  }
   handleDeleteIssuance = () => {
     this.props.deleteIssuance(this.state.selectedIssuanceId)
     this.setState({ selectedIssuanceId: '' })
@@ -227,7 +198,7 @@ export class IssueCert extends Component {
       id: this.state.selectedIssuanceId,
       appId: this.state.selectedAppId,
       claimId: this.state.selectedClaimId,
-      recipients: this.state.recipients.map(({ expanded, ...r }) => (r)),
+      recipients: this.state.recipients.map(({ expanded, ...r }) => r),
     })
   }
   handleOpenIssuanceDialog = () => {
@@ -241,11 +212,17 @@ export class IssueCert extends Component {
       name: values.name,
       appId: this.state.selectedAppId,
       claimId: this.state.selectedClaimId,
-      recipients: this.state.recipients.map(({ expanded, ...r }) => (r)),
+      recipients: this.state.recipients.map(({ expanded, ...r }) => r),
     })
     this.setState({ issuanceDialogOpen: false })
   }
   handleSubmit = () => {
+    const issuanceId = this.state.selectedIssuanceId
+    if (issuanceId) {
+      this.props.batchIssue(issuanceId)
+    } else {
+      console.warn('do not issue ', issuanceId)
+    }
     // this.props.issue(this.state.selectedAppId, this.state.email, this.state.treeData)
   }
 
@@ -312,6 +289,14 @@ export class IssueCert extends Component {
     const missingFields = this.state.selectedClaimDynamicFields.filter(
       field => !this.state.recipientDataFields.includes(field.value)
     )
+    const primaryBtnText = this.state.selectedIssuanceDone
+      ? 'Issued'
+      : this.state.selectedIssuanceIssuing
+        ? 'Issuing...'
+        : 'Issue'
+
+    const locked =
+      this.state.selectedIssuanceDone || this.state.selectedIssuanceIssuing
 
     return (
       <SidebarLayout>
@@ -321,9 +306,12 @@ export class IssueCert extends Component {
             onClick={this.handleSubmit}
             data-test-id="issueBtn"
             variant="raised"
-            disabled={this.state.selectedIssuanceDone}
+            disabled={locked}
           >
-            {this.state.selectedIssuanceDone ? 'Issued' : 'Issue'}
+            {primaryBtnText}
+            {this.state.selectedIssuanceIssuing && (
+              <CircularProgress size={24} />
+            )}
           </GradientButton>
         </PageHeader>
 
@@ -337,6 +325,7 @@ export class IssueCert extends Component {
           onClickDelete={this.handleDeleteIssuance}
           onClickSave={this.handleSaveIssuance}
           onClickCreate={this.handleOpenIssuanceDialog}
+          locked={locked}
         />
         <ClaimTemplateDialog
           open={this.state.issuanceDialogOpen}
@@ -365,7 +354,7 @@ export class IssueCert extends Component {
           onCreateItem={this.handleOpenAppIdDialog}
           onChangeItem={this.handleChangeAppId}
           buttonText={'Add App Identity'}
-          disabled={this.state.selectedIssuanceDone}
+          disabled={locked}
         />
         <AddAppIdDialog
           open={this.state.appIdDialogOpen}
@@ -389,7 +378,7 @@ export class IssueCert extends Component {
           }}
           onChangeItem={this.handleChangeClaim}
           buttonText={'Create claim'}
-          disabled={this.state.selectedIssuanceDone}
+          disabled={locked}
         />
 
         <SectionTitle>Recipients</SectionTitle>
@@ -415,7 +404,9 @@ export class IssueCert extends Component {
                     Dynamic Fields:
                   </Typography>
                   {this.state.selectedClaimDynamicFields.map((field, i) => {
-                    const imported = this.state.recipientDataFields.includes(field.value)
+                    const imported = this.state.recipientDataFields.includes(
+                      field.value
+                    )
                     return (
                       <Chip
                         key={i}
@@ -446,7 +437,7 @@ export class IssueCert extends Component {
                 <Button
                   color="secondary"
                   variant="raised"
-                  disabled={this.state.selectedIssuanceDone}
+                  disabled={locked}
                   onClick={e => this.uploadCsv.click()}
                 >
                   Import CSV
@@ -600,6 +591,9 @@ export default connect(
     },
     issue(appId, email, schema) {
       dispatch(issue(appId, email, schema))
+    },
+    batchIssue(id) {
+      dispatch(batchIssue(id))
     },
     getClaimTemplates() {
       dispatch(getClaimTemplates())

@@ -29,14 +29,14 @@ export class RecordSelect extends Component {
             ))}
         </Select>
         <IconButton
-          disabled={!this.props.selectValue}
+          disabled={!this.props.selectValue || this.props.locked}
           onClick={this.props.onClickDelete}
           variant="outlined"
         >
           <Icon>delete_outline</Icon>
         </IconButton>
         <IconButton
-          disabled={!this.props.selectValue}
+          disabled={!this.props.selectValue || this.props.locked}
           onClick={this.props.onClickSave}
           variant="outlined"
         >
@@ -59,6 +59,7 @@ RecordSelect.propTypes = {
   onClickCreate: PropTypes.func.isRequired,
   onClickSave: PropTypes.func.isRequired,
   onClickDelete: PropTypes.func.isRequired,
+  locked: PropTypes.bool,
 }
 
 export default withTheme()(RecordSelect)

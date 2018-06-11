@@ -7,3 +7,6 @@ export const CREATE_CLAIM_TEMPLATE_ERROR = message => `Error creating claim temp
 export const EDIT_CLAIM_TEMPLATE_ERROR = message => `Error saving claim template: ${message}`
 export const CREATE_ISSUANCE_ERROR = message => `Error creating issuance: ${message}`
 export const EDIT_ISSUANCE_ERROR = message => `Error saving issuance: ${message}`
+export const BATCH_ISSUE_STARTED = 'Batch Issuance Started'
+export const BATCH_ISSUE_ERROR = message => `Error executing batch issuance: ${message}`
+export const BATCH_ISSUE_COMPLETED = 'Batch Issuance Completed'

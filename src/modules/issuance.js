@@ -5,6 +5,9 @@ import {
   PICKUP_EMAIL_ERROR,
   CREATE_ISSUANCE_ERROR,
   EDIT_ISSUANCE_ERROR,
+  BATCH_ISSUE_STARTED,
+  BATCH_ISSUE_ERROR,
+  BATCH_ISSUE_COMPLETED,
 } from '../constants/messages'
 
 // action types
@@ -29,6 +32,12 @@ export const CLEAR_NEW_ISSUANCE_ID = 'issuance/CLEAR_NEW_ISSUANCE_ID'
 export const ISSUE_REQUEST = 'issuance/ISSUE_REQUEST'
 export const ISSUE_SUCCESS = 'issuance/ISSUE_SUCCESS'
 export const ISSUE_FAILURE = 'issuance/ISSUE_FAILURE'
+
+export const BATCH_ISSUE_REQUEST = 'issuance/BATCH_ISSUE_REQUEST'
+export const BATCH_ISSUE_START = 'issuance/BATCH_ISSUE_START'
+export const BATCH_ISSUE_PROGRESS = 'issuance/BATCH_ISSUE_PROGRESS'
+export const BATCH_ISSUE_SUCCESS = 'issuance/BATCH_ISSUE_SUCCESS'
+export const BATCH_ISSUE_FAILURE = 'issuance/BATCH_ISSUE_FAILURE'
 
 const getIssuancesRequest = () => ({ type: GET_ISSUANCES_REQUEST })
 const getIssuancesSuccess = response => ({
@@ -81,6 +90,24 @@ const issueSuccess = response => ({
 })
 const issueFailure = error => ({
   type: ISSUE_FAILURE,
+  payload: error,
+})
+
+const batchIssueRequest = () => ({ type: BATCH_ISSUE_REQUEST })
+const batchIssueStart = response => ({
+  type: BATCH_ISSUE_START,
+  payload: response,
+})
+const batchIssueProgress = response => ({
+  type: BATCH_ISSUE_PROGRESS,
+  payload: response,
+})
+const batchIssueSuccess = response => ({
+  type: BATCH_ISSUE_SUCCESS,
+  payload: response,
+})
+const batchIssueFailure = error => ({
+  type: BATCH_ISSUE_FAILURE,
   payload: error,
 })
 
@@ -199,6 +226,29 @@ export default (state = initialState, action = {}) => {
         reading: false,
         error: action.payload,
       }
+    case BATCH_ISSUE_REQUEST:
+      return {
+        ...state,
+        reading: false,
+        error: null,
+      }
+    case BATCH_ISSUE_START:
+      const issuance = action.payload.issuance
+      console.log(issuance)
+      return {
+        ...state,
+        reading: false,
+        issuances: state.issuances.map(
+          i => (i.id === issuance.id ? issuance : i)
+        ),
+        newIssuanceId: issuance.id,
+      }
+    case BATCH_ISSUE_FAILURE:
+      return {
+        ...state,
+        reading: false,
+        error: action.payload,
+      }
     default:
       return state
   }
@@ -285,5 +335,18 @@ export const issue = (appId, email, schema) => async dispatch => {
   } catch (error) {
     dispatch(issueFailure(error))
     dispatch(displayNotification(PICKUP_EMAIL_ERROR))
+  }
+}
+
+export const batchIssue = id => async dispatch => {
+  dispatch(batchIssueRequest())
+  try {
+    const response = await api.get(`/Issuances/${id}/batchIssue`)
+    dispatch(batchIssueStart(response.data))
+    dispatch(displayNotification(BATCH_ISSUE_STARTED))
+    // set a timeout to dispatch batch issue progress
+  } catch (error) {
+    dispatch(batchIssueFailure(error))
+    dispatch(displayNotification(BATCH_ISSUE_ERROR(error)))
   }
 }
