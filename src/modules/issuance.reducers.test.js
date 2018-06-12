@@ -6,6 +6,8 @@ describe('issuance reducer', () => {
     expect(reducer(undefined, {})).toEqual({
       reading: false,
       error: null,
+      issuances: [],
+      newIssuanceId: null,
     })
   })
 
@@ -13,6 +15,8 @@ describe('issuance reducer', () => {
     expect(reducer(undefined, { type: actions.ISSUE_REQUEST })).toEqual({
       reading: true,
       error: null,
+      issuances: [],
+      newIssuanceId: null,
     })
   })
 
@@ -25,6 +29,8 @@ describe('issuance reducer', () => {
     ).toEqual({
       reading: false,
       error: null,
+      issuances: [],
+      newIssuanceId: null,
     })
   })
 
@@ -37,6 +43,8 @@ describe('issuance reducer', () => {
     ).toEqual({
       reading: false,
       error: new Error('server error'),
+      issuances: [],
+      newIssuanceId: null,
     })
   })
 })

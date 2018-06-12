@@ -41,6 +41,9 @@ describe('App', () => {
         claimTemplate: {
           templates: [],
         },
+        issuance: {
+          issuances: [],
+        }
       })
     })
 
@@ -109,6 +112,9 @@ describe('App', () => {
         claimTemplate: {
           templates: [],
         },
+        issuance: {
+          issuances: [],
+        }
       })
     })
 

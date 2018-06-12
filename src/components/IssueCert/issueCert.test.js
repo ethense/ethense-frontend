@@ -12,6 +12,7 @@ const defaultProps = {
   editClaimTemplate: () => {},
   deleteClaimTemplate: () => {},
   clearNewTemplateId: () => {},
+  getIssuances: () => {},
 }
 
 const APP_ID = {
