@@ -50,6 +50,7 @@ import {
   getIssuances,
   issue,
   batchIssue,
+  pollIssuance,
 } from '../../modules/issuance'
 import RecordSelect from '../RecordSelect'
 import CreateOrSelect from '../CreateOrSelect'
@@ -135,7 +136,6 @@ export class IssueCert extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.newIssuanceId && !!nextProps.newIssuanceId) {
-      console.log('new issuance id', nextProps.newIssuanceId)
       this.selectIssuance(nextProps.newIssuanceId, nextProps.issuances)
       this.props.clearNewIssuanceId()
     }
@@ -161,7 +161,6 @@ export class IssueCert extends Component {
     }
     const issuance = issuances.find(i => i.id === id)
     if (issuance) {
-      console.log(issuance)
       newState.selectedAppId = issuance.appId
       newState.selectedClaimId = issuance.claimId
       newState.selectedIssuanceDone = issuance.done
@@ -185,9 +184,14 @@ export class IssueCert extends Component {
         : []
     }
     this.setState(newState)
+    return issuance
   }
   handleChangeIssuance = e => {
-    this.selectIssuance(e.target.value, this.props.issuances)
+    const issuanceId = e.target.value
+    const issuance = this.selectIssuance(issuanceId, this.props.issuances)
+    if (issuance && issuance.batchIssuing) {
+      this.props.pollIssuance(issuanceId)
+    }
   }
   handleDeleteIssuance = () => {
     this.props.deleteIssuance(this.state.selectedIssuanceId)
@@ -275,7 +279,6 @@ export class IssueCert extends Component {
       const file = e.target.files[0]
       Papa.parse(file, {
         complete: (results, file) => {
-          console.log('parsed csv:', results, file)
           this.setState({
             recipientDataFields: [...results.data[0]],
             recipients: parseRecipientData(results),
@@ -311,6 +314,9 @@ export class IssueCert extends Component {
             {primaryBtnText}
             {this.state.selectedIssuanceIssuing && (
               <CircularProgress size={24} />
+            )}
+            {this.state.selectedIssuanceDone && (
+              <Icon>check_circle_outline</Icon>
             )}
           </GradientButton>
         </PageHeader>
@@ -556,6 +562,7 @@ IssueCert.propTypes = {
   getClaimTemplates: PropTypes.func.isRequired,
   issuances: PropTypes.array,
   newIssuanceId: PropTypes.string,
+  pollIssuance: PropTypes.func.isRequired,
 }
 
 IssueCert.route = '/issue'
@@ -597,6 +604,9 @@ export default connect(
     },
     getClaimTemplates() {
       dispatch(getClaimTemplates())
+    },
+    pollIssuance(id) {
+      dispatch(pollIssuance(id))
     },
   })
 )(withRouter(IssueCert))

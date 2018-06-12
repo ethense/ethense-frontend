@@ -10,3 +10,4 @@ export const EDIT_ISSUANCE_ERROR = message => `Error saving issuance: ${message}
 export const BATCH_ISSUE_STARTED = 'Batch Issuance Started'
 export const BATCH_ISSUE_ERROR = message => `Error executing batch issuance: ${message}`
 export const BATCH_ISSUE_COMPLETED = 'Batch Issuance Completed'
+export const POLL_ISSUANCE_ERROR = message => `Error polling issuance: ${message}`

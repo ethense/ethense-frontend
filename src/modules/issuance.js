@@ -8,6 +8,7 @@ import {
   BATCH_ISSUE_STARTED,
   BATCH_ISSUE_ERROR,
   BATCH_ISSUE_COMPLETED,
+  POLL_ISSUANCE_ERROR,
 } from '../constants/messages'
 
 // action types
@@ -38,6 +39,10 @@ export const BATCH_ISSUE_START = 'issuance/BATCH_ISSUE_START'
 export const BATCH_ISSUE_PROGRESS = 'issuance/BATCH_ISSUE_PROGRESS'
 export const BATCH_ISSUE_SUCCESS = 'issuance/BATCH_ISSUE_SUCCESS'
 export const BATCH_ISSUE_FAILURE = 'issuance/BATCH_ISSUE_FAILURE'
+
+export const POLL_ISSUANCE_REQUEST = 'issuance/POLL_ISSUANCE_REQUEST'
+export const POLL_ISSUANCE_SUCCESS = 'issuance/POLL_ISSUANCE_SUCCESS'
+export const POLL_ISSUANCE_FAILURE = 'issuance/POLL_ISSUANCE_FAILURE'
 
 const getIssuancesRequest = () => ({ type: GET_ISSUANCES_REQUEST })
 const getIssuancesSuccess = response => ({
@@ -111,6 +116,18 @@ const batchIssueFailure = error => ({
   payload: error,
 })
 
+const pollIssuanceRequest = () => ({
+  type: POLL_ISSUANCE_REQUEST,
+})
+const pollIssuanceSuccess = response => ({
+  type: POLL_ISSUANCE_SUCCESS,
+  payload: response,
+})
+const pollIssuanceFailure = error => ({
+  type: POLL_ISSUANCE_FAILURE,
+  payload: error,
+})
+
 //state
 const initialState = {
   issuances: [],
@@ -121,30 +138,13 @@ const initialState = {
 
 // reducer
 export default (state = initialState, action = {}) => {
+  let issuance
   switch (action.type) {
-    case GET_ISSUANCES_REQUEST:
-      return {
-        ...state,
-        reading: true,
-        error: null,
-      }
     case GET_ISSUANCES_SUCCESS:
       return {
         ...state,
         reading: true,
         issuances: action.payload,
-      }
-    case GET_ISSUANCES_FAILURE:
-      return {
-        ...state,
-        reading: false,
-        error: action.payload,
-      }
-    case CREATE_ISSUANCE_REQUEST:
-      return {
-        ...state,
-        reading: true,
-        error: null,
       }
     case CREATE_ISSUANCE_SUCCESS:
       const newIssuance = action.payload
@@ -153,18 +153,6 @@ export default (state = initialState, action = {}) => {
         reading: false,
         issuances: [...state.issuances, newIssuance],
         newIssuanceId: newIssuance.id,
-      }
-    case CREATE_ISSUANCE_FAILURE:
-      return {
-        ...state,
-        reading: false,
-        error: action.payload,
-      }
-    case EDIT_ISSUANCE_REQUEST:
-      return {
-        ...state,
-        reading: true,
-        error: null,
       }
     case EDIT_ISSUANCE_SUCCESS:
       return {
@@ -177,18 +165,6 @@ export default (state = initialState, action = {}) => {
               : { ...issuance }
         ),
       }
-    case EDIT_ISSUANCE_FAILURE:
-      return {
-        ...state,
-        reading: false,
-        error: action.payload,
-      }
-    case DELETE_ISSUANCE_REQUEST:
-      return {
-        ...state,
-        reading: true,
-        error: null,
-      }
     case DELETE_ISSUANCE_SUCCESS:
       const deletedIssuanceId = action.payload
       return {
@@ -198,56 +174,49 @@ export default (state = initialState, action = {}) => {
           issuance => issuance.id !== deletedIssuanceId
         ),
       }
-    case DELETE_ISSUANCE_FAILURE:
-      return {
-        ...state,
-        reading: false,
-        error: action.payload,
-      }
     case CLEAR_NEW_ISSUANCE_ID:
       return {
         ...state,
         newIssuanceId: null,
       }
+    case GET_ISSUANCES_REQUEST:
+    case CREATE_ISSUANCE_REQUEST:
+    case EDIT_ISSUANCE_REQUEST:
+    case DELETE_ISSUANCE_REQUEST:
     case ISSUE_REQUEST:
+    case BATCH_ISSUE_REQUEST:
+    case POLL_ISSUANCE_REQUEST:
       return {
         ...state,
-        reading: true,
+        reading: false,
         error: null,
+      }
+    case GET_ISSUANCES_FAILURE:
+    case CREATE_ISSUANCE_FAILURE:
+    case EDIT_ISSUANCE_FAILURE:
+    case DELETE_ISSUANCE_FAILURE:
+    case ISSUE_FAILURE:
+    case BATCH_ISSUE_FAILURE:
+    case POLL_ISSUANCE_FAILURE:
+      return {
+        ...state,
+        reading: false,
+        error: action.payload,
       }
     case ISSUE_SUCCESS:
       return {
         ...state,
         reading: false,
       }
-    case ISSUE_FAILURE:
-      return {
-        ...state,
-        reading: false,
-        error: action.payload,
-      }
-    case BATCH_ISSUE_REQUEST:
-      return {
-        ...state,
-        reading: false,
-        error: null,
-      }
     case BATCH_ISSUE_START:
-      const issuance = action.payload.issuance
-      console.log(issuance)
+    case POLL_ISSUANCE_SUCCESS:
+      issuance = action.payload
       return {
         ...state,
-        reading: false,
         issuances: state.issuances.map(
           i => (i.id === issuance.id ? issuance : i)
         ),
         newIssuanceId: issuance.id,
-      }
-    case BATCH_ISSUE_FAILURE:
-      return {
-        ...state,
-        reading: false,
-        error: action.payload,
       }
     default:
       return state
@@ -344,9 +313,25 @@ export const batchIssue = id => async dispatch => {
     const response = await api.get(`/Issuances/${id}/batchIssue`)
     dispatch(batchIssueStart(response.data))
     dispatch(displayNotification(BATCH_ISSUE_STARTED))
-    // set a timeout to dispatch batch issue progress
+    dispatch(pollIssuance(id))
   } catch (error) {
     dispatch(batchIssueFailure(error))
     dispatch(displayNotification(BATCH_ISSUE_ERROR(error)))
+  }
+}
+
+export const pollIssuance = id => async dispatch => {
+  dispatch(pollIssuanceRequest())
+  try {
+    const response = await api.get(`/Issuances/${id}`)
+    dispatch(pollIssuanceSuccess(response.data))
+    if (response.data.batchIssuing) {
+      setTimeout(() => {
+        dispatch(pollIssuance(id))
+      }, 1000)
+    }
+  } catch (error) {
+    dispatch(pollIssuanceFailure(error))
+    dispatch(displayNotification(POLL_ISSUANCE_ERROR(error)))
   }
 }
