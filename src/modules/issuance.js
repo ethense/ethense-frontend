@@ -311,9 +311,8 @@ export const batchIssue = id => async dispatch => {
   dispatch(batchIssueRequest())
   try {
     const response = await api.get(`/Issuances/${id}/batchIssue`)
-    dispatch(batchIssueStart(response.data))
+    dispatch(batchIssueStart(response.data.root))
     dispatch(displayNotification(BATCH_ISSUE_STARTED))
-    dispatch(pollIssuance(id))
   } catch (error) {
     dispatch(batchIssueFailure(error))
     dispatch(displayNotification(BATCH_ISSUE_ERROR(error)))
@@ -325,11 +324,6 @@ export const pollIssuance = id => async dispatch => {
   try {
     const response = await api.get(`/Issuances/${id}`)
     dispatch(pollIssuanceSuccess(response.data))
-    if (response.data.batchIssuing) {
-      setTimeout(() => {
-        dispatch(pollIssuance(id))
-      }, 1000)
-    }
   } catch (error) {
     dispatch(pollIssuanceFailure(error))
     dispatch(displayNotification(POLL_ISSUANCE_ERROR(error)))

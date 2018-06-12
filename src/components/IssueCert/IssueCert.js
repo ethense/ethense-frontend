@@ -136,7 +136,12 @@ export class IssueCert extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.newIssuanceId && !!nextProps.newIssuanceId) {
-      this.selectIssuance(nextProps.newIssuanceId, nextProps.issuances)
+      if (
+        !this.state.selectedIssuanceId ||
+        this.state.selectedIssuanceId === nextProps.newIssuanceId
+      ) {
+        this.selectIssuance(nextProps.newIssuanceId, nextProps.issuances)
+      }
       this.props.clearNewIssuanceId()
     }
 
@@ -166,22 +171,32 @@ export class IssueCert extends Component {
       newState.selectedIssuanceDone = issuance.done
       newState.selectedIssuanceIssuing = issuance.batchIssuing
       newState.recipients = issuance.recipients
-      newState.recipientDataFields = Object.keys(
-        issuance.recipients.reduce((prev, val) => {
-          if (val.data) {
-            for (const k in val.data) {
-              prev[k] = true
+      newState.recipientDataFields = [
+        'Email',
+        ...Object.keys(
+          issuance.recipients.reduce((prev, val) => {
+            if (val.data) {
+              for (const k in val.data) {
+                prev[k] = true
+              }
             }
-          }
-          return prev
-        })
-      )
+            return prev
+          }, {})
+        ),
+      ]
+
       const claim = this.props.claimTemplates.find(
         c => c.id === issuance.claimId
       )
       newState.selectedClaimDynamicFields = claim
         ? claim.schema.filter(attr => attr.type === 'dynamic')
         : []
+
+      if (issuance.batchIssuing) {
+        setTimeout(() => {
+          this.props.pollIssuance(issuance.id)
+        }, 1000)
+      }
     }
     this.setState(newState)
     return issuance
@@ -189,9 +204,6 @@ export class IssueCert extends Component {
   handleChangeIssuance = e => {
     const issuanceId = e.target.value
     const issuance = this.selectIssuance(issuanceId, this.props.issuances)
-    if (issuance && issuance.batchIssuing) {
-      this.props.pollIssuance(issuanceId)
-    }
   }
   handleDeleteIssuance = () => {
     this.props.deleteIssuance(this.state.selectedIssuanceId)
