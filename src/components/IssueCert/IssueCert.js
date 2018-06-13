@@ -26,11 +26,7 @@ import Moment from 'react-moment'
 import Papa from 'papaparse'
 
 import { SidebarLayout } from '../../layouts'
-import {
-  GradientButton,
-  PageHeader,
-  SectionTitle,
-} from '../elements'
+import { GradientButton, PageHeader, SectionTitle } from '../elements'
 import { getAppIds, addAppId } from '../../modules/appIdentity'
 import AddAppIdDialog from '../AddAppIdDialog'
 import { getClaimTemplates } from '../../modules/claimTemplate'
@@ -531,7 +527,7 @@ export class IssueCert extends Component {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {this.state.recipients.length > 0 &&
+                  {this.state.recipients.length > 0 ? (
                     this.state.recipients
                       .filter(
                         recipient =>
@@ -610,14 +606,19 @@ export class IssueCert extends Component {
                             </TableCell>
                           </TableRow>
                         ) : null,
-                      ])}
+                      ])
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5}><em>(No recipients imported)</em></TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </div>
           )}
           {this.state.recipientType === SINGLE_RECIPIENT && (
             <RecipientsContent>
-              <div style={{ display: 'flex', marginBottom: 48 }}>
+              <div style={{ display: 'flex' }}>
                 <TextField
                   style={{ flex: 1, marginRight: 24 }}
                   data-test-id="recipientEmail"
@@ -632,7 +633,11 @@ export class IssueCert extends Component {
                   issue
                 </Button>
               </div>
-              <Typography variant="subheading">Dynamic Fields</Typography>
+              {this.state.selectedClaimDynamicFields.length > 0 && (
+                <Typography variant="subheading" style={{ marginTop: 48 }}>
+                  Dynamic Fields
+                </Typography>
+              )}
               {this.state.selectedClaimDynamicFields.map((v, i) => (
                 <TextField
                   fullWidth
