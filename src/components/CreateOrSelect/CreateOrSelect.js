@@ -33,7 +33,7 @@ class CreateOrSelect extends Component {
               onClick={this.props.onCreateItem}
               key={1}
               variant="raised"
-              color="secondary"
+              color="primary"
             >
               {this.props.buttonText}
             </Button>,

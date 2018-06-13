@@ -204,6 +204,8 @@ export class IssueCert extends Component {
   handleChangeIssuance = e => {
     const issuanceId = e.target.value
     const issuance = this.selectIssuance(issuanceId, this.props.issuances)
+    // TODO: remove this hack to reload the selected issuance
+    if (issuance) this.props.pollIssuance(issuance.id)
   }
   handleDeleteIssuance = () => {
     this.props.deleteIssuance(this.state.selectedIssuanceId)
@@ -261,11 +263,39 @@ export class IssueCert extends Component {
   handleChangeClaim = e => {
     const claimId = e.target.value
     const claim = this.props.claimTemplates.find(c => c.id === claimId)
+
+    function collectDynamicField(attribute) {
+      switch (attribute.type) {
+        case 'dynamic':
+          return attribute.value
+        case 'object':
+          let dynamicFields = []
+          attribute.children.forEach(a => {
+            const childFields = collectDynamicField(a)
+            if (Array.isArray(childFields)) {
+              dynamicFields = dynamicFields.concat(childFields)
+            } else {
+              dynamicFields.push(childFields)
+            }
+          })
+          return dynamicFields
+        default:
+          return null
+      }
+    }
+
+    const selectedClaimDynamicFields = claim
+      ? claim.schema.reduce((acc, attribute) => {
+          const dynamicFields = collectDynamicField(attribute)
+          if (Array.isArray(dynamicFields)) acc = acc.concat(dynamicFields)
+          else acc.push(dynamicFields)
+          return acc
+        }, [])
+      : []
+
     this.setState({
       selectedClaimId: claimId,
-      selectedClaimDynamicFields: claim
-        ? claim.schema.filter(attr => attr.type === 'dynamic')
-        : [],
+      selectedClaimDynamicFields,
     })
   }
 
@@ -404,6 +434,7 @@ export class IssueCert extends Component {
           <Tabs
             value={this.state.recipientType}
             onChange={this.handleChangeRecipientType}
+            indicatorColor="primary"
           >
             <Tab label="Cohort" />
             <Tab label="Test" />
@@ -423,12 +454,12 @@ export class IssueCert extends Component {
                   </Typography>
                   {this.state.selectedClaimDynamicFields.map((field, i) => {
                     const imported = this.state.recipientDataFields.includes(
-                      field.value
+                      field
                     )
                     return (
                       <Chip
                         key={i}
-                        label={field.value}
+                        label={field}
                         style={{
                           marginLeft: 8,
                           background: imported ? '#eaeaea' : '#ffc8c8',
@@ -453,7 +484,7 @@ export class IssueCert extends Component {
                   onChange={this.handleChangeRecipientFilter}
                 />
                 <Button
-                  color="secondary"
+                  color="primary"
                   variant="raised"
                   disabled={locked}
                   onClick={e => this.uploadCsv.click()}
