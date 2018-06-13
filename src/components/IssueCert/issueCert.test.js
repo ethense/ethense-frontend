@@ -14,6 +14,9 @@ const defaultProps = {
   clearNewTemplateId: () => {},
   getIssuances: () => {},
   pollIssuance: () => {},
+  resend: () => {},
+  pushAttestation: () => {},
+  emailAttestation: () => {},
 }
 
 const APP_ID = {

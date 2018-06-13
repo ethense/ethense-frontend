@@ -36,13 +36,15 @@ export const ISSUE_FAILURE = 'issuance/ISSUE_FAILURE'
 
 export const BATCH_ISSUE_REQUEST = 'issuance/BATCH_ISSUE_REQUEST'
 export const BATCH_ISSUE_START = 'issuance/BATCH_ISSUE_START'
-export const BATCH_ISSUE_PROGRESS = 'issuance/BATCH_ISSUE_PROGRESS'
-export const BATCH_ISSUE_SUCCESS = 'issuance/BATCH_ISSUE_SUCCESS'
 export const BATCH_ISSUE_FAILURE = 'issuance/BATCH_ISSUE_FAILURE'
 
 export const POLL_ISSUANCE_REQUEST = 'issuance/POLL_ISSUANCE_REQUEST'
 export const POLL_ISSUANCE_SUCCESS = 'issuance/POLL_ISSUANCE_SUCCESS'
 export const POLL_ISSUANCE_FAILURE = 'issuance/POLL_ISSUANCE_FAILURE'
+
+export const RESEND_REQUEST = 'issuance/RESEND_REQUEST'
+export const RESEND_SUCCESS = 'issuance/RESEND_SUCCESS'
+export const RESEND_FAILURE = 'issuance/RESEND_FAILURE'
 
 const getIssuancesRequest = () => ({ type: GET_ISSUANCES_REQUEST })
 const getIssuancesSuccess = response => ({
@@ -103,14 +105,6 @@ const batchIssueStart = response => ({
   type: BATCH_ISSUE_START,
   payload: response,
 })
-const batchIssueProgress = response => ({
-  type: BATCH_ISSUE_PROGRESS,
-  payload: response,
-})
-const batchIssueSuccess = response => ({
-  type: BATCH_ISSUE_SUCCESS,
-  payload: response,
-})
 const batchIssueFailure = error => ({
   type: BATCH_ISSUE_FAILURE,
   payload: error,
@@ -128,6 +122,16 @@ const pollIssuanceFailure = error => ({
   payload: error,
 })
 
+const resendRequest = () => ({ type: RESEND_REQUEST })
+const resendSuccess = response => ({
+  type: RESEND_SUCCESS,
+  payload: response,
+})
+const resendFailure = error => ({
+  type: RESEND_FAILURE,
+  payload: error,
+})
+
 //state
 const initialState = {
   issuances: [],
@@ -140,6 +144,32 @@ const initialState = {
 export default (state = initialState, action = {}) => {
   let issuance
   switch (action.type) {
+    case GET_ISSUANCES_REQUEST:
+    case CREATE_ISSUANCE_REQUEST:
+    case EDIT_ISSUANCE_REQUEST:
+    case DELETE_ISSUANCE_REQUEST:
+    case ISSUE_REQUEST:
+    case BATCH_ISSUE_REQUEST:
+    case POLL_ISSUANCE_REQUEST:
+    case RESEND_REQUEST:
+      return {
+        ...state,
+        reading: true,
+        error: null,
+      }
+    case GET_ISSUANCES_FAILURE:
+    case CREATE_ISSUANCE_FAILURE:
+    case EDIT_ISSUANCE_FAILURE:
+    case DELETE_ISSUANCE_FAILURE:
+    case ISSUE_FAILURE:
+    case BATCH_ISSUE_FAILURE:
+    case POLL_ISSUANCE_FAILURE:
+    case RESEND_FAILURE:
+      return {
+        ...state,
+        reading: false,
+        error: action.payload,
+      }
     case GET_ISSUANCES_SUCCESS:
       return {
         ...state,
@@ -179,30 +209,6 @@ export default (state = initialState, action = {}) => {
         ...state,
         newIssuanceId: null,
       }
-    case GET_ISSUANCES_REQUEST:
-    case CREATE_ISSUANCE_REQUEST:
-    case EDIT_ISSUANCE_REQUEST:
-    case DELETE_ISSUANCE_REQUEST:
-    case ISSUE_REQUEST:
-    case BATCH_ISSUE_REQUEST:
-    case POLL_ISSUANCE_REQUEST:
-      return {
-        ...state,
-        reading: false,
-        error: null,
-      }
-    case GET_ISSUANCES_FAILURE:
-    case CREATE_ISSUANCE_FAILURE:
-    case EDIT_ISSUANCE_FAILURE:
-    case DELETE_ISSUANCE_FAILURE:
-    case ISSUE_FAILURE:
-    case BATCH_ISSUE_FAILURE:
-    case POLL_ISSUANCE_FAILURE:
-      return {
-        ...state,
-        reading: false,
-        error: action.payload,
-      }
     case ISSUE_SUCCESS:
       return {
         ...state,
@@ -210,6 +216,7 @@ export default (state = initialState, action = {}) => {
       }
     case BATCH_ISSUE_START:
     case POLL_ISSUANCE_SUCCESS:
+    case RESEND_SUCCESS:
       issuance = action.payload
       return {
         ...state,
@@ -218,6 +225,7 @@ export default (state = initialState, action = {}) => {
         ),
         newIssuanceId: issuance.id,
       }
+      console.log(action.payload)
     default:
       return state
   }
@@ -311,7 +319,7 @@ export const batchIssue = id => async dispatch => {
   dispatch(batchIssueRequest())
   try {
     const response = await api.get(`/Issuances/${id}/batchIssue`)
-    dispatch(batchIssueStart(response.data.root))
+    dispatch(batchIssueStart(response.data))
     dispatch(displayNotification(BATCH_ISSUE_STARTED))
   } catch (error) {
     dispatch(batchIssueFailure(error))
@@ -329,3 +337,18 @@ export const pollIssuance = id => async dispatch => {
     dispatch(displayNotification(POLL_ISSUANCE_ERROR(error)))
   }
 }
+
+export const resend = (id, email) => async dispatch => {
+  dispatch(resendRequest())
+  try {
+    const response = await api.get(`/Issuances/${id}/issue?email=${email}`)
+    dispatch(resendSuccess(response.data))
+  } catch (error) {
+    dispatch(resendFailure(error))
+    dispatch(displayNotification(`Error resending: ${error}`))
+  }
+}
+
+export const pushAttestation = email => async dispatch => {}
+
+export const emailAttestation = email => async dispatch => {}

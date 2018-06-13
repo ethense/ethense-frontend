@@ -51,6 +51,9 @@ import {
   issue,
   batchIssue,
   pollIssuance,
+  resend,
+  pushAttestation,
+  emailAttestation,
 } from '../../modules/issuance'
 import RecordSelect from '../RecordSelect'
 import CreateOrSelect from '../CreateOrSelect'
@@ -145,11 +148,11 @@ export class IssueCert extends Component {
       this.props.clearNewIssuanceId()
     }
 
-    if (this.props.appIds.length === 0 && nextProps.appIds.length > 0) {
-      this.setState({
-        selectedAppId: nextProps.appIds[0].id,
-      })
-    }
+    // if (this.props.appIds.length === 0 && nextProps.appIds.length > 0) {
+    //   this.setState({
+    //     selectedAppId: nextProps.appIds[0].id,
+    //   })
+    // }
   }
 
   // handlers to manage issuances
@@ -328,6 +331,15 @@ export class IssueCert extends Component {
         },
       })
     }
+  }
+  handleResend = email => e => {
+    this.props.resend(this.state.selectedIssuanceId, email)
+  }
+  handlePushAttestation = email => e => {
+    this.props.pushAttestation(email)
+  }
+  handleEmailAttestation = email => e => {
+    this.props.emailAttestation(email)
   }
 
   render() {
@@ -542,14 +554,31 @@ export class IssueCert extends Component {
                           </TableCell>
                           <TableCell>{recipient.status}</TableCell>
                           <TableCell numeric>
-                            {recipient.status === 'requested' && (
-                              <Button>resend</Button>
+                            {(recipient.status === 'requested' ||
+                              recipient.status === 'request failed') && (
+                              <Button
+                                onClick={this.handleResend(recipient.email)}
+                              >
+                                resend
+                              </Button>
                             )}
                             {recipient.status === 'collected' && (
-                              <Button>push</Button>
+                              <Button
+                                onClick={this.handlePushAttestation(
+                                  recipient.email
+                                )}
+                              >
+                                push
+                              </Button>
                             )}
                             {recipient.status === 'collected' && (
-                              <Button>email</Button>
+                              <Button
+                                onClick={this.handleEmailAttestation(
+                                  recipient.email
+                                )}
+                              >
+                                email
+                              </Button>
                             )}
                           </TableCell>
                         </TableRow>,
@@ -606,6 +635,9 @@ IssueCert.propTypes = {
   issuances: PropTypes.array,
   newIssuanceId: PropTypes.string,
   pollIssuance: PropTypes.func.isRequired,
+  resend: PropTypes.func.isRequired,
+  pushAttestation: PropTypes.func.isRequired,
+  emailAttestation: PropTypes.func.isRequired,
 }
 
 IssueCert.route = '/issue'
@@ -650,6 +682,15 @@ export default connect(
     },
     pollIssuance(id) {
       dispatch(pollIssuance(id))
+    },
+    resend(id, email) {
+      dispatch(resend(id, email))
+    },
+    pushAttestation(id, email) {
+      dispatch(pushAttestation(id, email))
+    },
+    emailAttestation(id, email) {
+      dispatch(emailAttestation(id, email))
     },
   })
 )(withRouter(IssueCert))
