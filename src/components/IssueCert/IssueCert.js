@@ -7,11 +7,8 @@ import {
   Divider,
   Icon,
   IconButton,
-  Input,
   InputAdornment,
-  MenuItem,
   Paper,
-  Select,
   Tab,
   Table,
   TableBody,
@@ -30,12 +27,7 @@ import Papa from 'papaparse'
 
 import { SidebarLayout } from '../../layouts'
 import {
-  AddAttrButton,
-  FlexInput,
   GradientButton,
-  HoverSelect,
-  HoverTextField,
-  InputRow,
   PageHeader,
   SectionTitle,
 } from '../elements'
@@ -363,9 +355,6 @@ export class IssueCert extends Component {
   }
 
   render() {
-    const missingFields = this.state.selectedClaimDynamicFields.filter(
-      field => !this.state.recipientDataFields.includes(field.value)
-    )
     const primaryBtnText = this.state.selectedIssuanceDone
       ? 'Issued'
       : this.state.selectedIssuanceIssuing
