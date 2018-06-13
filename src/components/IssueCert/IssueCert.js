@@ -336,10 +336,10 @@ export class IssueCert extends Component {
     this.props.resend(this.state.selectedIssuanceId, email)
   }
   handlePushAttestation = email => e => {
-    this.props.pushAttestation(email)
+    this.props.pushAttestation(this.state.selectedIssuanceId, email)
   }
   handleEmailAttestation = email => e => {
-    this.props.emailAttestation(email)
+    this.props.emailAttestation(this.state.selectedIssuanceId, email)
   }
 
   render() {

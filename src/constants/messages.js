@@ -11,3 +11,9 @@ export const BATCH_ISSUE_STARTED = 'Batch Issuance Started'
 export const BATCH_ISSUE_ERROR = message => `Error executing batch issuance: ${message}`
 export const BATCH_ISSUE_COMPLETED = 'Batch Issuance Completed'
 export const POLL_ISSUANCE_ERROR = message => `Error polling issuance: ${message}`
+export const RESENT = email => `Certificate pickup email successfully resent to ${email}`
+export const RESEND_ERROR = message => `Error resending certificate pickup email: ${message}`
+export const ATTESTATION_PUSHED = email => `Attestation pushed to ${email}`
+export const PUSH_ATTESTATION_ERROR = message => `Error pushing attestation: ${message}`
+export const ATTESTATION_EMAILED = email => `Attestation emailed to ${email}`
+export const EMAIL_ATTESTATION_ERROR = message => `Error emailing attestation: ${message}`

@@ -7,8 +7,13 @@ import {
   EDIT_ISSUANCE_ERROR,
   BATCH_ISSUE_STARTED,
   BATCH_ISSUE_ERROR,
-  BATCH_ISSUE_COMPLETED,
   POLL_ISSUANCE_ERROR,
+  RESENT,
+  RESEND_ERROR,
+  ATTESTATION_PUSHED,
+  PUSH_ATTESTATION_ERROR,
+  ATTESTATION_EMAILED,
+  EMAIL_ATTESTATION_ERROR,
 } from '../constants/messages'
 
 // action types
@@ -45,6 +50,14 @@ export const POLL_ISSUANCE_FAILURE = 'issuance/POLL_ISSUANCE_FAILURE'
 export const RESEND_REQUEST = 'issuance/RESEND_REQUEST'
 export const RESEND_SUCCESS = 'issuance/RESEND_SUCCESS'
 export const RESEND_FAILURE = 'issuance/RESEND_FAILURE'
+
+export const PUSH_ATTESTATION_REQUEST = 'issuance/PUSH_ATTESTATION_REQUEST'
+export const PUSH_ATTESTATION_SUCCESS = 'issuance/PUSH_ATTESTATION_SUCCESS'
+export const PUSH_ATTESTATION_FAILURE = 'issuance/PUSH_ATTESTATION_FAILURE'
+
+export const EMAIL_ATTESTATION_REQUEST = 'issuance/EMAIL_ATTESTATION_REQUEST'
+export const EMAIL_ATTESTATION_SUCCESS = 'issuance/EMAIL_ATTESTATION_SUCCESS'
+export const EMAIL_ATTESTATION_FAILURE = 'issuance/EMAIL_ATTESTATION_FAILURE'
 
 const getIssuancesRequest = () => ({ type: GET_ISSUANCES_REQUEST })
 const getIssuancesSuccess = response => ({
@@ -132,6 +145,26 @@ const resendFailure = error => ({
   payload: error,
 })
 
+const pushAttestationRequest = () => ({ type: PUSH_ATTESTATION_REQUEST })
+const pushAttestationSuccess = response => ({
+  type: PUSH_ATTESTATION_SUCCESS,
+  payload: response,
+})
+const pushAttestationFailure = error => ({
+  type: PUSH_ATTESTATION_FAILURE,
+  payload: error,
+})
+
+const emailAttestationRequest = () => ({ type: EMAIL_ATTESTATION_REQUEST })
+const emailAttestationSuccess = response => ({
+  type: EMAIL_ATTESTATION_SUCCESS,
+  payload: response,
+})
+const emailAttestationFailure = error => ({
+  type: EMAIL_ATTESTATION_FAILURE,
+  payload: error,
+})
+
 //state
 const initialState = {
   issuances: [],
@@ -152,6 +185,8 @@ export default (state = initialState, action = {}) => {
     case BATCH_ISSUE_REQUEST:
     case POLL_ISSUANCE_REQUEST:
     case RESEND_REQUEST:
+    case PUSH_ATTESTATION_REQUEST:
+    case EMAIL_ATTESTATION_REQUEST:
       return {
         ...state,
         reading: true,
@@ -165,6 +200,8 @@ export default (state = initialState, action = {}) => {
     case BATCH_ISSUE_FAILURE:
     case POLL_ISSUANCE_FAILURE:
     case RESEND_FAILURE:
+    case PUSH_ATTESTATION_FAILURE:
+    case EMAIL_ATTESTATION_FAILURE:
       return {
         ...state,
         reading: false,
@@ -217,6 +254,8 @@ export default (state = initialState, action = {}) => {
     case BATCH_ISSUE_START:
     case POLL_ISSUANCE_SUCCESS:
     case RESEND_SUCCESS:
+    case PUSH_ATTESTATION_SUCCESS:
+    case EMAIL_ATTESTATION_SUCCESS:
       issuance = action.payload
       return {
         ...state,
@@ -225,7 +264,6 @@ export default (state = initialState, action = {}) => {
         ),
         newIssuanceId: issuance.id,
       }
-      console.log(action.payload)
     default:
       return state
   }
@@ -343,12 +381,33 @@ export const resend = (id, email) => async dispatch => {
   try {
     const response = await api.get(`/Issuances/${id}/issue?email=${email}`)
     dispatch(resendSuccess(response.data))
+    dispatch(displayNotification(RESENT(email)))
   } catch (error) {
     dispatch(resendFailure(error))
-    dispatch(displayNotification(`Error resending: ${error}`))
+    dispatch(displayNotification(RESEND_ERROR(error)))
   }
 }
 
-export const pushAttestation = email => async dispatch => {}
+export const pushAttestation = (id, email) => async dispatch => {
+  dispatch(pushAttestationRequest())
+  try {
+    const response = await api.get(`/Issuances/${id}/push?email=${email}`)
+    dispatch(pushAttestationSuccess(response.data))
+    dispatch(displayNotification(ATTESTATION_PUSHED(email)))
+  } catch (error) {
+    dispatch(pushAttestationFailure(error))
+    dispatch(displayNotification(PUSH_ATTESTATION_ERROR(error)))
+  }
+}
 
-export const emailAttestation = email => async dispatch => {}
+export const emailAttestation = (id, email) => async dispatch => {
+  dispatch(emailAttestationRequest())
+  try {
+    const response = await api.get(`/Issuances/${id}/email?email=${email}`)
+    dispatch(emailAttestationSuccess(response.data))
+    dispatch(displayNotification(ATTESTATION_EMAILED(email)))
+  } catch (error) {
+    dispatch(emailAttestationFailure(error))
+    dispatch(displayNotification(EMAIL_ATTESTATION_ERROR(error)))
+  }
+}
