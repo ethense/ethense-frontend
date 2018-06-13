@@ -115,7 +115,7 @@ export class ManageClaims extends Component {
     this.setState({
       selectedClaimSchema: addNodeUnderParent({
         treeData: this.state.selectedClaimSchema,
-        parent: path[path.length - 1],
+        parentKey: path[path.length - 1],
         expandParent: true,
         getNodeKey,
         newNode: getNewAttribute(),
@@ -286,7 +286,7 @@ export class ManageClaims extends Component {
           onSubmit={this.handleCreateClaim}
         />
         <SectionTitle>Attributes</SectionTitle>
-        <FlexInput numRows={this.state.selectedClaimSchema.length}>
+        <FlexInput numRows={10}>
           <SortableTree
             style={{ flex: 1 }}
             treeData={this.state.selectedClaimSchema}
