@@ -628,13 +628,22 @@ export class IssueCert extends Component {
           )}
           {this.state.recipientType === SINGLE_RECIPIENT && (
             <RecipientsContent>
-              <TextField
-                data-test-id="recipientEmail"
-                onChange={this.handleChangeEmail}
-                placeholder="Email"
-              />
-              <Button onClick={this.handleTestIssue}>issue</Button>
-              <Typography>Dynamic Fields</Typography>
+              <div style={{ display: 'flex', marginBottom: 48 }}>
+                <TextField
+                  style={{ flex: 1, marginRight: 24 }}
+                  data-test-id="recipientEmail"
+                  onChange={this.handleChangeEmail}
+                  placeholder="Email"
+                />
+                <Button
+                  variant="raised"
+                  color="primary"
+                  onClick={this.handleTestIssue}
+                >
+                  issue
+                </Button>
+              </div>
+              <Typography variant="subheading">Dynamic Fields</Typography>
               {this.state.selectedClaimDynamicFields.map((v, i) => (
                 <TextField
                   fullWidth
