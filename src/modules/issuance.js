@@ -14,6 +14,8 @@ import {
   PUSH_ATTESTATION_ERROR,
   ATTESTATION_EMAILED,
   EMAIL_ATTESTATION_ERROR,
+  TEST_ISSUE_SENT,
+  TEST_ISSUE_ERROR,
 } from '../constants/messages'
 
 // action types
@@ -58,6 +60,10 @@ export const PUSH_ATTESTATION_FAILURE = 'issuance/PUSH_ATTESTATION_FAILURE'
 export const EMAIL_ATTESTATION_REQUEST = 'issuance/EMAIL_ATTESTATION_REQUEST'
 export const EMAIL_ATTESTATION_SUCCESS = 'issuance/EMAIL_ATTESTATION_SUCCESS'
 export const EMAIL_ATTESTATION_FAILURE = 'issuance/EMAIL_ATTESTATION_FAILURE'
+
+export const TEST_ISSUE_REQUEST = 'issuance/TEST_ISSUE_REQUEST'
+export const TEST_ISSUE_SUCCESS = 'issuance/TEST_ISSUE_SUCCESS'
+export const TEST_ISSUE_FAILURE = 'issuance/TEST_ISSUE_FAILURE'
 
 const getIssuancesRequest = () => ({ type: GET_ISSUANCES_REQUEST })
 const getIssuancesSuccess = response => ({
@@ -165,6 +171,16 @@ const emailAttestationFailure = error => ({
   payload: error,
 })
 
+const testIssueRequest = () => ({ type: TEST_ISSUE_REQUEST })
+const testIssueSuccess = response => ({
+  type: TEST_ISSUE_SUCCESS,
+  payload: response,
+})
+const testIssueFailure = error => ({
+  type: TEST_ISSUE_FAILURE,
+  payload: error,
+})
+
 //state
 const initialState = {
   issuances: [],
@@ -187,6 +203,7 @@ export default (state = initialState, action = {}) => {
     case RESEND_REQUEST:
     case PUSH_ATTESTATION_REQUEST:
     case EMAIL_ATTESTATION_REQUEST:
+    case TEST_ISSUE_REQUEST:
       return {
         ...state,
         reading: true,
@@ -202,6 +219,7 @@ export default (state = initialState, action = {}) => {
     case RESEND_FAILURE:
     case PUSH_ATTESTATION_FAILURE:
     case EMAIL_ATTESTATION_FAILURE:
+    case TEST_ISSUE_FAILURE:
       return {
         ...state,
         reading: false,
@@ -247,6 +265,7 @@ export default (state = initialState, action = {}) => {
         newIssuanceId: null,
       }
     case ISSUE_SUCCESS:
+    case TEST_ISSUE_SUCCESS:
       return {
         ...state,
         reading: false,
@@ -409,5 +428,20 @@ export const emailAttestation = (id, email) => async dispatch => {
   } catch (error) {
     dispatch(emailAttestationFailure(error))
     dispatch(displayNotification(EMAIL_ATTESTATION_ERROR(error)))
+  }
+}
+
+export const testIssue = (id, email, testFields) => async dispatch => {
+  dispatch(testIssueRequest())
+  try {
+    const response = await api.post(`/Issuances/${id}/testIssue`, {
+      email,
+      testFields
+    })
+    dispatch(testIssueSuccess(response.data))
+    dispatch(displayNotification(TEST_ISSUE_SENT(email)))
+  } catch (error) {
+    dispatch(testIssueFailure(error))
+    dispatch(displayNotification(TEST_ISSUE_ERROR(error)))
   }
 }

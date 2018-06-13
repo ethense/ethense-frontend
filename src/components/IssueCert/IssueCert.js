@@ -54,6 +54,7 @@ import {
   resend,
   pushAttestation,
   emailAttestation,
+  testIssue,
 } from '../../modules/issuance'
 import RecordSelect from '../RecordSelect'
 import CreateOrSelect from '../CreateOrSelect'
@@ -126,6 +127,7 @@ const defaultState = {
   recipientDataFields: [],
   recipients: [],
   email: '',
+  testFields: {},
 }
 
 export class IssueCert extends Component {
@@ -157,7 +159,7 @@ export class IssueCert extends Component {
 
   // handlers to manage issuances
   selectIssuance = (id, issuances) => {
-    const newState = {
+    let newState = {
       selectedIssuanceId: id,
       selectedAppId: defaultState.selectedAppId,
       selectedClaimId: defaultState.selectedClaimId,
@@ -166,6 +168,7 @@ export class IssueCert extends Component {
       recipients: defaultState.recipients,
       recipientDataFields: defaultState.recipientDataFields,
       selectedClaimDynamicFields: defaultState.selectedClaimDynamicFields,
+      testFields: defaultState.testFields,
     }
     const issuance = issuances.find(i => i.id === id)
     if (issuance) {
@@ -188,12 +191,10 @@ export class IssueCert extends Component {
         ),
       ]
 
-      const claim = this.props.claimTemplates.find(
-        c => c.id === issuance.claimId
-      )
-      newState.selectedClaimDynamicFields = claim
-        ? claim.schema.filter(attr => attr.type === 'dynamic')
-        : []
+      newState = {
+        ...newState,
+        ...this.changeClaim(issuance.claimId),
+      }
 
       if (issuance.batchIssuing) {
         setTimeout(() => {
@@ -244,7 +245,6 @@ export class IssueCert extends Component {
     } else {
       console.warn('do not issue ', issuanceId)
     }
-    // this.props.issue(this.state.selectedAppId, this.state.email, this.state.treeData)
   }
 
   // handlers to manage app ids
@@ -263,8 +263,7 @@ export class IssueCert extends Component {
   }
 
   // handlers to manage claim templates
-  handleChangeClaim = e => {
-    const claimId = e.target.value
+  changeClaim = claimId => {
     const claim = this.props.claimTemplates.find(c => c.id === claimId)
 
     function collectDynamicField(attribute) {
@@ -296,9 +295,15 @@ export class IssueCert extends Component {
         }, [])
       : []
 
-    this.setState({
+    return {
       selectedClaimId: claimId,
       selectedClaimDynamicFields,
+      testFields: defaultState.testFields,
+    }
+  }
+  handleChangeClaim = e => {
+    this.setState({
+      ...this.changeClaim(e.target.value),
     })
   }
 
@@ -308,6 +313,14 @@ export class IssueCert extends Component {
   }
   handleChangeEmail = e => {
     this.setState({ email: e.target.value })
+  }
+  handleChangeTestField = field => e => {
+    this.setState({
+      testFields: {
+        ...this.state.testFields,
+        [field]: e.target.value,
+      },
+    })
   }
   handleRecipientToggle = email => e => {
     this.setState({
@@ -340,6 +353,13 @@ export class IssueCert extends Component {
   }
   handleEmailAttestation = email => e => {
     this.props.emailAttestation(this.state.selectedIssuanceId, email)
+  }
+  handleTestIssue = e => {
+    this.props.testIssue(
+      this.state.selectedIssuanceId,
+      this.state.email,
+      this.state.testFields
+    )
   }
 
   render() {
@@ -609,13 +629,19 @@ export class IssueCert extends Component {
           {this.state.recipientType === SINGLE_RECIPIENT && (
             <RecipientsContent>
               <TextField
-                fullWidth
-                onChange={this.handleChangeEmail}
                 data-test-id="recipientEmail"
+                onChange={this.handleChangeEmail}
                 placeholder="Email"
               />
+              <Button onClick={this.handleTestIssue}>issue</Button>
+              <Typography>Dynamic Fields</Typography>
               {this.state.selectedClaimDynamicFields.map((v, i) => (
-                <TextField key={i} fullWidth label={v.value} />
+                <TextField
+                  fullWidth
+                  key={i}
+                  label={v}
+                  onChange={this.handleChangeTestField(v)}
+                />
               ))}
             </RecipientsContent>
           )}
@@ -638,6 +664,7 @@ IssueCert.propTypes = {
   resend: PropTypes.func.isRequired,
   pushAttestation: PropTypes.func.isRequired,
   emailAttestation: PropTypes.func.isRequired,
+  testIssue: PropTypes.func.isRequired,
 }
 
 IssueCert.route = '/issue'
@@ -691,6 +718,9 @@ export default connect(
     },
     emailAttestation(id, email) {
       dispatch(emailAttestation(id, email))
+    },
+    testIssue(id, email, testFields) {
+      dispatch(testIssue(id, email, testFields))
     },
   })
 )(withRouter(IssueCert))

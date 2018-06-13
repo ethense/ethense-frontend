@@ -17,3 +17,5 @@ export const ATTESTATION_PUSHED = email => `Attestation pushed to ${email}`
 export const PUSH_ATTESTATION_ERROR = message => `Error pushing attestation: ${message}`
 export const ATTESTATION_EMAILED = email => `Attestation emailed to ${email}`
 export const EMAIL_ATTESTATION_ERROR = message => `Error emailing attestation: ${message}`
+export const TEST_ISSUE_SENT = email => `Test certificate pickup email successfully sent to ${email}`
+export const TEST_ISSUE_ERROR = message => `Error sending test certificate pickup email: ${message}`

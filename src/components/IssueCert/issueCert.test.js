@@ -17,6 +17,7 @@ const defaultProps = {
   resend: () => {},
   pushAttestation: () => {},
   emailAttestation: () => {},
+  testIssue: () => {},
 }
 
 const APP_ID = {
