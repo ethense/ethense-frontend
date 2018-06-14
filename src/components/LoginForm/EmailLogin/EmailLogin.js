@@ -38,6 +38,7 @@ export class EmailLogin extends Component {
           fullWidth
           label="Email"
           endIcon="email"
+          autoComplete="off"
         />
         <Field
           data-test-id="passwordInput"

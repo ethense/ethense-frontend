@@ -129,12 +129,7 @@ export class IssueCert extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (!this.props.newIssuanceId && !!nextProps.newIssuanceId) {
-      if (
-        !this.state.selectedIssuanceId ||
-        this.state.selectedIssuanceId === nextProps.newIssuanceId
-      ) {
-        this.selectIssuance(nextProps.newIssuanceId, nextProps.issuances)
-      }
+      this.selectIssuance(nextProps.newIssuanceId, nextProps.issuances)
       this.props.clearNewIssuanceId()
     }
 
@@ -146,11 +141,19 @@ export class IssueCert extends Component {
   }
 
   // handlers to manage issuances
-  issuanceIsValid = () =>
-    this.state.selectedIssuanceId &&
-    this.state.selectedAppId &&
-    this.state.selectedClaimId &&
-    this.state.recipients.length
+  issuanceIsValid = () => {
+    const issuanceId = this.state.selectedIssuanceId
+    if (issuanceId) {
+      const issuance = this.props.issuances.find(i => i.id === issuanceId)
+      return (
+        issuance &&
+        issuance.appId &&
+        issuance.claimId &&
+        issuance.recipients.length
+      )
+    }
+    return false
+  }
 
   selectIssuance = (id, issuances) => {
     let newState = {
@@ -283,8 +286,10 @@ export class IssueCert extends Component {
     const selectedClaimDynamicFields = claim
       ? claim.schema.reduce((acc, attribute) => {
           const dynamicFields = collectDynamicField(attribute)
-          if (Array.isArray(dynamicFields)) acc = acc.concat(dynamicFields)
-          else acc.push(dynamicFields)
+          if (dynamicFields) {
+            if (Array.isArray(dynamicFields)) acc = acc.concat(dynamicFields)
+            else acc.push(dynamicFields)
+          }
           return acc
         }, [])
       : []

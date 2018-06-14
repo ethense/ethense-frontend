@@ -44,6 +44,7 @@ export class AddAppIdDialog extends Component {
               component={renderTextField}
               fullWidth
               label="App Name"
+              autoComplete="off"
             />
             <Field
               data-test-id="mnidInput"
@@ -52,6 +53,7 @@ export class AddAppIdDialog extends Component {
               component={renderTextField}
               fullWidth
               label="MNID"
+              autoComplete="off"
             />
             <Field
               data-test-id="privateKeyInput"
@@ -60,6 +62,7 @@ export class AddAppIdDialog extends Component {
               component={renderTextField}
               fullWidth
               label="Private Key"
+              autoComplete="off"
             />
           </form>
         </DialogContent>
