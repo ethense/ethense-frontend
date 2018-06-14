@@ -36,7 +36,7 @@ export class ClaimTemplateDialog extends Component {
       >
         <DialogTitle>Create Claim Template</DialogTitle>
         <DialogContent>
-          <form>
+          <form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
             <Field
               data-test-id="claimTemplateNameInput"
               name="name"

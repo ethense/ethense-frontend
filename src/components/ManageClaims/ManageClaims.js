@@ -42,13 +42,14 @@ const getNewAttribute = () => ({
 })
 const parentIsObject = ({ nextParent }) =>
   nextParent === null || nextParent.type === 'object'
+const defaultState = {
+  selectedClaimId: '',
+  selectedClaimSchema: [getNewAttribute()],
+  claimDialogOpen: false,
+}
 
 export class ManageClaims extends Component {
-  state = {
-    selectedClaimId: '',
-    selectedClaimSchema: [getNewAttribute()],
-    claimDialogOpen: false,
-  }
+  state = { ...defaultState }
 
   componentWillMount() {
     this.props.getClaimTemplates()
@@ -57,26 +58,29 @@ export class ManageClaims extends Component {
   componentWillReceiveProps(nextProps) {
     // select newly created claim once server responds with its id
     if (!this.props.newClaimId && !!nextProps.newClaimId) {
-      this.setState({ selectedClaimId: nextProps.newClaimId })
+      this.selectClaim(nextProps.newClaimId, nextProps.claimTemplates)
       this.props.clearNewClaimId()
     }
+  }
+
+  selectClaim = (claimId, claims) => {
+    const claim = claims.find(c => c.id === claimId)
+    this.setState({
+      selectedClaimId: claimId,
+      selectedClaimSchema: claim
+        ? claim.schema
+        : defaultState.selectedClaimSchema,
+    })
   }
 
   // handlers to manage the selected claim template
   handleChangeClaim = e => {
     const claimId = e.target.value
-    const newState = {
-      selectedClaimId: claimId,
-    }
-    const claim = this.props.claimTemplates.find(c => c.id === claimId)
-    if (claim) {
-      newState.selectedClaimSchema = claim.schema
-    }
-    this.setState(newState)
+    this.selectClaim(e.target.value, this.props.claimTemplates)
   }
   handleDeleteClaim = () => {
     this.props.deleteClaimTemplate(this.state.selectedClaimId)
-    this.setState({ selectedClaimId: '' })
+    this.selectClaim('', [])
   }
   handleSaveClaim = () => {
     this.props.editClaimTemplate({
@@ -87,7 +91,7 @@ export class ManageClaims extends Component {
   handleCreateClaim = values => {
     this.props.createClaimTemplate({
       name: values.name,
-      schema: this.state.selectedClaimSchema,
+      schema: defaultState.selectedClaimSchema,
     })
     this.setState({ claimDialogOpen: false })
   }
@@ -266,6 +270,11 @@ export class ManageClaims extends Component {
   render() {
     return (
       <SidebarLayout>
+        <ClaimTemplateDialog
+          open={this.state.claimDialogOpen}
+          onClose={this.handleCloseClaimDialog}
+          onSubmit={this.handleCreateClaim}
+        />
         <PageHeader>
           <Typography variant="title">Claim Templates</Typography>
         </PageHeader>
@@ -280,29 +289,28 @@ export class ManageClaims extends Component {
           onClickSave={this.handleSaveClaim}
           onClickCreate={this.handleOpenClaimDialog}
         />
-        <ClaimTemplateDialog
-          open={this.state.claimDialogOpen}
-          onClose={this.handleCloseClaimDialog}
-          onSubmit={this.handleCreateClaim}
-        />
-        <SectionTitle>Attributes</SectionTitle>
-        <FlexInput numRows={10}>
-          <SortableTree
-            style={{ flex: 1 }}
-            treeData={this.state.selectedClaimSchema}
-            onChange={this.handleChangeClaimSchema}
-            generateNodeProps={this.getAttributeNode}
-            canDrop={parentIsObject}
-            theme={SortableTreeTheme}
-          />
-          <AddAttrButton
-            onClick={this.handleAddAttribute}
-            variant="outlined"
-            data-test-id="addAttrBtn"
-          >
-            + Attribute
-          </AddAttrButton>
-        </FlexInput>
+        {this.state.selectedClaimId && (
+          <div>
+            <SectionTitle>Attributes</SectionTitle>
+            <FlexInput numRows={10}>
+              <SortableTree
+                style={{ flex: 1 }}
+                treeData={this.state.selectedClaimSchema}
+                onChange={this.handleChangeClaimSchema}
+                generateNodeProps={this.getAttributeNode}
+                canDrop={parentIsObject}
+                theme={SortableTreeTheme}
+              />
+              <AddAttrButton
+                onClick={this.handleAddAttribute}
+                variant="outlined"
+                data-test-id="addAttrBtn"
+              >
+                + Attribute
+              </AddAttrButton>
+            </FlexInput>
+          </div>
+        )}
       </SidebarLayout>
     )
   }
