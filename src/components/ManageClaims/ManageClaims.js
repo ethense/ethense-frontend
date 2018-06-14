@@ -75,7 +75,6 @@ export class ManageClaims extends Component {
 
   // handlers to manage the selected claim template
   handleChangeClaim = e => {
-    const claimId = e.target.value
     this.selectClaim(e.target.value, this.props.claimTemplates)
   }
   handleDeleteClaim = () => {

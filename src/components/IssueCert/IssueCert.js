@@ -146,6 +146,12 @@ export class IssueCert extends Component {
   }
 
   // handlers to manage issuances
+  issuanceIsValid = () =>
+    this.state.selectedIssuanceId &&
+    this.state.selectedAppId &&
+    this.state.selectedClaimId &&
+    this.state.recipients.length
+
   selectIssuance = (id, issuances) => {
     let newState = {
       selectedIssuanceId: id,
@@ -220,9 +226,9 @@ export class IssueCert extends Component {
   handleCreateIssuance = values => {
     this.props.createIssuance({
       name: values.name,
-      appId: this.state.selectedAppId,
-      claimId: this.state.selectedClaimId,
-      recipients: this.state.recipients.map(({ expanded, ...r }) => r),
+      appId: '',
+      claimId: '',
+      recipients: [],
     })
     this.setState({ issuanceDialogOpen: false })
   }
@@ -362,13 +368,25 @@ export class IssueCert extends Component {
 
     return (
       <SidebarLayout>
+        <ClaimTemplateDialog
+          title="Create Issuance"
+          fieldLabel="Issuance Name"
+          open={this.state.issuanceDialogOpen}
+          onClose={this.handleCloseIssuanceDialog}
+          onSubmit={this.handleCreateIssuance}
+        />
+        <AddAppIdDialog
+          open={this.state.appIdDialogOpen}
+          onClose={this.handleCloseAppIdDialog}
+          onSubmit={this.handleAddAppId}
+        />
         <PageHeader>
           <Typography variant="title">Issue Certificates</Typography>
           <GradientButton
             onClick={this.handleSubmit}
             data-test-id="issueBtn"
             variant="raised"
-            disabled={locked}
+            disabled={locked || !this.issuanceIsValid()}
           >
             {primaryBtnText}
             {this.state.selectedIssuanceIssuing && (
@@ -392,263 +410,272 @@ export class IssueCert extends Component {
           onClickCreate={this.handleOpenIssuanceDialog}
           locked={locked}
         />
-        <ClaimTemplateDialog
-          open={this.state.issuanceDialogOpen}
-          onClose={this.handleCloseIssuanceDialog}
-          onSubmit={this.handleCreateIssuance}
-        />
 
-        <SectionTitle>Issuer App Identity</SectionTitle>
-        <CreateOrSelect
-          emptyNode={
-            <Typography key={0} variant="caption" color="error">
-              No app identities found. Please{' '}
-              <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://appmanager.uport.me/"
-              >
-                create
-              </a>{' '}
-              and add one to issue certificates.
-            </Typography>
-          }
-          emptyValue="(No App Id Selected)"
-          selectItems={this.props.appIds}
-          selectValue={this.state.selectedAppId}
-          onCreateItem={this.handleOpenAppIdDialog}
-          onChangeItem={this.handleChangeAppId}
-          buttonText={'Add App Identity'}
-          disabled={locked}
-        />
-        <AddAppIdDialog
-          open={this.state.appIdDialogOpen}
-          onClose={this.handleCloseAppIdDialog}
-          onSubmit={this.handleAddAppId}
-        />
-
-        <SectionTitle>Issued Claim Template</SectionTitle>
-        <CreateOrSelect
-          emptyNode={
-            <Typography key={0} variant="caption" color="error">
-              No Claim Templates found. Please create one from the Manage Claims
-              page.
-            </Typography>
-          }
-          emptyValue="(No Claim Template Selected)"
-          selectItems={this.props.claimTemplates}
-          selectValue={this.state.selectedClaimId}
-          onCreateItem={() => {
-            this.props.history.push(ManageClaims.route)
-          }}
-          onChangeItem={this.handleChangeClaim}
-          buttonText={'Create claim'}
-          disabled={locked}
-        />
-
-        <SectionTitle>Recipients</SectionTitle>
-        <RecipientsForm>
-          <Tabs
-            value={this.state.recipientType}
-            onChange={this.handleChangeRecipientType}
-            indicatorColor="primary"
-          >
-            <Tab label="Cohort" />
-            <Tab label="Test" />
-          </Tabs>
-          <Divider />
-          {this.state.recipientType === MULTIPLE_RECIPIENTS && (
-            <div>
-              {this.state.selectedClaimDynamicFields.length > 0 && (
-                <div
-                  style={{ paddingLeft: 16, marginTop: 16, marginBottom: 16 }}
-                >
-                  <Typography
-                    variant="caption"
-                    style={{ display: 'inline-block' }}
+        {this.state.selectedIssuanceId && (
+          <div>
+            <SectionTitle>Issuer App Identity</SectionTitle>
+            <CreateOrSelect
+              emptyNode={
+                <Typography key={0} variant="caption" color="error">
+                  No app identities found. Please{' '}
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://appmanager.uport.me/"
                   >
-                    Dynamic Fields:
-                  </Typography>
-                  {this.state.selectedClaimDynamicFields.map((field, i) => {
-                    const imported = this.state.recipientDataFields.includes(
-                      field
-                    )
-                    return (
-                      <Chip
-                        key={i}
-                        label={field}
-                        style={{
-                          marginLeft: 8,
-                          background: imported ? '#eaeaea' : '#ffc8c8',
-                        }}
-                      />
-                    )
-                  })}
+                    create
+                  </a>{' '}
+                  and add one to issue certificates.
+                </Typography>
+              }
+              emptyValue="(No App Id Selected)"
+              selectItems={this.props.appIds}
+              selectValue={this.state.selectedAppId}
+              onCreateItem={this.handleOpenAppIdDialog}
+              onChangeItem={this.handleChangeAppId}
+              buttonText={'Add App Identity'}
+              disabled={locked}
+            />
+
+            <SectionTitle>Issued Claim Template</SectionTitle>
+            <CreateOrSelect
+              emptyNode={
+                <Typography key={0} variant="caption" color="error">
+                  No Claim Templates found. Please create one from the Manage
+                  Claims page.
+                </Typography>
+              }
+              emptyValue="(No Claim Template Selected)"
+              selectItems={this.props.claimTemplates}
+              selectValue={this.state.selectedClaimId}
+              onCreateItem={() => {
+                this.props.history.push(ManageClaims.route)
+              }}
+              onChangeItem={this.handleChangeClaim}
+              buttonText={'Create claim'}
+              disabled={locked}
+            />
+
+            <SectionTitle>Recipients</SectionTitle>
+            <RecipientsForm>
+              <Tabs
+                value={this.state.recipientType}
+                onChange={this.handleChangeRecipientType}
+                indicatorColor="primary"
+              >
+                <Tab label="Cohort" />
+                <Tab label="Test" />
+              </Tabs>
+              <Divider />
+              {this.state.recipientType === MULTIPLE_RECIPIENTS && (
+                <div>
+                  {this.state.selectedClaimDynamicFields.length > 0 && (
+                    <div
+                      style={{
+                        paddingLeft: 16,
+                        marginTop: 16,
+                        marginBottom: 16,
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        style={{ display: 'inline-block' }}
+                      >
+                        Dynamic Fields:
+                      </Typography>
+                      {this.state.selectedClaimDynamicFields.map((field, i) => {
+                        const imported = this.state.recipientDataFields.includes(
+                          field
+                        )
+                        return (
+                          <Chip
+                            key={i}
+                            label={field}
+                            style={{
+                              marginLeft: 8,
+                              background: imported ? '#eaeaea' : '#ffc8c8',
+                            }}
+                          />
+                        )
+                      })}
+                    </div>
+                  )}
+                  <RecipientsToolbar>
+                    <TextField
+                      style={{ flex: 1, marginRight: 36 }}
+                      disabled={this.state.recipients.length === 0}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Icon>search</Icon>
+                          </InputAdornment>
+                        ),
+                      }}
+                      placeholder="Filter by Recipient Email"
+                      onChange={this.handleChangeRecipientFilter}
+                    />
+                    <Button
+                      color="primary"
+                      variant="raised"
+                      disabled={locked}
+                      onClick={e => this.uploadCsv.click()}
+                    >
+                      Import CSV
+                    </Button>
+                    <input
+                      type="file"
+                      ref={ref => (this.uploadCsv = ref)}
+                      style={{ display: 'none' }}
+                      onChange={this.handleRecipientImport}
+                      accept=".csv"
+                    />
+                  </RecipientsToolbar>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell style={{ paddingLeft: 56 }}>email</TableCell>
+                        <TableCell>mnid</TableCell>
+                        <TableCell>last updated</TableCell>
+                        <TableCell>status</TableCell>
+                        <TableCell />
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {this.state.recipients.length > 0 ? (
+                        this.state.recipients
+                          .filter(
+                            recipient =>
+                              this.state.recipientFilter === '' ||
+                              recipient.email.includes(
+                                this.state.recipientFilter
+                              )
+                          )
+                          .map((recipient, i) => [
+                            <TableRow key={i * 2}>
+                              <TableCell component="th" scope="row">
+                                <IconButton
+                                  style={{
+                                    width: 24,
+                                    height: 24,
+                                    marginRight: 8,
+                                  }}
+                                  onClick={this.handleRecipientToggle(
+                                    recipient.email
+                                  )}
+                                >
+                                  <Icon>
+                                    {recipient.expanded
+                                      ? 'arrow_drop_down'
+                                      : 'arrow_right'}
+                                  </Icon>
+                                </IconButton>
+                                <span>{recipient.email}</span>
+                              </TableCell>
+                              <TableCell>{recipient.mnid}</TableCell>
+                              <TableCell>
+                                <Moment fromNow unix>
+                                  {recipient.lastUpdated}
+                                </Moment>
+                              </TableCell>
+                              <TableCell>{recipient.status}</TableCell>
+                              <TableCell numeric>
+                                {(recipient.status === 'requested' ||
+                                  recipient.status === 'request failed') && (
+                                  <Button
+                                    onClick={this.handleResend(recipient.email)}
+                                  >
+                                    resend
+                                  </Button>
+                                )}
+                                {recipient.status === 'collected' && (
+                                  <Button
+                                    onClick={this.handlePushAttestation(
+                                      recipient.email
+                                    )}
+                                  >
+                                    push
+                                  </Button>
+                                )}
+                                {recipient.status === 'collected' && (
+                                  <Button
+                                    onClick={this.handleEmailAttestation(
+                                      recipient.email
+                                    )}
+                                  >
+                                    email
+                                  </Button>
+                                )}
+                              </TableCell>
+                            </TableRow>,
+                            recipient.expanded ? (
+                              <TableRow key={i * 2 + 1}>
+                                <TableCell
+                                  style={{ background: '#eee', paddingTop: 8 }}
+                                  colSpan={5}
+                                >
+                                  {Object.keys(recipient.data).map((key, j) => {
+                                    return (
+                                      <div
+                                        key={j}
+                                        style={{
+                                          paddingLeft: 32,
+                                          marginBottom: 8,
+                                        }}
+                                      >
+                                        {key}: {recipient.data[key]}
+                                      </div>
+                                    )
+                                  })}
+                                </TableCell>
+                              </TableRow>
+                            ) : null,
+                          ])
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={5}>
+                            <em>(No recipients imported)</em>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
-              <RecipientsToolbar>
-                <TextField
-                  style={{ flex: 1, marginRight: 36 }}
-                  disabled={this.state.recipients.length === 0}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Icon>search</Icon>
-                      </InputAdornment>
-                    ),
-                  }}
-                  placeholder="Filter by Recipient Email"
-                  onChange={this.handleChangeRecipientFilter}
-                />
-                <Button
-                  color="primary"
-                  variant="raised"
-                  disabled={locked}
-                  onClick={e => this.uploadCsv.click()}
-                >
-                  Import CSV
-                </Button>
-                <input
-                  type="file"
-                  ref={ref => (this.uploadCsv = ref)}
-                  style={{ display: 'none' }}
-                  onChange={this.handleRecipientImport}
-                  accept=".csv"
-                />
-              </RecipientsToolbar>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell style={{ paddingLeft: 56 }}>email</TableCell>
-                    <TableCell>mnid</TableCell>
-                    <TableCell>last updated</TableCell>
-                    <TableCell>status</TableCell>
-                    <TableCell />
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {this.state.recipients.length > 0 ? (
-                    this.state.recipients
-                      .filter(
-                        recipient =>
-                          this.state.recipientFilter === '' ||
-                          recipient.email.includes(this.state.recipientFilter)
-                      )
-                      .map((recipient, i) => [
-                        <TableRow key={i * 2}>
-                          <TableCell component="th" scope="row">
-                            <IconButton
-                              style={{ width: 24, height: 24, marginRight: 8 }}
-                              onClick={this.handleRecipientToggle(
-                                recipient.email
-                              )}
-                            >
-                              <Icon>
-                                {recipient.expanded
-                                  ? 'arrow_drop_down'
-                                  : 'arrow_right'}
-                              </Icon>
-                            </IconButton>
-                            <span>{recipient.email}</span>
-                          </TableCell>
-                          <TableCell>{recipient.mnid}</TableCell>
-                          <TableCell>
-                            <Moment fromNow unix>
-                              {recipient.lastUpdated}
-                            </Moment>
-                          </TableCell>
-                          <TableCell>{recipient.status}</TableCell>
-                          <TableCell numeric>
-                            {(recipient.status === 'requested' ||
-                              recipient.status === 'request failed') && (
-                              <Button
-                                onClick={this.handleResend(recipient.email)}
-                              >
-                                resend
-                              </Button>
-                            )}
-                            {recipient.status === 'collected' && (
-                              <Button
-                                onClick={this.handlePushAttestation(
-                                  recipient.email
-                                )}
-                              >
-                                push
-                              </Button>
-                            )}
-                            {recipient.status === 'collected' && (
-                              <Button
-                                onClick={this.handleEmailAttestation(
-                                  recipient.email
-                                )}
-                              >
-                                email
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>,
-                        recipient.expanded ? (
-                          <TableRow key={i * 2 + 1}>
-                            <TableCell
-                              style={{ background: '#eee', paddingTop: 8 }}
-                              colSpan={5}
-                            >
-                              {Object.keys(recipient.data).map((key, j) => {
-                                return (
-                                  <div
-                                    key={j}
-                                    style={{ paddingLeft: 32, marginBottom: 8 }}
-                                  >
-                                    {key}: {recipient.data[key]}
-                                  </div>
-                                )
-                              })}
-                            </TableCell>
-                          </TableRow>
-                        ) : null,
-                      ])
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={5}><em>(No recipients imported)</em></TableCell>
-                    </TableRow>
+              {this.state.recipientType === SINGLE_RECIPIENT && (
+                <RecipientsContent>
+                  <div style={{ display: 'flex' }}>
+                    <TextField
+                      style={{ flex: 1, marginRight: 24 }}
+                      data-test-id="recipientEmail"
+                      onChange={this.handleChangeEmail}
+                      placeholder="Email"
+                    />
+                    <Button
+                      variant="raised"
+                      color="primary"
+                      onClick={this.handleTestIssue}
+                    >
+                      issue
+                    </Button>
+                  </div>
+                  {this.state.selectedClaimDynamicFields.length > 0 && (
+                    <Typography variant="subheading" style={{ marginTop: 48 }}>
+                      Dynamic Fields
+                    </Typography>
                   )}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-          {this.state.recipientType === SINGLE_RECIPIENT && (
-            <RecipientsContent>
-              <div style={{ display: 'flex' }}>
-                <TextField
-                  style={{ flex: 1, marginRight: 24 }}
-                  data-test-id="recipientEmail"
-                  onChange={this.handleChangeEmail}
-                  placeholder="Email"
-                />
-                <Button
-                  variant="raised"
-                  color="primary"
-                  onClick={this.handleTestIssue}
-                >
-                  issue
-                </Button>
-              </div>
-              {this.state.selectedClaimDynamicFields.length > 0 && (
-                <Typography variant="subheading" style={{ marginTop: 48 }}>
-                  Dynamic Fields
-                </Typography>
+                  {this.state.selectedClaimDynamicFields.map((v, i) => (
+                    <TextField
+                      fullWidth
+                      key={i}
+                      label={v}
+                      onChange={this.handleChangeTestField(v)}
+                    />
+                  ))}
+                </RecipientsContent>
               )}
-              {this.state.selectedClaimDynamicFields.map((v, i) => (
-                <TextField
-                  fullWidth
-                  key={i}
-                  label={v}
-                  onChange={this.handleChangeTestField(v)}
-                />
-              ))}
-            </RecipientsContent>
-          )}
-        </RecipientsForm>
+            </RecipientsForm>
+          </div>
+        )}
       </SidebarLayout>
     )
   }

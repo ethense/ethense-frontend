@@ -34,7 +34,9 @@ export class ClaimTemplateDialog extends Component {
         open={this.props.open}
         onClose={this.props.handleClose}
       >
-        <DialogTitle>Create Claim Template</DialogTitle>
+        <DialogTitle>
+          {this.props.title ? this.props.title : 'Create Claim Template'}
+        </DialogTitle>
         <DialogContent>
           <form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
             <Field
@@ -43,7 +45,9 @@ export class ClaimTemplateDialog extends Component {
               validate={[required]}
               component={renderTextField}
               fullWidth
-              label="Template Name"
+              label={
+                this.props.fieldLabel ? this.props.fieldLabel : 'Template Name'
+              }
             />
           </form>
         </DialogContent>
