@@ -5,8 +5,7 @@ ENV REACT_APP_API_URL=${API_URL}
 
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN npm install -g -s --no-progress yarn \
-  && yarn install
+RUN yarn install
 COPY . .
 RUN yarn build
 
