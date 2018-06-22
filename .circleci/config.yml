@@ -1,0 +1,67 @@
+version: 2
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build_image:
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - build_image
+          filters:
+            branches:
+              only: master
+
+jobs:
+  build:
+    docker:
+      - image: docker:17.11.0-ce
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Make sure we can build the container
+          command: docker build -t ethcerts-frontend .
+  build_image:
+    docker:
+      - image: docker:17.11.0-ce
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run:
+          name: Install dependencies
+          command: apk add --update git
+      - run: 
+          name: Login to Docker Private Registry
+          command: docker login roromiscregistry.azurecr.io -u $ACR_USER -p $ACR_PASS
+      - run: 
+          name: Build Ethense frontend image
+          command: |
+            export VERSION=$(git rev-parse --short HEAD)
+            docker build --build-arg API_URL="https://ethense.stage.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION} .
+            docker push roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION}
+  deploy:
+    docker:
+      - image: lachlanevenson/k8s-kubectl:v1.9.8
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 17.11.0-ce
+      - run: 
+          name: Install dependencies
+          command: apk add --update git gnupg
+      - run: 
+          name: Configure staging KUBECONFIG
+          command: echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_staging.gpg > .circleci/kubeconfig_staging
+      - run:
+          name: Deploy to staging
+          command: |
+            export VERSION=$(git rev-parse --short HEAD)
+            KUBECONFIG=.circleci/kubeconfig_staging kubectl -n stage-ethense set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION}
+            rm -f .circleci/kubeconbfig_staging
+        
