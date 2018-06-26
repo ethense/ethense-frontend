@@ -6,12 +6,16 @@ workflows:
     jobs:
       - build_image:
           filters:
+            tags:
+              only: /^v?[0-9]+(\.[0-9]+)*/
             branches:
               only: master
       - deploy:
           requires:
             - build_image
           filters:
+            tags:
+              only: /^v?[0-9]+(\.[0-9]+)*/
             branches:
               only: master
 
@@ -26,6 +30,7 @@ jobs:
       - run:
           name: Make sure we can build the container
           command: docker build -t ethcerts-frontend .
+
   build_image:
     docker:
       - image: docker:17.11.0-ce
@@ -42,12 +47,25 @@ jobs:
       - run: 
           name: Build Ethense frontend image
           command: |
-            export VERSION=$(git rev-parse --short HEAD)
-            docker build --build-arg API_URL="https://ethense.stage.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION} .
-            docker push roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION}
+            if [ -n "${CIRCLE_BRANCH}" ]; then
+              export VERSION=$(git rev-parse --short HEAD)
+              echo "Building staging image"
+              docker build --build-arg API_URL="https://ethense.stage.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION} .
+              docker push roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION}
+            elif [ -n "${CIRCLE_TAG}" ]; then
+              export VERSION=${CIRCLE_TAG}
+              echo "Building production images"
+              docker build --build-arg API_URL="https://academy.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION} .
+              docker build --build-arg API_URL="https://frankfurt.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION} .
+              docker build --build-arg API_URL="https://melbourne.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION} .
+              docker push roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION}
+              docker push roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION}
+              docker push roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION}
+            fi
+
   deploy:
     docker:
-      - image: lachlanevenson/k8s-kubectl:v1.9.8
+      - image: lachlanevenson/k8s-kubectl:v1.9.7
     steps:
       - checkout
       - setup_remote_docker:
@@ -56,12 +74,23 @@ jobs:
           name: Install dependencies
           command: apk add --update git gnupg
       - run: 
-          name: Configure staging KUBECONFIG
-          command: echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_staging.gpg > .circleci/kubeconfig_staging
-      - run:
-          name: Deploy to staging
+          name: Configure KUBECONFIG
           command: |
-            export VERSION=$(git rev-parse --short HEAD)
-            KUBECONFIG=.circleci/kubeconfig_staging kubectl -n stage-ethense set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION}
-            rm -f .circleci/kubeconbfig_staging
-        
+            if [ -n "${CIRCLE_BRANCH}" ]; then
+              echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_staging.gpg > .circleci/kubeconfig
+            elif [ -n "${CIRCLE_TAG}" ]; then
+              echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_staging.gpg > .circleci/kubeconfig
+            fi
+      - run:
+          name: Deploy
+          command: |
+            if [ -n "${CIRCLE_BRANCH}" ]; then
+              export VERSION=$(git rev-parse --short HEAD)
+              KUBECONFIG=.circleci/kubeconfig kubectl -n stage-ethense set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION}
+            elif [ -n "${CIRCLE_TAG}" ]; then
+              export VERSION=${CIRCLE_TAG}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-academy    set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-frankfurt  set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-melbourne  set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION}
+            fi
+            rm -f .circleci/kubeconfig
