@@ -191,6 +191,7 @@ export class ManageClaims extends Component {
         onChange={this.handleChangeAttributeName(node, path)}
         placeholder="Name"
         value={node.name}
+        error={!node.name}
       />
     )
 
@@ -213,9 +214,12 @@ export class ManageClaims extends Component {
         <HoverTextField
           key={2}
           onChange={this.handleChangeAttributeValue(node, path)}
-          placeholder="Value"
+          placeholder={
+            node.type === 'dynamic' ? 'Matching CSV Column' : 'Value'
+          }
           style={{ flex: 1 }}
           value={node.value}
+          error={!node.value}
         />
       )
 
