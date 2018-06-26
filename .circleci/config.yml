@@ -81,7 +81,7 @@ jobs:
               echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_staging.gpg > .circleci/kubeconfig
             elif [ -n "${CIRCLE_TAG}" ]; then
               echo "Setting up KUBECONFIG for production"
-              echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_staging.gpg > .circleci/kubeconfig
+              echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_prod.gpg > .circleci/kubeconfig
             fi
       - run:
           name: Deploy
