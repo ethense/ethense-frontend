@@ -45,7 +45,7 @@ export const SectionTitle = withTheme()(styled(({ children, ...other }) => (
   margin-left: ${props => props.theme.spacing.small};
 `)
 
-export const InputRow = withTheme()(styled(({ children, ...other }) => (
+export const InputRow = withTheme()(styled(({ children, dirty, ...other }) => (
   <Paper elevation={1} {...other}>
     {children}
   </Paper>
@@ -59,13 +59,20 @@ export const InputRow = withTheme()(styled(({ children, ...other }) => (
   padding-left: ${props => props.theme.spacing.small};
   padding-right: ${props => props.theme.spacing.small};
   height: ${props => props.theme.spacing.huge};
+  border: 2px solid
+    ${props =>
+      props.dirty
+        ? props.theme.palette.primary.main
+        : props.theme.palette.background.paper};
 `)
 
-export const FlexInput = withTheme()(styled(({ children, numRows, ...other }) => (
-  <Paper elevation={1} {...other}>
-    {children}
-  </Paper>
-))`
+export const FlexInput = withTheme()(styled(
+  ({ children, numRows, ...other }) => (
+    <Paper elevation={1} {...other}>
+      {children}
+    </Paper>
+  )
+)`
   display: flex;
   flex-direction: column;
   margin-top: ${props => props.theme.spacing.tiny};
@@ -77,9 +84,7 @@ export const AddAttrButton = withTheme()(styled(Button)`
   margin: ${props => props.theme.spacing.small};
 `)
 
-export const HoverSelect = styled(props => (
-  <Select {...props} />
-))`
+export const HoverSelect = styled(props => <Select {...props} />)`
   width: 96px;
 
   &::before {

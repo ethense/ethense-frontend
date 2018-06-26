@@ -11,7 +11,7 @@ import { InputRow } from '../elements'
 export class RecordSelect extends Component {
   render() {
     return (
-      <InputRow>
+      <InputRow dirty={this.props.dirty}>
         <Select
           style={{ flex: 1, marginRight: this.props.theme.spacing.medium }}
           value={this.props.selectValue}
@@ -60,6 +60,7 @@ RecordSelect.propTypes = {
   onClickSave: PropTypes.func.isRequired,
   onClickDelete: PropTypes.func.isRequired,
   locked: PropTypes.bool,
+  dirty: PropTypes.bool,
 }
 
 export default withTheme()(RecordSelect)

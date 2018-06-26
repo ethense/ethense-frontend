@@ -13,6 +13,7 @@ import SortableTree, {
   changeNodeAtPath,
   removeNodeAtPath,
 } from 'react-sortable-tree'
+import 'react-sortable-tree/style.css'
 
 import { SidebarLayout } from '../../layouts'
 import {
@@ -46,6 +47,7 @@ const defaultState = {
   selectedClaimId: '',
   selectedClaimSchema: [getNewAttribute()],
   claimDialogOpen: false,
+  dirty: false,
 }
 
 export class ManageClaims extends Component {
@@ -70,6 +72,7 @@ export class ManageClaims extends Component {
       selectedClaimSchema: claim
         ? claim.schema
         : defaultState.selectedClaimSchema,
+      dirty: false,
     })
   }
 
@@ -105,25 +108,33 @@ export class ManageClaims extends Component {
 
   // handlers to manage attributes of the selected claim template
   handleChangeClaimSchema = selectedClaimSchema => {
-    this.setState({ selectedClaimSchema })
-  }
-  handleAddAttribute = e => {
+    console.log('handle change claim schema')
     this.setState({
-      selectedClaimSchema: this.state.selectedClaimSchema.concat(
-        getNewAttribute()
-      ),
+      selectedClaimSchema,
+      dirty: true,
     })
   }
-  handleAddChildAttribute = (node, path) => e => {
+  setClaimSchema = selectedClaimSchema => {
     this.setState({
-      selectedClaimSchema: addNodeUnderParent({
+      selectedClaimSchema,
+      dirty: true,
+    })
+  }
+  handleAddAttribute = e => {
+    this.setClaimSchema(
+      this.state.selectedClaimSchema.concat(getNewAttribute())
+    )
+  }
+  handleAddChildAttribute = (node, path) => e => {
+    this.setClaimSchema(
+      addNodeUnderParent({
         treeData: this.state.selectedClaimSchema,
         parentKey: path[path.length - 1],
         expandParent: true,
         getNodeKey,
         newNode: getNewAttribute(),
-      }).treeData,
-    })
+      }).treeData
+    )
   }
   handleChangeAttributeType = (node, path) => e => {
     const newType = e.target.value
@@ -146,23 +157,23 @@ export class ManageClaims extends Component {
         return
     }
 
-    this.setState({
-      selectedClaimSchema: changeNodeAtPath({
+    this.setClaimSchema(
+      changeNodeAtPath({
         treeData: this.state.selectedClaimSchema,
         path,
         getNodeKey,
         newNode,
-      }),
-    })
+      })
+    )
   }
   handleDeleteAttribute = (node, path) => e => {
-    this.setState({
-      selectedClaimSchema: removeNodeAtPath({
+    this.setClaimSchema(
+      removeNodeAtPath({
         treeData: this.state.selectedClaimSchema,
         path,
         getNodeKey,
-      }),
-    })
+      })
+    )
   }
   handleChangeAttributeName = (node, path) => {
     return this.changeAttribute('name', node, path)
@@ -173,14 +184,14 @@ export class ManageClaims extends Component {
   changeAttribute = (key, node, path) => e => {
     const newValue = e.target.value
 
-    this.setState({
-      selectedClaimSchema: changeNodeAtPath({
+    this.setClaimSchema(
+      changeNodeAtPath({
         treeData: this.state.selectedClaimSchema,
         path,
         getNodeKey,
         newNode: { ...node, [key]: newValue },
-      }),
-    })
+      })
+    )
   }
 
   // function used by react-sortable-tree to generate the content of each node
@@ -291,6 +302,7 @@ export class ManageClaims extends Component {
           onClickDelete={this.handleDeleteClaim}
           onClickSave={this.handleSaveClaim}
           onClickCreate={this.handleOpenClaimDialog}
+          dirty={this.state.dirty}
         />
         {this.state.selectedClaimId && (
           <div>

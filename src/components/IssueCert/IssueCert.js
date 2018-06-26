@@ -116,6 +116,7 @@ const defaultState = {
   recipients: [],
   email: '',
   testFields: {},
+  dirty: false,
 }
 
 export class IssueCert extends Component {
@@ -166,6 +167,7 @@ export class IssueCert extends Component {
       recipientDataFields: defaultState.recipientDataFields,
       selectedClaimDynamicFields: defaultState.selectedClaimDynamicFields,
       testFields: defaultState.testFields,
+      dirty: false,
     }
     const issuance = issuances.find(i => i.id === id)
     if (issuance) {
@@ -256,7 +258,7 @@ export class IssueCert extends Component {
     this.setState({ appIdDialogOpen: false })
   }
   handleChangeAppId = e => {
-    this.setState({ selectedAppId: e.target.value })
+    this.setState({ selectedAppId: e.target.value, dirty: true })
   }
 
   // handlers to manage claim templates
@@ -303,6 +305,7 @@ export class IssueCert extends Component {
   handleChangeClaim = e => {
     this.setState({
       ...this.changeClaim(e.target.value),
+      dirty: true,
     })
   }
 
@@ -339,6 +342,7 @@ export class IssueCert extends Component {
           this.setState({
             recipientDataFields: [...results.data[0]],
             recipients: parseRecipientData(results),
+            dirty: true,
           })
         },
       })
@@ -414,6 +418,7 @@ export class IssueCert extends Component {
           onClickSave={this.handleSaveIssuance}
           onClickCreate={this.handleOpenIssuanceDialog}
           locked={locked}
+          dirty={this.state.dirty}
         />
 
         {this.state.selectedIssuanceId && (
