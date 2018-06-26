@@ -89,6 +89,7 @@ export class ManageClaims extends Component {
       id: this.state.selectedClaimId,
       schema: this.state.selectedClaimSchema,
     })
+    this.setState({ dirty: false })
   }
   handleCreateClaim = values => {
     this.props.createClaimTemplate({

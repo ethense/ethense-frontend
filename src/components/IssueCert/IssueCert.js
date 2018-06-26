@@ -221,6 +221,7 @@ export class IssueCert extends Component {
       claimId: this.state.selectedClaimId,
       recipients: this.state.recipients.map(({ expanded, ...r }) => r),
     })
+    this.setState({ dirty: false })
   }
   handleOpenIssuanceDialog = () => {
     this.setState({ issuanceDialogOpen: true })
