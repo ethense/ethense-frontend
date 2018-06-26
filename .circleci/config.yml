@@ -77,8 +77,10 @@ jobs:
           name: Configure KUBECONFIG
           command: |
             if [ -n "${CIRCLE_BRANCH}" ]; then
+              echo "Setting up KUBECONFIG for staging"
               echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_staging.gpg > .circleci/kubeconfig
             elif [ -n "${CIRCLE_TAG}" ]; then
+              echo "Setting up KUBECONFIG for production"
               echo $GPG_KEY | gpg -d --passphrase-fd 0 --batch --yes .circleci/kubeconfig_staging.gpg > .circleci/kubeconfig
             fi
       - run:
@@ -86,9 +88,11 @@ jobs:
           command: |
             if [ -n "${CIRCLE_BRANCH}" ]; then
               export VERSION=$(git rev-parse --short HEAD)
+              echo "Deploying to staging"
               KUBECONFIG=.circleci/kubeconfig kubectl -n stage-ethense set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-stage:${VERSION}
             elif [ -n "${CIRCLE_TAG}" ]; then
               export VERSION=${CIRCLE_TAG}
+              echo "Deploying to production"
               KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-academy    set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION}
               KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-frankfurt  set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION}
               KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-melbourne  set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION}
