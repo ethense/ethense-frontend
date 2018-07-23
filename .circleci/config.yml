@@ -58,9 +58,13 @@ jobs:
               docker build --build-arg API_URL="https://academy.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION} .
               docker build --build-arg API_URL="https://frankfurt.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION} .
               docker build --build-arg API_URL="https://melbourne.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION} .
+              docker build --build-arg API_URL="https://india.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-india:${VERSION} .
+              docker build --build-arg API_URL="https://blockchainexe.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-blockchainexe:${VERSION} .
               docker push roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION}
               docker push roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION}
               docker push roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION}
+              docker push roromiscregistry.azurecr.io/ethense/frontend-india:${VERSION}
+              docker push roromiscregistry.azurecr.io/ethense/frontend-blockchainexe:${VERSION}
             fi
 
   deploy:
@@ -93,8 +97,10 @@ jobs:
             elif [ -n "${CIRCLE_TAG}" ]; then
               export VERSION=${CIRCLE_TAG}
               echo "Deploying to production"
-              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-academy    set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION}
-              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-frankfurt  set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION}
-              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-melbourne  set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-academy        set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-frankfurt      set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-melbourne      set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-india          set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-india:${VERSION}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-blockchainexe  set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-blockchainexe:${VERSION}
             fi
             rm -f .circleci/kubeconfig
