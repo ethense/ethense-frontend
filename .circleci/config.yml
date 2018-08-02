@@ -60,11 +60,13 @@ jobs:
               docker build --build-arg API_URL="https://melbourne.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION} .
               docker build --build-arg API_URL="https://india.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-india:${VERSION} .
               docker build --build-arg API_URL="https://blockchainexe.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-blockchainexe:${VERSION} .
+              docker build --build-arg API_URL="https://git.ethense.consensys.net/api" -t roromiscregistry.azurecr.io/ethense/frontend-git:${VERSION} .
               docker push roromiscregistry.azurecr.io/ethense/frontend-academy:${VERSION}
               docker push roromiscregistry.azurecr.io/ethense/frontend-frankfurt:${VERSION}
               docker push roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION}
               docker push roromiscregistry.azurecr.io/ethense/frontend-india:${VERSION}
               docker push roromiscregistry.azurecr.io/ethense/frontend-blockchainexe:${VERSION}
+              docker push roromiscregistry.azurecr.io/ethense/frontend-git:${VERSION}
             fi
 
   deploy:
@@ -102,5 +104,6 @@ jobs:
               KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-melbourne      set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-melbourne:${VERSION}
               KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-india          set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-india:${VERSION}
               KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-blockchainexe  set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-blockchainexe:${VERSION}
+              KUBECONFIG=.circleci/kubeconfig kubectl -n ethense-git            set image deploy/frontend frontend=roromiscregistry.azurecr.io/ethense/frontend-git:${VERSION}
             fi
             rm -f .circleci/kubeconfig
